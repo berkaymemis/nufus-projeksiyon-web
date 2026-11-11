@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E3A8A"/>
+      <stop offset="50%" stop-color="#0F766E"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <linearGradient id="curve" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FBBF24"/>
+      <stop offset="100%" stop-color="#34D399"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- Grid Lines -->
+  <path d="M64 416 L448 416" stroke="rgba(255,255,255,0.25)" stroke-width="4" stroke-linecap="round"/>
+  <path d="M64 96 L64 416" stroke="rgba(255,255,255,0.25)" stroke-width="4" stroke-linecap="round"/>
+  <!-- Buildings Silhouette -->
+  <rect x="96" y="240" width="48" height="176" fill="rgba(255,255,255,0.3)" rx="6"/>
+  <rect x="160" y="180" width="56" height="236" fill="rgba(255,255,255,0.4)" rx="6"/>
+  <rect x="232" y="220" width="52" height="196" fill="rgba(255,255,255,0.35)" rx="6"/>
+  <rect x="300" y="140" width="64" height="276" fill="rgba(255,255,255,0.45)" rx="6"/>
+  <rect x="380" y="200" width="48" height="216" fill="rgba(255,255,255,0.3)" rx="6"/>
+  <!-- Demographic Pyramid Bars in Center -->
+  <rect x="180" y="320" width="60" height="16" fill="#60A5FA" rx="4"/>
+  <rect x="256" y="320" width="68" height="16" fill="#F472B6" rx="4"/>
+  <rect x="195" y="290" width="45" height="16" fill="#60A5FA" rx="4"/>
+  <rect x="256" y="290" width="50" height="16" fill="#F472B6" rx="4"/>
+  <rect x="210" y="260" width="30" height="16" fill="#60A5FA" rx="4"/>
+  <rect x="256" y="260" width="32" height="16" fill="#F472B6" rx="4"/>
+  <!-- Projection Exponential Curve -->
+  <path d="M 80 390 Q 240 370 340 220 T 440 110" fill="none" stroke="url(#curve)" stroke-width="14" stroke-linecap="round"/>
+  <!-- Target Star -->
+  <circle cx="440" cy="110" r="14" fill="#FBBF24"/>
+  <circle cx="440" cy="110" r="22" fill="none" stroke="#FBBF24" stroke-width="4" opacity="0.6"/>
+</svg>

@@ -1,0 +1,12 @@
+name: "web_app"
+title: "Kentsel Demografi Pro — Standalone Web Application"
+version: "1.0.0"
+runtime: "python-3.12"
+dependencies: []
+entry_point: "server.py"
+live_endpoints:
+  - "/"
+  - "/classic"
+  - "/api/status"
+  - "/api/calculate"
+  - "/api/tuik-adnks"

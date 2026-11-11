@@ -1,0 +1,2582 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kentsel Demografi & Nüfus Projeksiyonu Pro</title>
+  <link rel="icon" type="image/svg+xml" href="/icon.svg">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1E3A8A">
+
+  <!-- Tailwind CSS & FontAwesome via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Chart.js & Leaflet via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- QRCode.js -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F1F5F9; }
+    ::-webkit-scrollbar-thumb { background: #94A3B8; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #64748B; }
+    .tab-active { border-bottom: 3px solid #2563EB; color: #1E3A8A; font-weight: 700; }
+    .tab-inactive { color: #64748B; border-bottom: 3px solid transparent; }
+    .tab-inactive:hover { color: #1E293B; }
+    #leafletMap { height: 420px; width: 100%; border-radius: 0.5rem; z-index: 10; }
+    @media (max-width: 640px) { #leafletMap { height: 320px; } }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col pb-12">
+
+  <!-- TOP APP BAR (MODERN & SLEEK) -->
+  <header class="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white shadow-md sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <img src="/icon.svg" alt="Logo" class="w-10 h-10 rounded-lg shadow bg-white/10 p-1">
+        <div>
+          <h1 class="text-base sm:text-lg font-extrabold tracking-tight flex items-center gap-2">
+            <span data-i18n="appTitle">KENTSEL DEMOGRAFİ & NÜFUS PROJEKSİYONU PRO</span>
+            <span class="hidden sm:inline-block bg-emerald-400 text-slate-950 text-xs px-2 py-0.5 rounded font-black">v1.0</span>
+          </h1>
+          <p data-i18n="appSubtitle" class="text-xs text-blue-200">Açık Kaynak Kentsel Planlama | Mert Çubukçu Metodolojisi & TÜİK Standartları</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- Switch to Classic Mode Button (One click return!) -->
+        <a href="/classic" title="Eski detaylı laboratuvar görünümüne geçin" class="bg-indigo-700/80 hover:bg-indigo-600 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-lg border border-indigo-400/30 shadow flex items-center gap-1.5 transition">
+          <span>🏛️</span>
+          <span class="hidden md:inline">Klasik Detaylı Mod</span>
+          <span class="md:hidden">Klasik</span>
+        </a>
+
+        <!-- Bilingual Switcher -->
+        <button id="btnLangToggle" onclick="toggleLanguage()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs sm:text-sm font-black px-3 py-1.5 rounded-lg shadow flex items-center gap-1.5 transition">
+          <span class="text-sm">🌐</span>
+          <span id="lblLang">English</span>
+        </button>
+
+        <!-- Phone connect -->
+        <button id="btnOpenQR" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-lg shadow flex items-center gap-1.5 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+          <span data-i18n="btnQR">📱 Telefondan Bağlan</span>
+        </button>
+
+        <!-- Excel Export -->
+        <button id="btnExportExcel" class="bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-lg shadow flex items-center gap-1.5 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          <span class="hidden sm:inline" data-i18n="btnExcel">Excel İndir (.xlsx)</span>
+          <span class="sm:hidden">Excel</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 mt-5 w-full flex-1 space-y-5">
+
+    <!-- ==================== 1. HERO QUICK EXPLORER (HIZLI İLÇE ARAMA & CANLI ÖZET) ==================== -->
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 sm:p-6 transition hover:shadow-md">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3 mb-4">
+        <div>
+          <h2 class="text-sm sm:text-base font-extrabold text-slate-800 flex items-center gap-2">
+            <span>🔍</span> <span data-i18n="quickSearchTitle">Hızlı İlçe Nüfus & Projeksiyon Seçici</span>
+          </h2>
+          <p class="text-xs text-slate-500 mt-0.5" data-i18n="quickSearchSub">Türkiye 81 İl ve 973 İlçe Resmi TÜİK ADNKS Veri Tabanı (2015–2024 Gerçek Trend Serisi)</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <label for="fileTuikAdnks" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-1.5 px-3 rounded-lg border border-slate-300 transition flex items-center gap-1.5 shadow-sm">
+            <span>📂</span> <span data-i18n="tuikUpload">Özel TÜİK Tablosu Yükle</span>
+          </label>
+          <input type="file" id="fileTuikAdnks" accept=".csv,.xlsx,.xls" class="hidden" onchange="handleTuikFileUpload(event)">
+        </div>
+      </div>
+
+      <!-- Search Controls -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="tuikProvLabel">1. İl Seçin (81 İl):</label>
+          <select id="selAdnksProv" onchange="onAdnksProvChanged()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs sm:text-sm text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 shadow-sm"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="tuikDistLabel">2. İlçe Seçin:</label>
+          <select id="selAdnksDist" onchange="onAdnksDistChanged()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs sm:text-sm text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 shadow-sm"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="targetYearLabel">3. Hedef Projeksiyon Yılı:</label>
+          <div class="flex items-center gap-2">
+            <input type="number" id="inpTargetYear1" oninput="onYearsChanged()" onchange="onYearsChanged(true)" value="2035" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs sm:text-sm font-black text-blue-700 focus:ring-2 focus:ring-blue-500 shadow-sm">
+            <input type="hidden" id="inpBaseYear" value="2024">
+            <input type="hidden" id="inpTargetYear2" value="2050">
+            <input type="hidden" id="inpBasePop" value="87528">
+            <input type="hidden" id="inpHouseholdSize" value="2.85">
+            <input type="hidden" id="inpHansenAlpha" value="2.0">
+            <input type="hidden" id="inpTotalJobs" value="39388">
+            <input type="hidden" id="inpBasicJobs" value="10503">
+            <input type="hidden" id="inpNewBasicJobs" value="3545">
+          </div>
+        </div>
+        <div>
+          <button type="button" onclick="applyAdnksDistrictToModel()" class="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-teal-600 hover:from-blue-500 hover:to-teal-500 text-white font-extrabold py-2.5 px-4 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-xs sm:text-sm">
+            <span>⚡</span> <span data-i18n="tuikApplyBtn">Bu İlçeyi Yükle & Hesapla</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Demographic Overview Bar -->
+      <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-2 text-slate-700 font-semibold">
+          <span id="adnksMetaText" class="bg-blue-50 text-blue-900 py-1 px-2.5 rounded-lg border border-blue-200">📍 Seçili: İZMİR / TİRE — 2024 TÜİK Nüfusu: 87.528 Kişi</span>
+          <span class="bg-amber-50 text-amber-900 py-1 px-2.5 rounded-lg border border-amber-200">👶 TFR: <strong id="lblCohortTfrBadge">1.29</strong></span>
+        </div>
+        <div class="flex items-center gap-3 text-slate-600 text-xs">
+          <span>👥 Toplam: <strong id="lblAdnksTotPop" class="text-slate-900 font-bold">87.528</strong></span>
+          <span>👨 Erkek: <strong id="lblAdnksMale" class="text-blue-700">43.510 (%49.7)</strong></span>
+          <span>👩 Kadın: <strong id="lblAdnksFemale" class="text-pink-700">44.018 (%50.3)</strong></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 2. FOUR CORE KPI CARDS (BÜYÜK & FERAH KARTLAR) ==================== -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- 1. Mevcut Nüfus -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-blue-900 uppercase tracking-wide" data-i18n="kpi1Title">1. Mevcut Nüfus</span>
+            <span class="text-lg">📍</span>
+          </div>
+          <p id="kpiBasePop" class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">87.528 Kişi</p>
+        </div>
+        <p class="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+          <span><span data-yr="base">2024</span> Başlangıç Yılı</span>
+          <span class="text-blue-600 font-bold">TÜİK ADNKS</span>
+        </p>
+      </div>
+
+      <!-- 2. Gelecek Hedef Nüfus -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-emerald-900 uppercase tracking-wide" data-i18n="kpiTargetPop">2. Gelecek Hedef Nüfus</span>
+            <span class="text-lg">📈</span>
+          </div>
+          <p id="kpiHighPop" class="text-2xl sm:text-3xl font-black text-emerald-700 mt-2">108.540 Kişi</p>
+        </div>
+        <p class="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+          <span>Hedef Yıl: <strong class="text-slate-800" data-yr="t1">2035</strong></span>
+          <span class="text-emerald-600 font-bold">Plan Kabulü</span>
+        </p>
+      </div>
+
+      <!-- 3. Model Uyumu & Trend -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-purple-900 uppercase tracking-wide" data-i18n="kpi5Title">3. En İyi Uyumlu Model</span>
+            <span class="text-lg">⭐</span>
+          </div>
+          <p id="kpiBestModel" class="text-xl sm:text-2xl font-black text-purple-700 mt-2">DOĞRUSAL</p>
+        </div>
+        <p class="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+          <span id="kpiBestModelR2" class="font-mono font-bold text-slate-700">R² = 0.9986</span>
+          <span class="text-purple-600 font-semibold">En Küçük Hata</span>
+        </p>
+      </div>
+
+      <!-- 4. MPYY İlave Donatı -->
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-rose-900 uppercase tracking-wide" data-i18n="kpi6Title">4. MPYY Donatı İhtiyacı</span>
+            <span class="text-lg">🏗️</span>
+          </div>
+          <p id="kpiMpyyHa" class="text-2xl sm:text-3xl font-black text-rose-700 mt-2">39.92 Ha</p>
+        </div>
+        <p class="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+          <span>Ek-2 Standart</span>
+          <span class="text-rose-600 font-bold">19.0 m² / Kişi</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- Hidden fallback elements for legacy JS hooks -->
+    <div class="hidden" style="display:none;">
+      <span id="kpiLowPop"></span>
+      <span id="kpiMidPop"></span>
+      <span id="districtMetaText"></span>
+      <span id="tableSummaryBadge"></span>
+      <div id="citationsList"></div>
+      <span id="econMultiplierK"></span>
+      <span id="econDepRatioB"></span>
+      <span id="econActivityRate"></span>
+      <span id="econNewTotalJobs"></span>
+      <span id="econMigrantPop"></span>
+    </div>
+
+    <!-- ==================== 3. FOUR STREAMLINED TABS (SADELEŞTİRİLMİŞ 4 ANA SEKME) ==================== -->
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+      <!-- Tab Navigation -->
+      <div class="bg-slate-50/80 border-b border-slate-200 px-4 flex overflow-x-auto text-xs sm:text-sm font-semibold">
+        <button onclick="switchTab('curves')" id="tabBtn-curves" class="tab-active py-3.5 px-4 whitespace-nowrap flex items-center gap-2 transition">
+          <span data-i18n="tabCurves">📈 1. Nüfus Trendi & 6 Model</span>
+        </button>
+        <button onclick="switchTab('cohort')" id="tabBtn-cohort" class="tab-inactive py-3.5 px-4 whitespace-nowrap flex items-center gap-2 transition">
+          <span data-i18n="tabCohort">👥 2. Yaş Piramidi & Kuşak-Bileşen</span>
+        </button>
+        <button onclick="switchTab('hansen')" id="tabBtn-hansen" class="tab-inactive py-3.5 px-4 whitespace-nowrap flex items-center gap-2 transition">
+          <span data-i18n="tabHansen">🗺️ 3. Mekânsal Harita & Mahalleler</span>
+        </button>
+        <button onclick="switchTab('mpyy')" id="tabBtn-mpyy" class="tab-inactive py-3.5 px-4 whitespace-nowrap flex items-center gap-2 transition">
+          <span data-i18n="tabMpyy">📐 4. Yasal Donatı Alanları (MPYY)</span>
+        </button>
+      </div>
+
+      <!-- TAB CONTENT AREA -->
+      <div class="p-5 sm:p-6">
+
+        <!-- ===== TAB 1: CURVE FITTING (6 MODELLİ PROJEKSİYON) ===== -->
+        <div id="tabContent-curves" class="space-y-5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="text-sm sm:text-base font-extrabold text-slate-800" data-i18n="curvesTitle">Matematiksel Eğri Uydurma ve Projeksiyon Karşılaştırması</h3>
+              <p class="text-xs text-slate-500" data-i18n="curvesSub">Geçmiş trend verilerine göre en küçük kareler yöntemiyle hesaplanan 6 projeksiyon modeli</p>
+            </div>
+            <span class="text-xs bg-blue-50 text-blue-800 font-bold px-3 py-1 rounded-full border border-blue-200">
+              <span id="curveRangeLabel">2015 - 2050</span> Projeksiyon Aralığı
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div class="lg:col-span-2 bg-slate-50/60 p-4 rounded-xl border border-slate-200">
+              <div class="h-80 w-full">
+                <canvas id="curveChart"></canvas>
+              </div>
+            </div>
+            <div class="bg-slate-50/60 p-4 rounded-xl border border-slate-200 flex flex-col justify-between space-y-3">
+              <div>
+                <h4 class="text-xs font-bold text-purple-900 uppercase mb-2">⭐ En Yüksek Uyuma Sahip Model</h4>
+                <div class="bg-white p-3 rounded-xl border border-purple-200 shadow-sm">
+                  <p class="text-xs font-bold text-purple-950" id="bestModelTitle">Doğrusal Trend</p>
+                  <p class="text-2xl font-black text-purple-700 mt-1" id="bestModelR2Display">R² = 0.9986</p>
+                  <p class="text-xs text-purple-900 font-mono mt-1" id="bestModelFormula">y = a + b*x</p>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed mt-3">
+                  <strong>Planlama Notu:</strong> Tek modele bağlı kalınmaz; Düşük (doğal artış), Orta (geçmiş trend) ve Yüksek (plan kabulü) senaryoları birlikte değerlendirilir.
+                </p>
+              </div>
+              <div class="pt-3 border-t border-slate-200 text-xs text-slate-600">
+                Hedef <strong data-yr="t1">2035</strong> Projeksiyon Aralığı: <span id="curveMinMaxRange" class="font-extrabold text-slate-800">85.000 - 110.000</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table class="w-full text-left text-xs text-slate-700">
+              <thead class="bg-slate-100 text-slate-600 font-bold uppercase border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3" data-i18n="thModel">Model Türü</th>
+                  <th class="py-2.5 px-3" data-i18n="thFormula">Matematiksel Formül</th>
+                  <th class="py-2.5 px-3 text-right" data-i18n="thR2">R² (Uyum)</th>
+                  <th class="py-2.5 px-3 text-right" data-i18n="thMape">SSE Hata</th>
+                  <th class="py-2.5 px-3 text-right"><span data-yr="t1">2035</span> Projeksiyonu</th>
+                  <th class="py-2.5 px-3 text-right"><span data-yr="t2">2050</span> Projeksiyonu</th>
+                  <th class="py-2.5 px-3" data-i18n="thEval">Değerlendirme</th>
+                </tr>
+              </thead>
+              <tbody id="curveModelsTableBody" class="divide-y divide-slate-200 bg-white"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ===== TAB 2: COHORT & PYRAMID (KUŞAK-BİLEŞEN) ===== -->
+        <div id="tabContent-cohort" class="hidden space-y-5">
+          <!-- 4 Dependency Badges -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <p class="text-[11px] font-bold text-slate-500 uppercase" data-i18n="kpiChildDep">Çocuk Bağımlılığı (0-14)</p>
+              <p id="indChildDep" class="text-xl font-black text-blue-700 mt-1">%24.57</p>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <p class="text-[11px] font-bold text-slate-500 uppercase" data-i18n="kpiOldDep">Yaşlı Bağımlılığı (65+)</p>
+              <p id="indOldDep" class="text-xl font-black text-amber-700 mt-1">%15.65</p>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <p class="text-[11px] font-bold text-slate-500 uppercase" data-i18n="kpiTotDep">Toplam Bağımlılık Oranı</p>
+              <p id="indTotalDep" class="text-xl font-black text-purple-700 mt-1">%40.23</p>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <p class="text-[11px] font-bold text-slate-500 uppercase" data-i18n="kpiAgingIdx">Yaşlanma İndeksi</p>
+              <p id="indAgingIdx" class="text-xl font-black text-rose-700 mt-1">63.71</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <!-- Pyramid Chart -->
+            <div class="bg-slate-50/60 p-4 rounded-xl border border-slate-200">
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="text-xs font-bold text-slate-800" data-i18n="pyramidTitle">Demografik Yaş-Cinsiyet Nüfus Piramidi (<span id="pyramidYearLabel">2024</span>)</h4>
+                <div class="flex items-center gap-2">
+                  <select id="selPyramidYear" onchange="onPyramidYearChanged()" class="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white font-bold"></select>
+                  <span class="text-[11px] text-slate-500">Mavi: Erkek | Pembe: Kadın</span>
+                </div>
+              </div>
+              <div class="h-80 w-full">
+                <canvas id="pyramidChart"></canvas>
+              </div>
+            </div>
+
+            <!-- 5-Year Cohort Table -->
+            <div class="bg-slate-50/60 p-4 rounded-xl border border-slate-200 flex flex-col">
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="text-xs font-bold text-slate-800 uppercase" data-i18n="cohortTableTitle">5'er Yıllık Yaş Grupları ve TÜİK Yaşam Oranları</h4>
+                <span class="text-[11px] text-slate-500 font-mono">TÜİK TD-10 Hayat Tablosu</span>
+              </div>
+              <div class="overflow-y-auto max-h-80 rounded-lg border border-slate-200 bg-white">
+                <table class="w-full text-left text-xs text-slate-700">
+                  <thead class="bg-slate-100 text-slate-600 font-bold uppercase border-b border-slate-200 sticky top-0">
+                    <tr>
+                      <th class="py-2 px-3">Yaş Grubu</th>
+                      <th class="py-2 px-3 text-right"><span data-yr="base">2024</span> Erkek</th>
+                      <th class="py-2 px-3 text-right"><span data-yr="base">2024</span> Kadın</th>
+                      <th class="py-2 px-3 text-right"><span data-yr="base">2024</span> Toplam</th>
+                      <th class="py-2 px-3 text-right"><span data-yr="t1">2035</span> Hedef</th>
+                      <th class="py-2 px-3 text-right">Sx (Erkek)</th>
+                      <th class="py-2 px-3 text-right">Sx (Kadın)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cohortTableBody" class="divide-y divide-slate-200"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== TAB 3: HANSEN & MAP (MEKÂNSAL DAĞITIM VE HARİTA) ===== -->
+        <div id="tabContent-hansen" class="hidden space-y-5">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <!-- Map -->
+            <div class="bg-slate-50/60 p-4 rounded-xl border border-slate-200">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-xs font-bold text-slate-800" data-i18n="hansenMapTitle">İnteraktif Kentsel Mekânsal Harita (Leaflet)</h3>
+                <span class="text-xs text-slate-500" data-i18n="hansenMapLegend">Yeşil: Uygun | Kırmızı: Kapasite Aşımı</span>
+              </div>
+              <div id="leafletMap"></div>
+            </div>
+
+            <!-- Hansen Chart -->
+            <div class="bg-slate-50/60 p-4 rounded-xl border border-slate-200">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-xs font-bold text-slate-800" data-i18n="hansenChartTitle">Hansen Modeli Alt Bölge Nüfus Dağıtımı</h3>
+                <span class="text-xs text-teal-700 font-mono">Gi = ΔP × (Ai · di^-α) / Σ(...)</span>
+              </div>
+              <div class="h-80 w-full">
+                <canvas id="hansenChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Saturation Table -->
+          <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+            <table class="w-full text-left text-xs text-slate-700">
+              <thead class="bg-slate-100 text-slate-600 font-bold uppercase border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Mahalle / Alt Bölge</th>
+                  <th class="py-2.5 px-3 text-right">Mevcut (<span data-yr="base">2024</span>)</th>
+                  <th class="py-2.5 px-3 text-right">Dağıtılan İlave (Gi)</th>
+                  <th class="py-2.5 px-3 text-right">Hedef Nüfus (<span data-yr="t1">2035</span>)</th>
+                  <th class="py-2.5 px-3 text-right" data-i18n="thHouseNeed">Konut İhtiyacı</th>
+                  <th class="py-2.5 px-3 text-right" data-i18n="thSaturation">Doygunluk (%)</th>
+                  <th class="py-2.5 px-3" data-i18n="thCapStatus">Kapasite Durumu</th>
+                </tr>
+              </thead>
+              <tbody id="hansenTableBody" class="divide-y divide-slate-200"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ===== TAB 4: MPYY STANDARTS ===== -->
+        <div id="tabContent-mpyy" class="hidden space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm sm:text-base font-extrabold text-slate-800" data-i18n="mpyyTitle">Mekânsal Planlar Yapım Yönetmeliği (Ek-2) Donatı Standartları</h3>
+              <p class="text-xs text-slate-500">Hedef <span data-yr="t1">2035</span> Nüfus Artışı İçin Zorunlu Asgari Sosyal ve Teknik Altyapı Alanları</p>
+            </div>
+            <span class="text-xs font-black bg-rose-100 text-rose-800 py-1 px-3 rounded-full">Kişi Başı 19.0 m² Standart</span>
+          </div>
+          <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+            <table class="w-full text-left text-xs text-slate-700">
+              <thead class="bg-slate-100 text-slate-600 font-bold uppercase border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Donatı Türü</th>
+                  <th class="py-2.5 px-3 text-right">Yasal Standart (m²/kişi)</th>
+                  <th class="py-2.5 px-3 text-right">Gereken Alan (m²)</th>
+                  <th class="py-2.5 px-3 text-right">Gereken Alan (Hektar)</th>
+                </tr>
+              </thead>
+              <tbody id="mpyyTableBody" class="divide-y divide-slate-200"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== 4. COLLAPSIBLE ADVANCED SETTINGS (GELİŞMİŞ AYARLAR ÇEKMECESİ) ==================== -->
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+      <button onclick="toggleAdvancedDrawer()" class="w-full p-4 bg-slate-50/80 hover:bg-slate-100/80 text-left flex items-center justify-between text-xs sm:text-sm font-bold text-slate-700 transition">
+        <span class="flex items-center gap-2">
+          <span>⚙️</span>
+          <span>Gelişmiş Plan Parametreleri, Mahalle Verileri ve İktisadi Çarpanları Düzenle (İsteğe Bağlı)</span>
+        </span>
+        <span id="drawerToggleIcon" class="text-slate-400 font-mono text-sm">▼ Göster</span>
+      </button>
+
+      <div id="advancedDrawer" class="hidden p-5 sm:p-6 border-t border-slate-200 space-y-5 bg-white">
+        <!-- Ready Templates & File Upload -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Hazır Plan Şablonu:</label>
+            <select id="selectTemplate" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-semibold">
+              <option value="tire_88_adnks">⭐ Tire İlçesi (TÜİK ADNKS - 88 Mahalle - 87,528 Nüfus)</option>
+              <option value="standart_kentsel_plan">Tire 1/5000 Revizyon Nazım İmar Planı (21 Mahalle - 65,395 Kişi)</option>
+              <option value="hizli_buyuyen_sanayi">Torbalı İlçesi (Ağır Sanayi, OSB ve Lojistik Kenti)</option>
+              <option value="metropoliten_alt_bolge">Aliağa İlçesi (Petrokimya, Ağır Sanayi ve Liman Havzası)</option>
+              <option value="tarimsal_kirsal">Ödemiş İlçesi (Tarımsal Havza ve Kırsal Merkez)</option>
+              <option value="ozel_serbest">⚙️ Özel Kullanıcı Tanımlı Çalışma Alanı (Serbest Giriş)</option>
+              <option id="optSelectedAdnks" class="hidden"></option>
+              <option id="optUploadedFile" class="hidden"></option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Excel (.xlsx) / CSV Dosyası Yükle:</label>
+            <input type="file" id="fileUploader" accept=".xlsx,.xls,.csv" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+          </div>
+          <div class="flex gap-2">
+            <button onclick="downloadTemplate('settlement')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg border border-slate-300">
+              📥 Boş Şablon İndir
+            </button>
+            <button onclick="downloadTemplate('cohort')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg border border-slate-300">
+              👥 Yaş Şablonu İndir
+            </button>
+          </div>
+        </div>
+
+        <!-- Editable Settlements Table -->
+        <div class="rounded-xl border border-slate-200 overflow-hidden">
+          <div class="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+            <h4 class="text-xs font-bold text-slate-800">Alt Bölge & Mahalle Parametreleri (İstihdam, Boş Alan, Mesafe, Kapasite)</h4>
+            <div class="flex items-center gap-2">
+              <button onclick="addSubzoneRow()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-1 px-2.5 rounded">➕ Mahalle Ekle</button>
+              <button id="btnRecalculate" onclick="recalculate()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-1 px-2.5 rounded">💾 Değişiklikleri Kaydet & Hesapla</button>
+            </div>
+          </div>
+          <div class="overflow-x-auto max-h-60">
+            <table class="w-full text-left text-xs text-slate-700">
+              <thead class="bg-slate-100 text-slate-600 font-bold uppercase sticky top-0 border-b border-slate-200">
+                <tr>
+                  <th class="py-2 px-2 text-center">#</th>
+                  <th class="py-2 px-2">Mahalle Adı</th>
+                  <th class="py-2 px-2 text-right">Mevcut</th>
+                  <th class="py-2 px-2 text-right">İstihdam</th>
+                  <th class="py-2 px-2 text-right">Boş Alan (Ha)</th>
+                  <th class="py-2 px-2 text-right">Mesafe (Dk)</th>
+                  <th class="py-2 px-2 text-right">Kapasite</th>
+                  <th class="py-2 px-2 text-center">Sil</th>
+                </tr>
+              </thead>
+              <tbody id="settlementsTableBody" class="divide-y divide-slate-200 bg-white"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Economic Base Multiplier & Shocks -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Mert Çubukçu Çarpanları -->
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs">
+            <h4 class="font-bold text-slate-800">🏛️ Prof. Dr. Mert Çubukçu Resmi Çarpanı</h4>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">İl:</label>
+                <select id="selProvince" onchange="onProvinceChanged()" class="w-full bg-white border border-slate-300 rounded p-1.5 text-xs font-semibold"></select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">İlçe:</label>
+                <select id="selDistrict" onchange="onDistrictChanged()" class="w-full bg-white border border-slate-300 rounded p-1.5 text-xs font-semibold"></select>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 pt-1">
+              <button type="button" id="btnMethodLQ" onclick="selectMultiplierMethod('LQ')" class="flex-1 py-1.5 px-2 rounded border text-xs font-bold bg-cyan-100 border-cyan-400 text-blue-900">
+                Konum Katsayısı (LQ): <span id="badgeLQVal">3.271</span>
+              </button>
+              <button type="button" id="btnMethodMG" onclick="selectMultiplierMethod('MG')" class="flex-1 py-1.5 px-2 rounded border text-xs font-bold bg-white border-slate-300 text-slate-700">
+                Min. Gereksinim (MG): <span id="badgeMGVal">2.295</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Demografik Şoklar -->
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs">
+            <div class="flex items-center justify-between">
+              <h4 class="font-bold text-slate-800">⚡ Demografik Şok & Yatırım Simülatörü</h4>
+              <button onclick="addShockModal()" class="bg-blue-600 text-white font-bold py-1 px-2 rounded text-[11px]">➕ Şok Ekle</button>
+            </div>
+            <div class="overflow-x-auto max-h-32 bg-white rounded border border-slate-200">
+              <table class="w-full text-left text-[11px]">
+                <thead class="bg-slate-100 font-bold"><tr><th class="p-1.5">Yıl</th><th class="p-1.5">Şok Adı</th><th class="p-1.5 text-right">Etki</th></tr></thead>
+                <tbody id="shocksTableBody" class="divide-y divide-slate-200"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- QR CODE MODAL FOR PHONE CONNECTION -->
+  <div id="qrModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b pb-2">
+        <h3 class="text-base font-bold text-slate-800 flex items-center gap-1.5">
+          <span>📱 Telefondan Bağlan</span>
+        </h3>
+        <button onclick="closeQRModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+      </div>
+      <p class="text-xs text-slate-600 text-left">
+        <strong>1.</strong> Bilgisayarınız ve cep telefonunuz aynı Wi-Fi ağına bağlıyken kameranızla okutun:<br>
+      </p>
+      <div class="flex justify-center p-2 bg-slate-50 rounded-lg border border-slate-200">
+        <div id="qrCodeContainer"></div>
+      </div>
+      <div class="bg-slate-100 p-2.5 rounded text-xs font-mono text-slate-800 break-all select-all">
+        <span id="qrLanUrl">http://...</span>
+      </div>
+      <button onclick="closeQRModal()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded-lg text-xs transition">
+        Anladım, Kapat
+      </button>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT APPLICATION LOGIC -->
+  <script>
+    function toggleAdvancedDrawer() {
+      const d = document.getElementById("advancedDrawer");
+      const icon = document.getElementById("drawerToggleIcon");
+      if (d.classList.contains("hidden")) {
+        d.classList.remove("hidden");
+        if (icon) icon.textContent = "▲ Gizle";
+      } else {
+        d.classList.add("hidden");
+        if (icon) icon.textContent = "▼ Göster";
+      }
+    }
+
+    // State
+    let state = {
+      templates: {},
+      currentTemplateKey: "standart_kentsel_plan",
+      currentData: null,
+      subzones: [],
+      macroHistory: [],
+      shocks: [],
+      calculationResult: null,
+      serverStatus: null,
+      adnksData: {},
+      districtMultipliers: {},
+      activeMultiplierMethod: 'LQ'
+    };
+
+    let curveChartInstance = null;
+    let pyramidChartInstance = null;
+    let hansenChartInstance = null;
+    let leafletMapInstance = null;
+    let leafletMarkersGroup = null;
+
+    // Service Worker Registration & Cache Refresh for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
+    }
+    if ('caches' in window) {
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v5') caches.delete(k); })).catch(() => {});
+    }
+
+    // Initialize App on DOM Ready
+    document.addEventListener("DOMContentLoaded", async () => {
+      applyLanguage(currentLang);
+      await fetchServerStatus();
+      await fetchTemplates();
+      await fetchTuikAdnks();
+      await fetchDistrictMultipliers();
+      await fetchCitations();
+      setupEventListeners();
+      refreshYearLabels();
+      applyLanguage(currentLang);
+      switchTab('curves');
+    });
+
+    async function fetchServerStatus() {
+      try {
+        const res = await fetch("/api/status");
+        if (res.ok) {
+          state.serverStatus = await res.json();
+          const lanUrl = state.serverStatus.lan_url || window.location.origin;
+          document.getElementById("qrLanUrl").innerText = lanUrl;
+          renderQRCode(lanUrl);
+        }
+      } catch (err) {
+        console.error("Status check failed:", err);
+      }
+    }
+
+    function renderQRCode(url) {
+      const container = document.getElementById("qrCodeContainer");
+      container.innerHTML = "";
+      if (typeof QRCode !== "undefined") {
+        new QRCode(container, {
+          text: url,
+          width: 180,
+          height: 180,
+          colorDark: "#1E3A8A",
+          colorLight: "#FFFFFF",
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } else {
+        container.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(url)}" alt="QR Code">`;
+      }
+    }
+
+    async function fetchTemplates() {
+      try {
+        const res = await fetch("/api/templates");
+        if (res.ok) {
+          const data = await res.json();
+          state.templates = data.templates || {};
+          const defaultKey = document.getElementById("selectTemplate").value || "tire_88_adnks";
+          loadTemplate(defaultKey);
+        }
+      } catch (err) {
+        console.error("Templates fetch failed:", err);
+      }
+    }
+
+    async function fetchTuikAdnks() {
+      try {
+        const res = await fetch("/api/tuik-adnks");
+        if (res.ok) {
+          const data = await res.json();
+          state.adnksData = data.districts || {};
+          const provs = data.provinces || Object.keys(state.adnksData);
+
+          const selP = document.getElementById("selAdnksProv");
+          if (!selP) return;
+          selP.innerHTML = "";
+          provs.forEach(p => {
+            const opt = document.createElement("option");
+            opt.value = p;
+            opt.innerText = p;
+            if (p === "İZMİR" || p === "IZMIR") opt.selected = true;
+            selP.appendChild(opt);
+          });
+
+          onAdnksProvChanged(true);
+        }
+      } catch (err) {
+        console.error("TÜİK ADNKS fetch failed:", err);
+      }
+    }
+
+    function onAdnksProvChanged(isInitial = false) {
+      const selP = document.getElementById("selAdnksProv");
+      const selD = document.getElementById("selAdnksDist");
+      if (!selP || !selD) return;
+      const prov = selP.value;
+      const dists = state.adnksData[prov] || {};
+
+      selD.innerHTML = "";
+      Object.keys(dists).sort().forEach(d => {
+        const opt = document.createElement("option");
+        opt.value = d;
+        opt.innerText = d;
+        if (d === "TIRE") opt.selected = true;
+        selD.appendChild(opt);
+      });
+
+      onAdnksDistChanged(!isInitial);
+    }
+
+    function onAdnksDistChanged(triggerRecalc = false) {
+      const selP = document.getElementById("selAdnksProv");
+      const selD = document.getElementById("selAdnksDist");
+      if (!selP || !selD) return;
+      const prov = selP.value;
+      const dist = selD.value;
+
+      const dData = (state.adnksData[prov] && state.adnksData[prov][dist]) || { pop_2024: 87528, male: 43510, female: 44018, male_pct: 49.7, female_pct: 50.3, tfr: 1.29 };
+      state.currentTfr = dData.tfr || 1.51;
+      state.currentMaleRatio = (dData.male && dData.female) ? (dData.male / (dData.male + dData.female)) : undefined;
+
+      const lblTot = document.getElementById("lblAdnksTotPop");
+      const lblM = document.getElementById("lblAdnksMale");
+      const lblF = document.getElementById("lblAdnksFemale");
+      const meta = document.getElementById("adnksMetaText");
+      const bTfr = document.getElementById("lblCohortTfrBadge");
+
+      const isEn = currentLang === 'en';
+      const loc = isEn ? 'en-US' : 'tr-TR';
+      const pSuf = isEn ? 'People' : 'Kişi';
+      if (lblTot) lblTot.innerText = `${dData.pop_2024.toLocaleString(loc)} ${pSuf}`;
+      if (lblM) lblM.innerText = `${dData.male.toLocaleString(loc)} (%${dData.male_pct})`;
+      if (lblF) lblF.innerText = `${dData.female.toLocaleString(loc)} (%${dData.female_pct})`;
+      if (bTfr) bTfr.innerText = (dData.tfr || 1.51).toFixed(2);
+      if (meta) meta.innerText = isEn
+        ? `📍 Selected: ${prov} / ${dist} — 2024 TÜİK Population: ${dData.pop_2024.toLocaleString(loc)} People | Fertility (TFR): ${(dData.tfr || 1.51).toFixed(2)} | 10-Year Trend Ready`
+        : `📍 Seçili: ${prov} / ${dist} — 2024 TÜİK Nüfusu: ${dData.pop_2024.toLocaleString(loc)} Kişi | Doğurganlık (TFR): ${(dData.tfr || 1.51).toFixed(2)} | 10 Yıllık Trend Hazır`;
+      // Haritayı bu ilçeye hazırla (önbellekte yoksa arka planda konum çöz)
+      try {
+        const gk = `${trNorm(prov)}/${trNorm(dist)}`;
+        if (!getGeoCache()[gk]) geocodeDistrictCenter(prov, dist, gk);
+      } catch (e) {}
+    }
+
+    function applyAdnksDistrictToModel() {
+      const selP = document.getElementById("selAdnksProv");
+      const selD = document.getElementById("selAdnksDist");
+      if (!selP || !selD) return;
+      const prov = selP.value;
+      const dist = selD.value;
+
+      const dData = state.adnksData[prov] && state.adnksData[prov][dist];
+      if (!dData) return;
+
+      const pTot = dData.pop_2024;
+      state.currentTfr = dData.tfr || 1.51;
+      state.currentMaleRatio = (dData.male && dData.female) ? (dData.male / (dData.male + dData.female)) : undefined;
+      state.customCohort = null; // Reset custom cohort so district profile takes effect
+      const bTfr = document.getElementById("lblCohortTfrBadge");
+      if (bTfr) bTfr.innerText = (dData.tfr || 1.51).toFixed(2);
+
+      document.getElementById("inpBaseYear").value = 2024;
+      refreshYearLabels();
+      document.getElementById("inpBasePop").value = pTot;
+      document.getElementById("inpTotalJobs").value = Math.round(pTot * 0.45);
+      document.getElementById("inpBasicJobs").value = Math.round(pTot * 0.12);
+      // Yeni temel istihdam yatırımı ilçe ölçeğine göre ölçeklenir (Tire referansı: 2.650 / 65.395 ≈ %4,05)
+      const inpNbj = document.getElementById("inpNewBasicJobs");
+      if (inpNbj) inpNbj.value = Math.max(10, Math.round(pTot * 0.0405));
+
+      if (state.currentData) {
+        state.currentData.base_pop = pTot;
+        state.currentData.base_year = 2024;
+        state.currentData.years_hist = dData.years || [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
+        state.currentData.pop_hist = dData.pop_history;
+      }
+
+      // Realistic Urban Planning Parameters (Prof. Dr. K. Mert Çubukçu / KUZİP Standartları)
+      const pM = Math.round(pTot * 0.35);
+      const pG = Math.round(pTot * 0.25);
+      const pS = Math.round(pTot * 0.15);
+      const pC = Math.round(pTot * 0.15);
+      const pK = Math.max(1, pTot - (pM + pG + pS + pC));
+      const distName = dData.display_name || dist;
+
+      state.subzones = [
+        { id: 1, name: `${distName} Merkez Mah.`, current_pop: pM, base_pop: pM, employment: Math.round(pM * 0.45), jobs: Math.round(pM * 0.45), vacant_area_ha: 8.0, capacity_ha: 8.0, dist_to_center_min: 1.5, distance_to_center_min: 1.5, plan_capacity_pop: Math.round(pM * 1.65), plan_pop_capacity: Math.round(pM * 1.65) },
+        { id: 2, name: `${distName} Yeni Gelişme Mah.`, current_pop: pG, base_pop: pG, employment: Math.round(pG * 0.35), jobs: Math.round(pG * 0.35), vacant_area_ha: 55.0, capacity_ha: 55.0, dist_to_center_min: 3.0, distance_to_center_min: 3.0, plan_capacity_pop: Math.round(pG * 2.80), plan_pop_capacity: Math.round(pG * 2.80) },
+        { id: 3, name: `${distName} Sanayi & Ticaret Bölgesi`, current_pop: pS, base_pop: pS, employment: Math.round(pS * 0.70), jobs: Math.round(pS * 0.70), vacant_area_ha: 30.0, capacity_ha: 30.0, dist_to_center_min: 4.5, distance_to_center_min: 4.5, plan_capacity_pop: Math.round(pS * 2.20), plan_pop_capacity: Math.round(pS * 2.20) },
+        { id: 4, name: `${distName} Cumhuriyet Konutları`, current_pop: pC, base_pop: pC, employment: Math.round(pC * 0.30), jobs: Math.round(pC * 0.30), vacant_area_ha: 35.0, capacity_ha: 35.0, dist_to_center_min: 3.5, distance_to_center_min: 3.5, plan_capacity_pop: Math.round(pC * 2.50), plan_pop_capacity: Math.round(pC * 2.50) },
+        { id: 5, name: `${distName} Kırsal Çevre Yerleşim`, current_pop: pK, base_pop: pK, employment: Math.round(pK * 0.25), jobs: Math.round(pK * 0.25), vacant_area_ha: 45.0, capacity_ha: 45.0, dist_to_center_min: 7.5, distance_to_center_min: 7.5, plan_capacity_pop: Math.round(pK * 1.80), plan_pop_capacity: Math.round(pK * 1.80) }
+      ];
+
+      // Update macro history
+      if (dData.years && dData.pop_history) {
+        state.macroHistory = dData.years.map((y, i) => ({ year: y, pop: dData.pop_history[i] }));
+      }
+
+      // Update template dropdown text
+      const selTmpl = document.getElementById("selectTemplate");
+      if (selTmpl) {
+        let optAdnks = document.getElementById("optSelectedAdnks");
+        if (!optAdnks) {
+          optAdnks = document.createElement("option");
+          optAdnks.id = "optSelectedAdnks";
+          selTmpl.prepend(optAdnks);
+        }
+        optAdnks.value = "tuik_adnks_selected";
+        optAdnks.innerText = `🏛️ ${prov} / ${distName} (TÜİK ADNKS - ${pTot.toLocaleString('tr-TR')} Kişi)`;
+        selTmpl.value = "tuik_adnks_selected";
+        state.currentTemplateKey = "tuik_adnks_selected";
+      }
+
+      renderSettlementsTable();
+
+      // Sync Tab 4 (Economic Base Multiplier)
+      const selP4 = document.getElementById("selProvince");
+      const selD4 = document.getElementById("selDistrict");
+      if (selP4 && selD4) {
+        selP4.value = prov;
+        onProvinceChanged();
+        selD4.value = dist;
+        onDistrictChanged(false);
+      }
+
+      recalculate();
+      alert(`🏛️ TÜİK ADNKS Resmi Verisi Yüklendi!\n\n📍 ${prov} / ${distName}\n👥 2024 Nüfusu: ${pTot.toLocaleString('tr-TR')} Kişi\n👨 Erkek: ${dData.male.toLocaleString('tr-TR')} (%${dData.male_pct})\n👩 Kadın: ${dData.female.toLocaleString('tr-TR')} (%${dData.female_pct})\n👶 İlin TÜİK Doğurganlık Hızı (TFR): ${(dData.tfr || 1.51).toFixed(2)}\n🏘️ 5 Temsili Alt Bölge & Mahalle Oluşturuldu\n📈 10 Yıllık Geçmiş Trend Serisi Modellere Aktarıldı.`);
+    }
+
+    async function handleTuikFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64 = e.target.result;
+        try {
+          const res = await fetch("/api/upload-tuik-adnks", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ filename: file.name, file_base64: base64 })
+          });
+          const data = await res.json();
+          if (data.success) {
+            state.subzones = data.subzones;
+            renderSubzonesTable();
+
+            document.getElementById("inpBasePop").value = data.total_pop;
+            if (state.currentData) state.currentData.base_pop = data.total_pop;
+
+            if (data.province && data.province !== "Bilinmiyor") {
+              const selP = document.getElementById("selAdnksProv");
+              if (selP) {
+                for (let opt of selP.options) {
+                  if (opt.value.toUpperCase() === data.province.toUpperCase()) {
+                    selP.value = opt.value;
+                    onAdnksProvChanged();
+                    break;
+                  }
+                }
+              }
+            }
+            if (data.district && data.district !== "Bilinmiyor") {
+              const selD = document.getElementById("selAdnksDist");
+              if (selD) {
+                for (let opt of selD.options) {
+                  if (opt.value.toUpperCase() === data.district.toUpperCase()) {
+                    selD.value = opt.value;
+                    onAdnksDistChanged();
+                    break;
+                  }
+                }
+              }
+            }
+
+            recalculate();
+            alert(`🎉 TÜİK ADNKS Tablosu Başarıyla Ayrıştırıldı!\n\n📍 ${data.province} / ${data.district}\n🏘️ Mahalle Sayısı: ${data.subzones_count}\n👥 Toplam Nüfus: ${data.total_pop.toLocaleString('tr-TR')} Kişi\n👨 Erkek: ${data.total_male.toLocaleString('tr-TR')} (%${data.male_pct})\n👩 Kadın: ${data.total_female.toLocaleString('tr-TR')} (%${data.female_pct})`);
+          } else {
+            alert("TÜİK tablosu okunamadı: " + (data.error || "Geçersiz format"));
+          }
+        } catch (err) {
+          alert("Yükleme hatası: " + err);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function fetchDistrictMultipliers() {
+      try {
+        const res = await fetch("/api/district-multipliers");
+        if (res.ok) {
+          const data = await res.json();
+          state.districtMultipliers = data.districts || {};
+          const provs = data.provinces || Object.keys(state.districtMultipliers);
+
+          const selP = document.getElementById("selProvince");
+          if (!selP) return;
+          selP.innerHTML = "";
+          provs.forEach(p => {
+            const opt = document.createElement("option");
+            opt.value = p;
+            opt.innerText = p;
+            if (p === "İZMİR" || p === "IZMIR") opt.selected = true;
+            selP.appendChild(opt);
+          });
+
+          onProvinceChanged(true);
+        }
+      } catch (err) {
+        console.error("District multipliers fetch failed:", err);
+      }
+    }
+
+    function onProvinceChanged(isInitial = false) {
+      const selP = document.getElementById("selProvince");
+      const selD = document.getElementById("selDistrict");
+      if (!selP || !selD) return;
+      const prov = selP.value;
+      const dists = state.districtMultipliers[prov] || {};
+
+      selD.innerHTML = "";
+      Object.keys(dists).sort().forEach(d => {
+        const opt = document.createElement("option");
+        opt.value = d;
+        opt.innerText = d;
+        if (d === "TIRE") opt.selected = true;
+        selD.appendChild(opt);
+      });
+
+      onDistrictChanged(!isInitial);
+    }
+
+    function onDistrictChanged(triggerRecalc = true) {
+      const selP = document.getElementById("selProvince");
+      const selD = document.getElementById("selDistrict");
+      if (!selP || !selD) return;
+      const prov = selP.value;
+      const dist = selD.value;
+
+      const distData = (state.districtMultipliers[prov] && state.districtMultipliers[prov][dist]) || { bm_lq: 3.271, bm_mg: 2.295, pop_2000: 42988 };
+
+      const bLQ = document.getElementById("badgeLQVal");
+      const bMG = document.getElementById("badgeMGVal");
+      if (bLQ) bLQ.innerText = distData.bm_lq.toFixed(3);
+      if (bMG) bMG.innerText = distData.bm_mg.toFixed(3);
+
+      const isEn = currentLang === 'en';
+      const loc = isEn ? 'en-US' : 'tr-TR';
+      const activeK = state.activeMultiplierMethod === 'MG' ? distData.bm_mg : distData.bm_lq;
+      const popStr = distData.pop_2000 ? `${distData.pop_2000.toLocaleString(loc)} ${isEn ? 'People' : 'Kişi'}` : (isEn ? 'Unknown' : 'Bilinmiyor');
+      const meta = document.getElementById("districtMetaText");
+      if (meta) {
+        meta.innerText = isEn
+          ? `📍 Selected: ${prov} / ${dist} — 2000 Urban Population: ${popStr} | Active Base Multiplier (k): ${activeK.toFixed(3)} (${state.activeMultiplierMethod})`
+          : `📍 Seçili: ${prov} / ${dist} — 2000 Şehir Nüfusu: ${popStr} | Aktif Baz Çarpanı (k): ${activeK.toFixed(3)} (${state.activeMultiplierMethod})`;
+      }
+
+      // Update basic jobs input
+      const totJobs = parseInt(document.getElementById("inpTotalJobs").value) || 35000;
+      const bJobsInput = document.getElementById("inpBasicJobs");
+      if (bJobsInput) {
+        bJobsInput.value = Math.round(totJobs / activeK);
+      }
+
+      if (triggerRecalc) {
+        recalculate();
+      }
+    }
+
+    function selectMultiplierMethod(method) {
+      state.activeMultiplierMethod = method;
+      const btnLQ = document.getElementById("btnMethodLQ");
+      const btnMG = document.getElementById("btnMethodMG");
+
+      if (method === 'LQ') {
+        if (btnLQ) btnLQ.className = "py-2 px-3 rounded-lg border text-xs font-bold text-left transition bg-cyan-500/30 border-cyan-400 text-cyan-200 shadow-sm ring-1 ring-cyan-400";
+        if (btnMG) btnMG.className = "py-2 px-3 rounded-lg border text-xs font-bold text-left transition bg-blue-950/60 border-blue-600 text-slate-300 hover:border-blue-400";
+      } else {
+        if (btnMG) btnMG.className = "py-2 px-3 rounded-lg border text-xs font-bold text-left transition bg-cyan-500/30 border-cyan-400 text-cyan-200 shadow-sm ring-1 ring-cyan-400";
+        if (btnLQ) btnLQ.className = "py-2 px-3 rounded-lg border text-xs font-bold text-left transition bg-blue-950/60 border-blue-600 text-slate-300 hover:border-blue-400";
+      }
+      onDistrictChanged(true);
+    }
+
+    async function handleMultiplierUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async (evt) => {
+        try {
+          const res = await fetch("/api/upload-multipliers", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ filename: file.name, file_base64: evt.target.result })
+          });
+          const result = await res.json();
+          if (result.success) {
+            alert(`🎉 ${result.message}\n${result.updated_provinces} İl ve ${result.total_districts} İlçe güncellendi!`);
+            await fetchDistrictMultipliers();
+          } else {
+            alert("Çarpan yükleme hatası: " + (result.error || "Ayrıştırılamadı"));
+          }
+        } catch (err) {
+          alert("Dosya sunucuya gönderilemedi: " + err);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function fetchCitations() {
+      try {
+        const res = await fetch("/api/citations");
+        if (res.ok) {
+          const data = await res.json();
+          const list = document.getElementById("citationsList");
+          if (!list) return;
+          list.innerHTML = "";
+
+          const cObj = data.citations || {};
+          const papers = cObj.selected_papers || [];
+          papers.forEach(p => {
+            const li = document.createElement("li");
+            li.className = "py-1.5 border-b border-slate-200 text-xs text-slate-700";
+            li.innerHTML = `<strong>${p.title}</strong> (${p.year || ''}) — <em>${p.venue}</em><br/><span class="text-[11px] text-slate-500">${p.topic || ''}</span>`;
+            list.appendChild(li);
+          });
+
+          const books = cObj.books || [];
+          books.forEach(b => {
+            const li = document.createElement("li");
+            li.className = "py-1.5 border-b border-slate-200 text-xs text-slate-700";
+            li.innerHTML = `📘 <strong>${b.title}</strong> (${b.year}) — ${b.publisher}<br/><span class="text-[11px] text-slate-500">${b.description || ''}</span>`;
+            list.appendChild(li);
+          });
+        }
+      } catch (err) {}
+    }
+
+    // ===================== YIL YÖNETİMİ (Başlangıç / Hedef 1 / Hedef 2) =====================
+    function getYears() {
+      const b = parseInt(document.getElementById("inpBaseYear").value);
+      const t1 = parseInt(document.getElementById("inpTargetYear1").value);
+      const t2 = parseInt(document.getElementById("inpTargetYear2").value);
+      return { base: b || 2025, t1: t1 || 2045, t2: t2 || 2050 };
+    }
+
+    function refreshYearLabels() {
+      const y = getYears();
+      document.querySelectorAll("[data-yr]").forEach(el => {
+        const k = el.getAttribute("data-yr");
+        el.textContent = (k === "base") ? y.base : (k === "t1" ? y.t1 : y.t2);
+      });
+    }
+
+    function yearsAreValid() {
+      const vals = ["inpBaseYear", "inpTargetYear1", "inpTargetYear2"].map(id => document.getElementById(id).value.trim());
+      if (!vals.every(v => /^(19|20|21)\d{2}$/.test(v))) return false;
+      const y = getYears();
+      return y.t1 > y.base && y.t2 >= y.t1;
+    }
+
+    let yearsDebounceTimer = null;
+    function onYearsChanged(immediate = false) {
+      refreshYearLabels();
+      const ok = yearsAreValid();
+      ["inpBaseYear", "inpTargetYear1", "inpTargetYear2"].forEach(id => {
+        const el = document.getElementById(id);
+        if (ok) el.classList.remove("border-red-500", "bg-red-50");
+        else el.classList.add("border-red-500", "bg-red-50");
+      });
+      clearTimeout(yearsDebounceTimer);
+      if (!ok) return; // yazarken eksik/yanlış yıl: hesaplama bekler
+      yearsDebounceTimer = setTimeout(() => recalculate(), immediate ? 0 : 700);
+    }
+
+    // ===================== HARİTA KONUMU: Türkçe normalizasyon + çevrimiçi geocoding =====================
+    function trNorm(s) {
+      return (s || "").toString().replace(/İ/g, "I").replace(/ı/g, "I").toUpperCase()
+        .replace(/Ğ/g, "G").replace(/Ü/g, "U").replace(/Ş/g, "S").replace(/Ö/g, "O").replace(/Ç/g, "C").trim();
+    }
+    const GEO_CACHE_KEY = "nufusProGeoCache_v2";
+    function getGeoCache() { try { return JSON.parse(localStorage.getItem(GEO_CACHE_KEY) || "{}"); } catch (e) { return {}; } }
+    function setGeoCache(c) { try { localStorage.setItem(GEO_CACHE_KEY, JSON.stringify(c)); } catch (e) {} }
+    const geoPending = {};
+    let leafletLastSubzones = [];
+    let leafletLastKey = "";
+    let leafletBounds = [];
+
+    function titleTr(s) {
+      s = (s || "").toString();
+      return s.split(" ").map(w => w ? (w.charAt(0).toLocaleUpperCase("tr-TR") + w.slice(1).toLocaleLowerCase("tr-TR")) : w).join(" ");
+    }
+
+    async function geocodeDistrictCenter(prov, dist, key) {
+      if (!prov || geoPending[key]) return;
+      geoPending[key] = true;
+      try {
+        const dData = (state.adnksData[prov] && state.adnksData[prov][dist]) || null;
+        const display = (dData && dData.display_name) || titleTr(dist);
+        const isCenter = trNorm(dist) === "MERKEZ";
+        const q = isCenter ? `${titleTr(prov)}, Türkiye` : `${display}, ${titleTr(prov)}, Türkiye`;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=tr&accept-language=tr&q=${encodeURIComponent(q)}`;
+        const res = await fetch(url, { headers: { "Accept": "application/json" } });
+        if (!res.ok) return;
+        const arr = await res.json();
+        if (arr && arr.length > 0) {
+          const loc = [parseFloat(arr[0].lat), parseFloat(arr[0].lon)];
+          if (isFinite(loc[0]) && isFinite(loc[1])) {
+            const c = getGeoCache();
+            c[key] = loc;
+            setGeoCache(c);
+            if (leafletLastKey === key && leafletMapInstance) initLeafletMap(leafletLastSubzones);
+          }
+        }
+      } catch (err) {
+        console.warn("Geocoding başarısız (statik koordinat kullanılıyor):", err);
+      } finally {
+        delete geoPending[key];
+      }
+    }
+
+    function loadTemplate(key) {
+      state.currentTemplateKey = key;
+      const tmpl = state.templates[key] || state.templates["standart_kentsel_plan"];
+      state.currentData = JSON.parse(JSON.stringify(tmpl));
+
+      document.getElementById("inpBaseYear").value = tmpl.base_year || 2025;
+      state.currentTfr = tmpl.tfr || 1.51;
+      state.customCohort = null;
+      state.currentMaleRatio = undefined;
+      refreshYearLabels();
+      document.getElementById("inpBasePop").value = tmpl.base_pop || 65395;
+      document.getElementById("inpTotalJobs").value = tmpl.total_employment || Math.round(tmpl.base_pop * 0.51);
+      document.getElementById("inpBasicJobs").value = tmpl.basic_employment || Math.round(tmpl.total_employment * 0.20);
+      document.getElementById("inpHouseholdSize").value = tmpl.household_size || 2.85;
+
+      state.subzones = (tmpl.subzones || []).map((sz, idx) => {
+        const p = sz.current_pop !== undefined ? sz.current_pop : (sz.base_pop !== undefined ? sz.base_pop : 0);
+        const j = sz.employment !== undefined ? sz.employment : (sz.jobs !== undefined ? sz.jobs : Math.round(p * 0.4));
+        const a = sz.vacant_area_ha !== undefined ? sz.vacant_area_ha : (sz.capacity_ha !== undefined ? sz.capacity_ha : 5.0);
+        const d = sz.dist_to_center_min !== undefined ? sz.dist_to_center_min : (sz.distance_to_center_min !== undefined ? sz.distance_to_center_min : 5.0);
+        const c = sz.plan_capacity_pop !== undefined ? sz.plan_capacity_pop : (sz.plan_pop_capacity !== undefined ? sz.plan_pop_capacity : Math.round(p * 1.3));
+        return {
+          id: sz.id || idx + 1,
+          name: sz.name,
+          current_pop: p,
+          base_pop: p,
+          employment: j,
+          jobs: j,
+          vacant_area_ha: a,
+          capacity_ha: a,
+          dist_to_center_min: d,
+          distance_to_center_min: d,
+          plan_capacity_pop: c,
+          plan_pop_capacity: c
+        };
+      });
+      state.macroHistory = JSON.parse(JSON.stringify(tmpl.macro_history || []));
+      state.shocks = [
+        { year: 2030, title: "Yeni OSB ve Sanayi Genişlemesi", population_delta: 10000, age_bias: "working_age" },
+        { year: 2035, title: "Deprem & Afet Göçü", population_delta: -3000, age_bias: "family" }
+      ];
+
+      renderSettlementsTable();
+      renderShocksTable();
+      recalculate();
+    }
+
+    function setupEventListeners() {
+      document.getElementById("selectTemplate").addEventListener("change", (e) => {
+        const k = e.target.value;
+        if (k === "tuik_adnks_selected" || k === "uploaded_custom") {
+          state.currentTemplateKey = k;
+          recalculate();
+        } else {
+          loadTemplate(k);
+        }
+      });
+
+      document.getElementById("btnRecalculate").addEventListener("click", recalculate);
+
+      document.getElementById("btnOpenQR").addEventListener("click", () => {
+        document.getElementById("qrModal").classList.remove("hidden");
+      });
+
+      document.getElementById("btnExportExcel").addEventListener("click", exportExcel);
+
+      // File Uploader
+      document.getElementById("fileUploader").addEventListener("change", handleFileUpload);
+    }
+
+    function closeQRModal() {
+      document.getElementById("qrModal").classList.add("hidden");
+    }
+
+    function switchTab(tabId) {
+      const tabs = ['curves', 'cohort', 'hansen', 'mpyy'];
+      tabs.forEach(t => {
+        const content = document.getElementById(`tabContent-${t}`);
+        const btn = document.getElementById(`tabBtn-${t}`);
+        const mBtn = document.getElementById(`mTab-${t}`);
+
+        if (content) {
+          if (t === tabId) {
+            content.classList.remove("hidden");
+          } else {
+            content.classList.add("hidden");
+          }
+        }
+
+        if (btn) {
+          if (t === tabId) {
+            btn.className = "tab-active py-3 px-4 whitespace-nowrap flex items-center gap-1.5 transition";
+          } else {
+            btn.className = "tab-inactive py-3 px-4 whitespace-nowrap flex items-center gap-1.5 transition";
+          }
+        }
+
+        if (mBtn) {
+          if (t === tabId) {
+            mBtn.className = "mobile-tab-active flex flex-col items-center py-1 px-2 text-[10px]";
+          } else {
+            mBtn.className = "mobile-tab-inactive flex flex-col items-center py-1 px-2 text-[10px]";
+          }
+        }
+      });
+
+      // Special resize trigger for map & charts when tab becomes visible
+      if (tabId === 'curves' && curveChartInstance) {
+        setTimeout(() => { try { curveChartInstance.resize(); } catch(e){} }, 50);
+      }
+      if (tabId === 'cohort' && pyramidChartInstance) {
+        setTimeout(() => { try { pyramidChartInstance.resize(); } catch(e){} }, 50);
+      }
+      if (tabId === 'hansen') {
+        if (hansenChartInstance) setTimeout(() => { try { hansenChartInstance.resize(); } catch(e){} }, 50);
+        if (leafletMapInstance) setTimeout(() => {
+          try {
+            leafletMapInstance.invalidateSize();
+            if (leafletBounds && leafletBounds.length > 0) leafletMapInstance.fitBounds(leafletBounds, { padding: [35, 35], maxZoom: 14 });
+          } catch(e){}
+        }, 120);
+      }
+    }
+
+    function renderSettlementsTable() {
+      const tbody = document.getElementById("settlementsTableBody");
+      tbody.innerHTML = "";
+
+      let totPop = 0;
+      let totJobs = 0;
+
+      state.subzones.forEach((sz, idx) => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50 transition";
+
+        const p = sz.current_pop !== undefined ? sz.current_pop : (sz.base_pop !== undefined ? sz.base_pop : 0);
+        const j = sz.employment !== undefined ? sz.employment : (sz.jobs !== undefined ? sz.jobs : Math.round(p * 0.4));
+        const a = sz.vacant_area_ha !== undefined ? sz.vacant_area_ha : (sz.capacity_ha !== undefined ? sz.capacity_ha : 5.0);
+        const d = sz.dist_to_center_min !== undefined ? sz.dist_to_center_min : (sz.distance_to_center_min !== undefined ? sz.distance_to_center_min : 5.0);
+        const c = sz.plan_capacity_pop !== undefined ? sz.plan_capacity_pop : (sz.plan_pop_capacity !== undefined ? sz.plan_pop_capacity : Math.round(p * 1.3));
+
+        totPop += p;
+        totJobs += j;
+
+        tr.innerHTML = `
+          <td class="py-2 px-3 text-center text-slate-400 font-mono">${idx + 1}</td>
+          <td class="py-2 px-3">
+            <input type="text" value="${sz.name}" onchange="updateSubzone(${idx}, 'name', this.value)" class="w-full bg-transparent font-medium text-slate-800 border-b border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white px-1">
+          </td>
+          <td class="py-2 px-3 text-right">
+            <input type="number" value="${p}" onchange="updateSubzone(${idx}, 'current_pop', parseInt(this.value)||0); updateSubzone(${idx}, 'base_pop', parseInt(this.value)||0);" class="w-24 text-right bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white px-1">
+          </td>
+          <td class="py-2 px-3 text-right">
+            <input type="number" value="${j}" onchange="updateSubzone(${idx}, 'employment', parseInt(this.value)||0); updateSubzone(${idx}, 'jobs', parseInt(this.value)||0);" class="w-24 text-right bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white px-1">
+          </td>
+          <td class="py-2 px-3 text-right">
+            <input type="number" step="0.5" value="${a}" onchange="updateSubzone(${idx}, 'vacant_area_ha', parseFloat(this.value)||0); updateSubzone(${idx}, 'capacity_ha', parseFloat(this.value)||0);" class="w-20 text-right bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white px-1">
+          </td>
+          <td class="py-2 px-3 text-right">
+            <input type="number" step="0.5" value="${d}" onchange="updateSubzone(${idx}, 'dist_to_center_min', parseFloat(this.value)||0); updateSubzone(${idx}, 'distance_to_center_min', parseFloat(this.value)||0);" class="w-20 text-right bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white px-1">
+          </td>
+          <td class="py-2 px-3 text-right">
+            <input type="number" value="${c}" onchange="updateSubzone(${idx}, 'plan_capacity_pop', parseInt(this.value)||0); updateSubzone(${idx}, 'plan_pop_capacity', parseInt(this.value)||0);" class="w-24 text-right bg-transparent border-b border-transparent hover:border-slate-300 focus:border-blue-500 focus:bg-white px-1">
+          </td>
+          <td class="py-2 px-3 text-center">
+            <button onclick="removeSubzoneRow(${idx})" class="text-rose-600 hover:text-rose-800 font-bold px-1.5 py-0.5 rounded">&times;</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const badge = document.getElementById("tableSummaryBadge");
+      if (badge) {
+        badge.innerText = `Toplam: ${state.subzones.length} Mahalle | ${totPop.toLocaleString('tr-TR')} Kişi | ${totJobs.toLocaleString('tr-TR')} İstihdam`;
+      }
+    }
+
+    function updateSubzone(index, field, value) {
+      if (state.subzones[index]) {
+        state.subzones[index][field] = value;
+      }
+    }
+
+    function addSubzoneRow() {
+      state.subzones.push({
+        name: `Yeni Mahalle ${state.subzones.length + 1}`,
+        current_pop: 1500,
+        base_pop: 1500,
+        employment: 400,
+        jobs: 400,
+        vacant_area_ha: 8.0,
+        capacity_ha: 8.0,
+        dist_to_center_min: 5.0,
+        distance_to_center_min: 5.0,
+        plan_capacity_pop: 3000,
+        plan_pop_capacity: 3000
+      });
+      renderSettlementsTable();
+    }
+
+    function removeSubzoneRow(index) {
+      state.subzones.splice(index, 1);
+      renderSettlementsTable();
+    }
+
+    function renderShocksTable() {
+      const tbody = document.getElementById("shocksTableBody");
+      tbody.innerHTML = "";
+      state.shocks.forEach((s, idx) => {
+        const tr = document.createElement("tr");
+        const deltaColor = s.population_delta >= 0 ? "text-emerald-600" : "text-rose-600";
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 font-bold">${s.year}</td>
+          <td class="py-2.5 px-3">${s.title}</td>
+          <td class="py-2.5 px-3 text-right font-extrabold ${deltaColor}">${s.population_delta > 0 ? '+' : ''}${s.population_delta.toLocaleString('tr-TR')}</td>
+          <td class="py-2.5 px-3">${currentLang === 'en' ? (s.age_bias === 'working_age' ? 'Working Age (20-39)' : (s.age_bias === 'family' ? 'General Family' : 'Retiree')) : (s.age_bias === 'working_age' ? 'Çalışma Çağı (20-39)' : (s.age_bias === 'family' ? 'Genel Aile' : 'Emekli'))}</td>
+          <td class="py-2.5 px-3">${currentLang === 'en' ? (s.population_delta >= 0 ? 'Positive Investment' : 'Negative Out-Migration') : (s.population_delta >= 0 ? 'Pozitif Yatırım' : 'Negatif Göç')}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function addShockModal() {
+      const yr = prompt("Şok Yılı:", "2032");
+      if (!yr) return;
+      const title = prompt("Şok / Proje Adı:", "Yeni Lojistik Köy ve Sanayi Yatırımı");
+      const delta = prompt("Nüfus Etkisi (+/-):", "5000");
+      state.shocks.push({
+        year: parseInt(yr),
+        title: title || "Özel Şok",
+        population_delta: parseInt(delta) || 0,
+        age_bias: "working_age"
+      });
+      renderShocksTable();
+      recalculate();
+    }
+
+    async function handleFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (evt) => {
+        const base64Data = evt.target.result;
+        try {
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              filename: file.name,
+              file_base64: base64Data,
+              is_cohort: false
+            })
+          });
+
+          const result = await res.json();
+          if (result.success && result.data) {
+            const data = result.data;
+            const subzoneList = data.settlements || data.subzones || [];
+            if (subzoneList.length > 0) {
+              state.subzones = subzoneList;
+              const totalPop = data.total_population || data.base_pop || subzoneList.reduce((acc, s) => acc + (s.current_pop || s.base_pop || 0), 0);
+              const totalJobs = Math.round(totalPop * 0.45);
+              document.getElementById("inpBasePop").value = totalPop;
+              document.getElementById("inpTotalJobs").value = totalJobs;
+              document.getElementById("inpBasicJobs").value = Math.round(totalJobs * 0.20);
+
+              // Template dropdown update
+              const sel = document.getElementById("selectTemplate");
+              let opt = document.getElementById("optUploadedFile");
+              if (!opt) {
+                opt = document.createElement("option");
+                opt.id = "optUploadedFile";
+                sel.prepend(opt);
+              }
+              opt.value = "uploaded_custom";
+              opt.innerText = `📁 ${file.name} (${subzoneList.length} Mahalle - ${totalPop.toLocaleString('tr-TR')} Kişi)`;
+              sel.value = "uploaded_custom";
+              state.currentTemplateKey = "uploaded_custom";
+
+              if (data.macro_history && data.macro_history.length > 0) {
+                state.macroHistory = data.macro_history;
+              } else {
+                state.macroHistory = [
+                  { year: 2015, pop: Math.round(totalPop * 0.88) },
+                  { year: 2018, pop: Math.round(totalPop * 0.92) },
+                  { year: 2021, pop: Math.round(totalPop * 0.96) },
+                  { year: 2024, pop: Math.round(totalPop * 0.99) },
+                  { year: 2025, pop: totalPop }
+                ];
+              }
+
+              renderSettlementsTable();
+              await recalculate();
+              alert(`🎉 ${file.name} Başarıyla Yüklendi!\nToplam ${subzoneList.length} Mahalle ve ${totalPop.toLocaleString('tr-TR')} Kişi Sisteme Aktarıldı.`);
+            } else {
+              alert("Dosyada mahalle satırı bulunamadı.");
+            }
+          } else {
+            alert("Yükleme hatası: " + (result.error || "Ayrıştırılamadı"));
+          }
+        } catch (err) {
+          alert("Dosya sunucuya gönderilirken hata oluştu: " + err);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function handleCohortFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (evt) => {
+        try {
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              filename: file.name,
+              file_base64: evt.target.result,
+              is_cohort: true
+            })
+          });
+
+          const result = await res.json();
+          if (result.success && result.data) {
+            const cData = result.data;
+            state.customCohort = {
+              male: cData.male,
+              female: cData.female
+            };
+            if (cData.total_pop > 0) {
+              document.getElementById("inpBasePop").value = cData.total_pop;
+            }
+            await recalculate();
+            alert(`🎉 TÜİK MEDAS Yaş-Cinsiyet Tablosu Yüklendi!\n\nDosya: ${file.name}\nEşleşen Yaş Grubu: ${cData.matched_cohorts} / 17\n👨 Toplam Erkek: ${cData.total_male.toLocaleString('tr-TR')}\n👩 Toplam Kadın: ${cData.total_female.toLocaleString('tr-TR')}\n👥 Genel Toplam: ${cData.total_pop.toLocaleString('tr-TR')} Kişi\n\nNüfus Piramidi ve 5'er Yıllık Tablo güncellendi.`);
+          } else {
+            alert("Kohort dosyası okunamadı: " + (result.error || "Geçersiz format"));
+          }
+        } catch (err) {
+          alert("Dosya yükleme hatası: " + err);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function downloadTemplate(type) {
+      if (type === 'cohort') {
+        window.location.href = "/api/download-cohort-template";
+      } else {
+        window.location.href = "/api/download-template";
+      }
+    }
+
+    async function recalculate() {
+      const selP = document.getElementById("selProvince");
+      const selD = document.getElementById("selDistrict");
+      let activeK = undefined;
+      if (selP && selD && state.districtMultipliers[selP.value]) {
+        const dData = state.districtMultipliers[selP.value][selD.value];
+        if (dData) {
+          activeK = state.activeMultiplierMethod === 'MG' ? dData.bm_mg : dData.bm_lq;
+        }
+      }
+
+      const payload = {
+        template_key: state.currentTemplateKey,
+        base_pop: parseInt(document.getElementById("inpBasePop").value) || 65395,
+        base_year: parseInt(document.getElementById("inpBaseYear").value) || 2025,
+        target_year_1: parseInt(document.getElementById("inpTargetYear1").value) || 2045,
+        target_year_2: parseInt(document.getElementById("inpTargetYear2").value) || 2050,
+        total_jobs: parseInt(document.getElementById("inpTotalJobs").value) || 33365,
+        basic_jobs: parseInt(document.getElementById("inpBasicJobs").value) || 6800,
+        base_multiplier_k: activeK,
+        new_basic_jobs: parseInt(document.getElementById("inpNewBasicJobs").value) || 2650,
+        household_size: parseFloat(document.getElementById("inpHouseholdSize").value) || 2.85,
+        alpha: parseFloat(document.getElementById("inpHansenAlpha").value) || 2.0,
+        tfr: state.currentTfr || 1.51,
+        male_ratio: state.currentMaleRatio,
+        cohort_male: (state.customCohort && state.customCohort.male) || undefined,
+        cohort_female: (state.customCohort && state.customCohort.female) || undefined,
+        subzones: state.subzones,
+        macro_history: state.macroHistory,
+        shocks: state.shocks
+      };
+
+      try {
+        const res = await fetch("/api/calculate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          state.calculationResult = data;
+          updateUIWithResults(data);
+        } else {
+          console.error("Calculate failed:", await res.text());
+        }
+      } catch (err) {
+        console.error("Calculation network error:", err);
+      }
+    }
+
+    function updateUIWithResults(data) {
+      if (!data) return;
+      refreshYearLabels();
+      const kpis = data.kpis || {};
+      const pSuf = (I18N[currentLang] && I18N[currentLang].peopleSuffix) || "Kişi";
+      const numLoc = currentLang === "en" ? "en-US" : "tr-TR";
+      if (document.getElementById("kpiBasePop")) document.getElementById("kpiBasePop").innerText = `${(kpis.base_pop || 0).toLocaleString(numLoc)} ${pSuf}`;
+      if (document.getElementById("kpiLowPop")) document.getElementById("kpiLowPop").innerText = `${((kpis.low_t1 !== undefined ? kpis.low_t1 : kpis.low_2045) || 0).toLocaleString(numLoc)} ${pSuf}`;
+      if (document.getElementById("kpiMidPop")) document.getElementById("kpiMidPop").innerText = `${((kpis.mid_t1 !== undefined ? kpis.mid_t1 : kpis.mid_2045) || 0).toLocaleString(numLoc)} ${pSuf}`;
+      if (document.getElementById("kpiHighPop")) document.getElementById("kpiHighPop").innerText = `${((kpis.high_t1 !== undefined ? kpis.high_t1 : kpis.high_2045) || 0).toLocaleString(numLoc)} ${pSuf}`;
+      if (document.getElementById("kpiBestModel")) document.getElementById("kpiBestModel").innerText = (kpis.best_curve_model || "LINEAR").toUpperCase();
+      if (document.getElementById("kpiBestModelR2")) document.getElementById("kpiBestModelR2").innerText = `R² = ${(kpis.best_curve_r2 || 1.0).toFixed(4)}`;
+      if (document.getElementById("kpiMpyyHa")) document.getElementById("kpiMpyyHa").innerText = `${kpis.mpyy_additional_ha || 0} Ha`;
+
+      // Update Curve Fitting Tab
+      try { renderCurveFitting(data.curve_results); } catch (e) { console.error("Curve render error:", e); }
+
+      // Update Cohort Tab
+      try { renderCohortTab(data.cohort_results); } catch (e) { console.error("Cohort render error:", e); }
+
+      // Update Economic Base Tab
+      try { renderEconomicTab(data.economic_base); } catch (e) { console.error("Economic render error:", e); }
+
+      // Update Hansen & Leaflet Tab
+      try { renderHansenTab(data.hansen_results); } catch (e) { console.error("Hansen render error:", e); }
+
+      // Update MPYY Tab
+      try { renderMpyyTab(data.mpyy_standards); } catch (e) { console.error("MPYY render error:", e); }
+    }
+
+    function renderCurveFitting(curve) {
+      if (!curve || !curve.models) return;
+      const tbody = document.getElementById("curveModelsTableBody");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      const models = curve.models;
+      const isEn = currentLang === 'en';
+      const modelNames = isEn ? {
+        linear: "Linear Trend",
+        poly2: "2nd Degree Polynomial (Parabolic)",
+        poly3: "3rd Degree Polynomial",
+        exponential: "Exponential Growth",
+        geometric: "Geometric (Compound Growth)",
+        power: "Power Model",
+        logarithmic: "Logarithmic (Decelerating)",
+        logistic: "Logistic (S-Curve Carrying Capacity)"
+      } : {
+        linear: "Doğrusal (Linear Trend)",
+        poly2: "2. Derece Polinom (Parabolik)",
+        poly3: "3. Derece Polinom",
+        exponential: "Üstel (Exponential)",
+        geometric: "Geometrik (Bileşik Artış)",
+        power: "Kuvvet (Power) Modeli",
+        logarithmic: "Logaritmik (Yavaşlayan)",
+        logistic: "Lojistik (Taşıma Kapasiteli S-Eğrisi)"
+      };
+
+      const labels = (curve.years && curve.years.length) ? curve.years : [2007, 2010, 2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050];
+      const tY = curve.target_years || [2045, 2050];
+      const getPred = (m, yr) => {
+        if (!m.predictions) return 0;
+        if (m.predictions[yr] !== undefined) return m.predictions[yr];
+        if (m.predictions[String(yr)] !== undefined) return m.predictions[String(yr)];
+        return 0;
+      };
+      const datasets = [];
+
+      const colors = {
+        linear: "#2563EB",
+        poly2: "#7C3AED",
+        exponential: "#DC2626",
+        geometric: "#EA580C",
+        logarithmic: "#0D9488",
+        logistic: "#16A34A"
+      };
+
+      for (const [key, m] of Object.entries(models)) {
+        const tr = document.createElement("tr");
+        const isBest = key === curve.best_model;
+        if (isBest) tr.className = "bg-purple-50 font-bold";
+
+        const r2Val = (m.metrics && m.metrics.r2 !== undefined) ? m.metrics.r2.toFixed(4) : "0.0000";
+        const sseVal = (m.metrics && m.metrics.sse !== undefined) ? m.metrics.sse.toLocaleString('tr-TR') : "0";
+        const pred45 = getPred(m, tY[0]);
+        const pred50 = getPred(m, tY[1]);
+
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 flex items-center gap-1.5">
+            ${isBest ? '⭐' : ''} <span>${modelNames[key] || key}</span>
+          </td>
+          <td class="py-2.5 px-3 font-mono text-[11px] text-slate-500">${m.formula_str || m.formula || ""}</td>
+          <td class="py-2.5 px-3 text-right font-bold text-purple-700">${r2Val}</td>
+          <td class="py-2.5 px-3 text-right text-slate-500">${sseVal}</td>
+          <td class="py-2.5 px-3 text-right font-extrabold text-slate-800">${pred45.toLocaleString('tr-TR')}</td>
+          <td class="py-2.5 px-3 text-right text-slate-600">${pred50.toLocaleString('tr-TR')}</td>
+          <td class="py-2.5 px-3 text-xs">${isBest ? `<span class="bg-purple-200 text-purple-900 px-2 py-0.5 rounded">${isEn ? 'Best Fit' : 'En Yüksek Uyum'}</span>` : (isEn ? 'Alternative Model' : 'Alternatif Model')}</td>
+        `;
+        tbody.appendChild(tr);
+
+        // Chart dataset
+        if (m.predictions) {
+          const dataPoints = labels.map(yr => {
+            if (m.predictions[yr] !== undefined) return m.predictions[yr];
+            if (m.predictions[String(yr)] !== undefined) return m.predictions[String(yr)];
+            return null;
+          });
+
+          datasets.push({
+            label: modelNames[key] || key,
+            data: dataPoints,
+            borderColor: colors[key] || "#94A3B8",
+            backgroundColor: "transparent",
+            borderWidth: isBest ? 3 : 1.5,
+            tension: 0.2,
+            pointRadius: isBest ? 4 : 2
+          });
+        }
+      }
+
+      // Gerçek (geçmiş) nüfus serisi
+      if (curve.history && curve.history.years) {
+        const hMap = {};
+        curve.history.years.forEach((y, i) => { hMap[y] = curve.history.pop[i]; });
+        datasets.push({
+          label: isEn ? "Observed Population (TÜİK / Input)" : "Gerçek Nüfus (TÜİK / Girdi)",
+          data: labels.map(y => (hMap[y] !== undefined ? hMap[y] : null)),
+          borderColor: "#0F172A",
+          backgroundColor: "#0F172A",
+          showLine: false,
+          pointRadius: 5,
+          pointStyle: "rectRot"
+        });
+      }
+
+      // Başlık ve aralık etiketleri (yıllara bağlı)
+      const rangeLbl = document.getElementById("curveRangeLabel");
+      if (rangeLbl) rangeLbl.innerText = `${labels[0]} - ${tY[1]}`;
+      const mmElem = document.getElementById("curveMinMaxRange");
+      if (mmElem) {
+        const v1 = Object.values(models).map(m => getPred(m, tY[0])).filter(v => isFinite(v) && v > 0);
+        if (v1.length) mmElem.innerText = `${Math.min(...v1).toLocaleString('tr-TR')} - ${Math.max(...v1).toLocaleString('tr-TR')}`;
+      }
+
+      // Best Model Card
+      const best = models[curve.best_model];
+      if (best) {
+        if (document.getElementById("bestModelTitle")) document.getElementById("bestModelTitle").innerText = modelNames[curve.best_model] || curve.best_model;
+        if (document.getElementById("bestModelR2Display")) document.getElementById("bestModelR2Display").innerText = `R² = ${((best.metrics && best.metrics.r2) || 1.0).toFixed(4)}`;
+        if (document.getElementById("bestModelFormula")) document.getElementById("bestModelFormula").innerText = best.formula_str || best.formula || "";
+      }
+
+      // Draw Chart.js
+      try {
+        const cCanvas = document.getElementById("curveChart");
+        if (cCanvas && typeof Chart !== "undefined") {
+          const ctx = cCanvas.getContext("2d");
+          if (curveChartInstance) curveChartInstance.destroy();
+          curveChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: { labels: labels, datasets: datasets },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: { mode: 'index', intersect: false },
+              plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } },
+              scales: {
+                x: { ticks: { maxTicksLimit: 14 } },
+                y: { ticks: { callback: function(v) { return v.toLocaleString('tr-TR'); } } }
+              }
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Curve chart error:", err);
+      }
+    }
+
+    function onPyramidYearChanged() {
+      if (state.calculationResult && state.calculationResult.cohort_results) {
+        try { renderCohortTab(state.calculationResult.cohort_results); } catch (e) { console.error(e); }
+      }
+    }
+
+    function renderCohortTab(cohort) {
+      if (!cohort) return;
+      const ind = cohort.indicators || {};
+      const childDep = ind.child_dependency_ratio !== undefined ? ind.child_dependency_ratio : 0;
+      const oldDep = ind.elderly_dependency_ratio !== undefined ? ind.elderly_dependency_ratio : (ind.old_age_dependency_ratio !== undefined ? ind.old_age_dependency_ratio : 0);
+      const totDep = ind.total_dependency_ratio !== undefined ? ind.total_dependency_ratio : 0;
+      const agingIdx = ind.aging_index !== undefined ? ind.aging_index : 0;
+
+      if (document.getElementById("indChildDep")) document.getElementById("indChildDep").innerText = `%${Number(childDep).toFixed(2)}`;
+      if (document.getElementById("indOldDep")) document.getElementById("indOldDep").innerText = `%${Number(oldDep).toFixed(2)}`;
+      if (document.getElementById("indTotalDep")) document.getElementById("indTotalDep").innerText = `%${Number(totDep).toFixed(2)}`;
+      if (document.getElementById("indAgingIdx")) document.getElementById("indAgingIdx").innerText = `${Number(agingIdx).toFixed(2)}`;
+
+      // Table
+      const tbody = document.getElementById("cohortTableBody");
+      const ageGroups = cohort.age_groups || [];
+      const mInit = (cohort.initial_pyramid && cohort.initial_pyramid.male) || [];
+      const fInit = (cohort.initial_pyramid && cohort.initial_pyramid.female) || [];
+      const sxM = cohort.sx_male || [
+        0.9935, 0.9982, 0.9978, 0.9965, 0.9950, 0.9940, 0.9925, 0.9895,
+        0.9840, 0.9750, 0.9610, 0.9380, 0.9010, 0.8420, 0.7550, 0.6250, 0.4400
+      ];
+      const sxF = cohort.sx_female || [
+        0.9948, 0.9988, 0.9985, 0.9978, 0.9970, 0.9962, 0.9950, 0.9930,
+        0.9895, 0.9835, 0.9730, 0.9560, 0.9280, 0.8850, 0.8150, 0.7100, 0.5200
+      ];
+      const stepsHigh = (cohort.scenarios && cohort.scenarios.high && cohort.scenarios.high.steps) || {};
+      const t1C = (cohort.years && cohort.years.t1) || 2045;
+      const high45 = stepsHigh[t1C] || stepsHigh[String(t1C)] || null;
+
+      if (tbody) {
+        tbody.innerHTML = "";
+        ageGroups.forEach((grp, idx) => {
+          const m = mInit[idx] || 0;
+          const f = fInit[idx] || 0;
+          const tot = m + f;
+          const tot45 = (high45 && high45.male) ? ((high45.male[idx] || 0) + (high45.female[idx] || 0)) : Math.round(tot * 1.15);
+          const valSxM = (sxM[idx] !== undefined) ? Number(sxM[idx]).toFixed(4) : "0.9900";
+          const valSxF = (sxF[idx] !== undefined) ? Number(sxF[idx]).toFixed(4) : "0.9900";
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="py-1.5 px-3 font-semibold">${grp}</td>
+            <td class="py-1.5 px-3 text-right text-blue-700 font-medium">${m.toLocaleString('tr-TR')}</td>
+            <td class="py-1.5 px-3 text-right text-pink-700 font-medium">${f.toLocaleString('tr-TR')}</td>
+            <td class="py-1.5 px-3 text-right font-bold text-slate-800">${tot.toLocaleString('tr-TR')}</td>
+            <td class="py-1.5 px-3 text-right text-emerald-700 font-semibold">${tot45.toLocaleString('tr-TR')}</td>
+            <td class="py-1.5 px-3 text-right font-mono text-[11px] text-slate-600">${valSxM}</td>
+            <td class="py-1.5 px-3 text-right font-mono text-[11px] text-slate-600">${valSxF}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // Pyramid Chart
+      try {
+        const pCanvas = document.getElementById("pyramidChart");
+        if (pCanvas && typeof Chart !== "undefined") {
+          const pCtx = pCanvas.getContext("2d");
+          if (pyramidChartInstance) pyramidChartInstance.destroy();
+
+          // Piramit yılı seçici: Başlangıç yılı + her adım yılı (Yüksek Senaryo)
+          const baseC = (cohort.years && cohort.years.base) || cohort.base_year || 2025;
+          const selPy = document.getElementById("selPyramidYear");
+          let chosenY = baseC;
+          if (selPy) {
+            const prevVal = parseInt(selPy.value);
+            const optYears = [baseC].concat((cohort.step_years || []).filter(y => y !== baseC));
+            selPy.innerHTML = optYears.map(y => `<option value="${y}">${y}${y === baseC ? (currentLang === 'en' ? " (Base)" : " (Başlangıç)") : ""}</option>`).join("");
+            chosenY = optYears.indexOf(prevVal) >= 0 ? prevVal : baseC;
+            selPy.value = String(chosenY);
+          }
+          let mP = mInit, fP = fInit;
+          if (chosenY !== baseC) {
+            const st = stepsHigh[chosenY] || stepsHigh[String(chosenY)];
+            if (st) { mP = st.male; fP = st.female; }
+          }
+          const pyLbl = document.getElementById("pyramidYearLabel");
+          if (pyLbl) pyLbl.innerText = chosenY;
+
+          // Negative values for male so they render to the left
+          const maleData = mP.map(v => -v);
+          const femaleData = [...fP];
+
+          pyramidChartInstance = new Chart(pCtx, {
+            type: 'bar',
+            data: {
+              labels: ageGroups,
+              datasets: [
+                {
+                  label: currentLang === 'en' ? 'Male' : 'Erkek',
+                  data: maleData,
+                  backgroundColor: '#3B82F6',
+                  borderRadius: 3
+                },
+                {
+                  label: currentLang === 'en' ? 'Female' : 'Kadın',
+                  data: femaleData,
+                  backgroundColor: '#EC4899',
+                  borderRadius: 3
+                }
+              ]
+            },
+            options: {
+              indexAxis: 'y',
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                x: {
+                  stacked: false,
+                  ticks: {
+                    callback: function(v) { return Math.abs(v).toLocaleString('tr-TR'); }
+                  }
+                },
+                y: { stacked: true }
+              },
+              plugins: {
+                tooltip: {
+                  callbacks: {
+                    label: function(c) {
+                      return `${c.dataset.label}: ${Math.abs(c.raw).toLocaleString('tr-TR')} Kişi`;
+                    }
+                  }
+                }
+              }
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Pyramid chart render error:", err);
+      }
+    }
+
+    function renderEconomicTab(econ) {
+      if (!econ) return;
+      const ratios = econ.ratios || {};
+      const mig = econ.migration || {};
+      const k = ratios.base_multiplier_k !== undefined ? ratios.base_multiplier_k : 1.0;
+      const b = ratios.dependency_ratio_b !== undefined ? ratios.dependency_ratio_b : 1.0;
+      const act = ratios.activity_rate_pct !== undefined ? ratios.activity_rate_pct : 50.0;
+
+      const newJobs = mig.total_new_jobs !== undefined ? mig.total_new_jobs : 0;
+      const migPop = mig.plan_migrant_pop !== undefined ? mig.plan_migrant_pop : 0;
+
+      if (document.getElementById("econMultiplierK")) document.getElementById("econMultiplierK").innerText = Number(k).toFixed(3);
+      if (document.getElementById("econDepRatioB")) document.getElementById("econDepRatioB").innerText = Number(b).toFixed(3);
+      if (document.getElementById("econActivityRate")) document.getElementById("econActivityRate").innerText = `%${Number(act).toFixed(2)}`;
+
+      const isEn = currentLang === 'en';
+      const loc = isEn ? 'en-US' : 'tr-TR';
+      if (document.getElementById("econNewTotalJobs")) document.getElementById("econNewTotalJobs").innerText = `${newJobs.toLocaleString(loc)} ${isEn ? 'Jobs' : 'İş'}`;
+      if (document.getElementById("econMigrantPop")) document.getElementById("econMigrantPop").innerText = `${migPop.toLocaleString(loc)} ${isEn ? 'People' : 'Kişi'}`;
+    }
+
+    function renderHansenTab(hansen) {
+      if (!hansen) return;
+      const tbody = document.getElementById("hansenTableBody");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      const subzones = hansen.subzones || [];
+      const labels = [];
+      const addPops = [];
+
+      subzones.forEach(sz => {
+        labels.push(sz.name);
+        addPops.push(sz.additional_pop_Gi || 0);
+
+        const curP = sz.current_pop !== undefined ? sz.current_pop : (sz.base_pop || 0);
+        const addP = sz.additional_pop_Gi || 0;
+        const tgtP = sz.target_pop_2045 !== undefined ? sz.target_pop_2045 : (sz.target_pop_Pi || curP + addP);
+        const satPct = sz.saturation_pct !== undefined ? sz.saturation_pct : ((tgtP / Math.max(1, sz.plan_capacity_pop || curP * 1.5)) * 100.0);
+
+        const isEn = currentLang === 'en';
+        const isOver = satPct > 100.0;
+        const statusBadge = isOver 
+          ? `<span class="bg-rose-100 text-rose-800 px-2 py-0.5 rounded font-bold">${isEn ? 'Capacity Exceeded' : 'Kapasite Aşımı'} (%${satPct.toFixed(0)})</span>`
+          : (satPct > 80 
+              ? `<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-semibold">${isEn ? 'High' : 'Yüksek'} (%${satPct.toFixed(0)})</span>`
+              : `<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">${isEn ? 'Available' : 'Uygun'} (%${satPct.toFixed(0)})</span>`);
+
+        const hNeed = sz.housing_need !== undefined ? sz.housing_need : Math.round(addP / 2.85);
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="py-2 px-3 font-semibold">${sz.name}</td>
+          <td class="py-2 px-3 text-right">${curP.toLocaleString('tr-TR')}</td>
+          <td class="py-2 px-3 text-right font-bold text-blue-700">+${addP.toLocaleString('tr-TR')}</td>
+          <td class="py-2 px-3 text-right font-extrabold text-slate-800">${tgtP.toLocaleString('tr-TR')}</td>
+          <td class="py-2 px-3 text-right">${hNeed.toLocaleString('tr-TR')} ${isEn ? 'Dwellings' : 'Konut'}</td>
+          <td class="py-2 px-3 text-right font-mono">${satPct.toFixed(1)}%</td>
+          <td class="py-2 px-3">${statusBadge}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Hansen Bar Chart
+      try {
+        const hCanvas = document.getElementById("hansenChart");
+        if (hCanvas && typeof Chart !== "undefined") {
+          const hCtx = hCanvas.getContext("2d");
+          if (hansenChartInstance) hansenChartInstance.destroy();
+          hansenChartInstance = new Chart(hCtx, {
+            type: 'bar',
+            data: {
+              labels: labels.slice(0, 15),
+              datasets: [{
+                label: 'Dağıtılan İlave Nüfus (Gi)',
+                data: addPops.slice(0, 15),
+                backgroundColor: '#0F766E',
+                borderRadius: 4
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: {
+                x: { ticks: { font: { size: 9 }, maxRotation: 45 } },
+                y: { ticks: { callback: v => v.toLocaleString('tr-TR') } }
+              }
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Hansen chart error:", err);
+      }
+
+      // Leaflet Map Initialization & Rendering
+      try {
+        initLeafletMap(subzones);
+      } catch (err) {
+        console.error("Leaflet init error:", err);
+      }
+    }
+
+    function initLeafletMap(subzones) {
+      const mapElem = document.getElementById('leafletMap');
+      if (!mapElem || typeof L === "undefined") return;
+
+      if (!leafletMapInstance) {
+        leafletMapInstance = L.map('leafletMap').setView([38.0886, 27.7344], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 18,
+          attribution: '© OpenStreetMap contributors'
+        }).addTo(leafletMapInstance);
+        leafletMarkersGroup = L.layerGroup().addTo(leafletMapInstance);
+      }
+
+      leafletMarkersGroup.clearLayers();
+
+      // TÜRKİYE 81 İL RESMİ MERKEZ KOORDİNATLARI (Enlem, Boylam)
+      const provCoords = {
+        "ADANA": [37.0000, 35.3213], "ADIYAMAN": [37.7648, 38.2786], "AFYON": [38.7507, 30.5567],
+        "AFYONKARAHISAR": [38.7507, 30.5567], "AFYONKARAHİSAR": [38.7507, 30.5567],
+        "AGRI": [39.7191, 43.0503], "AĞRI": [39.7191, 43.0503], "AMASYA": [40.6501, 35.8353],
+        "ANKARA": [39.9334, 32.8597], "ANTALYA": [36.8969, 30.7133], "ARTVIN": [41.1828, 41.8183],
+        "ARTVİN": [41.1828, 41.8183], "AYDIN": [37.8560, 27.8416], "BALIKESIR": [39.6484, 27.8826],
+        "BALIKESİR": [39.6484, 27.8826], "BILECIK": [40.1451, 29.9799], "BİLECİK": [40.1451, 29.9799],
+        "BINGOL": [38.8853, 40.4983], "BİNGÖL": [38.8853, 40.4983], "BITLIS": [38.4006, 42.1095],
+        "BİTLİS": [38.4006, 42.1095], "BOLU": [40.7358, 31.6061], "BURDUR": [37.7203, 30.2908],
+        "BURSA": [40.1885, 29.0610], "CANAKKALE": [40.1553, 26.4142], "ÇANAKKALE": [40.1553, 26.4142],
+        "CANKIRI": [40.6013, 33.6134], "ÇANKIRI": [40.6013, 33.6134], "CORUM": [40.5506, 34.9556],
+        "ÇORUM": [40.5506, 34.9556], "DENIZLI": [37.7765, 29.0864], "DENİZLİ": [37.7765, 29.0864],
+        "DIYARBAKIR": [37.9144, 40.2306], "DİYARBAKIR": [37.9144, 40.2306], "EDIRNE": [41.6768, 26.5603],
+        "EDİRNE": [41.6768, 26.5603], "ELAZIG": [38.6810, 39.2264], "ELAZIĞ": [38.6810, 39.2264],
+        "ERZINCAN": [39.7500, 39.5000], "ERZİNCAN": [39.7500, 39.5000], "ERZURUM": [39.9043, 41.2679],
+        "ESKISEHIR": [39.7767, 30.5206], "ESKİŞEHİR": [39.7767, 30.5206], "GAZIANTEP": [37.0662, 37.3833],
+        "GAZİANTEP": [37.0662, 37.3833], "GIRESUN": [40.9128, 38.3895], "GİRESUN": [40.9128, 38.3895],
+        "GUMUSHANE": [40.4600, 39.4700], "GÜMÜŞHANE": [40.4600, 39.4700], "HAKKARI": [37.5833, 43.7333],
+        "HAKKARİ": [37.5833, 43.7333], "HATAY": [36.2023, 36.1606], "ISPARTA": [37.7648, 30.5566],
+        "MERSIN": [36.8121, 34.6415], "MERSİN": [36.8121, 34.6415], "ISTANBUL": [41.0082, 28.9784],
+        "İSTANBUL": [41.0082, 28.9784], "IZMIR": [38.4237, 27.1428], "İZMİR": [38.4237, 27.1428],
+        "KARS": [40.6167, 43.1000], "KASTAMONU": [41.3887, 33.7827], "KAYSERI": [38.7312, 35.4787],
+        "KAYSERİ": [38.7312, 35.4787], "KIRKLARELI": [41.7333, 27.2167], "KIRKLARELİ": [41.7333, 27.2167],
+        "KIRSEHIR": [39.1425, 34.1709], "KIRŞEHİR": [39.1425, 34.1709], "KOCAELI": [40.8533, 29.8815],
+        "KOCAELİ": [40.8533, 29.8815], "KONYA": [37.8667, 32.4833], "KUTAHYA": [39.4167, 29.9833],
+        "KÜTAHYA": [39.4167, 29.9833], "MALATYA": [38.3552, 38.3095], "MANISA": [38.6191, 27.4289],
+        "MANİSA": [38.6191, 27.4289], "KAHRAMANMARAS": [37.5858, 36.9371], "KAHRAMANMARAŞ": [37.5858, 36.9371],
+        "MARDIN": [37.3212, 40.7245], "MARDİN": [37.3212, 40.7245], "MUGLA": [37.2153, 28.3636],
+        "MUĞLA": [37.2153, 28.3636], "MUS": [38.7432, 41.5064], "MUŞ": [38.7432, 41.5064],
+        "NEVSEHIR": [38.6244, 34.7142], "NEVŞEHİR": [38.6244, 34.7142], "NIGDE": [37.9667, 34.6833],
+        "NİĞDE": [37.9667, 34.6833], "ORDU": [40.9839, 37.8764], "RIZE": [41.0201, 40.5234],
+        "RİZE": [41.0201, 40.5234], "SAKARYA": [40.7569, 30.3783], "SAMSUN": [41.2928, 36.3313],
+        "SIIRT": [37.9333, 41.9500], "SİİRT": [37.9333, 41.9500], "SINOP": [42.0231, 35.1531],
+        "SİNOP": [42.0231, 35.1531], "SIVAS": [39.7477, 37.0179], "SİVAS": [39.7477, 37.0179],
+        "TEKIRDAG": [40.9833, 27.5167], "TEKİRDAĞ": [40.9833, 27.5167], "TOKAT": [40.3167, 36.5500],
+        "TRABZON": [41.0027, 39.7168], "TUNCELI": [39.1079, 39.5401], "TUNCELİ": [39.1079, 39.5401],
+        "SANLIURFA": [37.1674, 38.7955], "ŞANLIURFA": [37.1674, 38.7955], "USAK": [38.6823, 29.4082],
+        "UŞAK": [38.6823, 29.4082], "VAN": [38.4891, 43.4089], "YOZGAT": [39.8181, 34.8147],
+        "ZONGULDAK": [41.4564, 31.7987], "AKSARAY": [38.3687, 34.0370], "BAYBURT": [40.2552, 40.2249],
+        "KARAMAN": [37.1759, 33.2287], "KIRIKKALE": [39.8468, 33.5153], "BATMAN": [37.8812, 41.1294],
+        "SIRNAK": [37.4187, 42.4918], "ŞIRNAK": [37.4187, 42.4918], "BARTIN": [41.6344, 32.3375],
+        "ARDAHAN": [41.1105, 42.7022], "IGDIR": [39.9196, 44.0450], "IĞDIR": [39.9196, 44.0450],
+        "YALOVA": [40.6550, 29.2769], "KARABUK": [41.2061, 32.6204], "KARABÜK": [41.2061, 32.6204],
+        "KILIS": [36.7184, 37.1212], "KİLİS": [36.7184, 37.1212], "OSMANIYE": [37.0742, 36.2478],
+        "OSMANİYE": [37.0742, 36.2478], "DUZCE": [40.8438, 31.1565], "DÜZCE": [40.8438, 31.1565]
+      };
+
+      // İlçe Özel Merkez Koordinatları
+      const distCoords = {
+        "KÜTAHYA/ALTINTAŞ": [39.0628, 30.0894], "KUTAHYA/ALTINTAS": [39.0628, 30.0894],
+        "KÜTAHYA/TAVŞANLI": [39.5442, 29.4922], "KUTAHYA/TAVSANLI": [39.5442, 29.4922],
+        "KÜTAHYA/GEDİZ": [38.9989, 29.5744], "KUTAHYA/GEDIZ": [38.9989, 29.5744],
+        "KÜTAHYA/SİMAV": [39.0889, 28.9778], "KUTAHYA/SIMAV": [39.0889, 28.9778],
+        "VAN/BAHÇESARAY": [38.0967, 42.7933], "VAN/BAHCESARAY": [38.0967, 42.7933],
+        "VAN/ERCİŞ": [39.0278, 43.3597], "VAN/ERCIS": [39.0278, 43.3597],
+        "VAN/EDREMİT": [38.4189, 43.2578], "VAN/EDREMIT": [38.4189, 43.2578],
+        "SAMSUN/19 MAYIS": [41.4939, 36.0825], "SAMSUN/ONDOKUZMAYIS": [41.4939, 36.0825],
+        "SAMSUN/BAFRA": [41.5678, 35.9069], "SAMSUN/ÇARŞAMBA": [41.1989, 36.7267],
+        "İZMİR/TİRE": [38.0886, 27.7344], "IZMIR/TIRE": [38.0886, 27.7344],
+        "İZMİR/ÖDEMİŞ": [38.2317, 27.9719], "IZMIR/ODEMIS": [38.2317, 27.9719],
+        "İZMİR/TORBALI": [38.1517, 27.3622], "IZMIR/TORBALI": [38.1517, 27.3622],
+        "İZMİR/ALİAĞA": [38.7989, 26.9722], "IZMIR/ALIAGA": [38.7989, 26.9722]
+      };
+
+      const selP = document.getElementById("selAdnksProv");
+      const selD = document.getElementById("selAdnksDist");
+      const provVal = selP ? selP.value : "";
+      const distVal = selD ? selD.value : "";
+      const mapKey = `${trNorm(provVal)}/${trNorm(distVal)}`;
+      const provN = {};
+      Object.keys(provCoords).forEach(k => { provN[trNorm(k)] = provCoords[k]; });
+      const distN = {};
+      Object.keys(distCoords).forEach(k => { distN[trNorm(k)] = distCoords[k]; });
+      const geoCache = getGeoCache();
+      const baseLoc = geoCache[mapKey] || distN[mapKey] || provN[trNorm(provVal)] || [39.0, 35.0];
+      leafletLastSubzones = subzones;
+      leafletLastKey = mapKey;
+      if (!geoCache[mapKey]) geocodeDistrictCenter(provVal, distVal, mapKey);
+      const bounds = [];
+
+      (subzones || []).forEach((sz, idx) => {
+        const distKm = ((sz.dist_to_center_min || sz.distance_to_center_min || 3)) * 0.5;
+        const angle = (idx / Math.max(1, subzones.length)) * 2 * Math.PI;
+        const lat = baseLoc[0] + (distKm / 111) * Math.sin(angle);
+        const lon = baseLoc[1] + (distKm / (111 * Math.cos(baseLoc[0] * Math.PI / 180))) * Math.cos(angle);
+
+        bounds.push([lat, lon]);
+
+        const curP = sz.current_pop !== undefined ? sz.current_pop : (sz.base_pop || 0);
+        const addP = sz.additional_pop_Gi || 0;
+        const tgtP = sz.target_pop_2045 !== undefined ? sz.target_pop_2045 : (curP + addP);
+        const satPct = sz.saturation_pct !== undefined ? sz.saturation_pct : 85.0;
+
+        const isOver = satPct > 100;
+        const markerColor = isOver ? '#DC2626' : (satPct > 80 ? '#D97706' : '#059669');
+
+        const circle = L.circleMarker([lat, lon], {
+          radius: Math.max(6, Math.min(22, Math.sqrt(curP) * 0.25)),
+          fillColor: markerColor,
+          color: '#FFFFFF',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.85
+        });
+
+        const isEn = currentLang === 'en';
+        circle.bindPopup(`
+          <div class="font-sans text-xs">
+            <h4 class="font-bold text-slate-900 border-b pb-1 mb-1">${sz.name}</h4>
+            <p>${isEn ? 'Current Pop' : 'Mevcut Nüfus'}: <strong>${curP.toLocaleString('tr-TR')}</strong></p>
+            <p>${isEn ? 'Allocated Add.' : 'İlave Dağıtılan'}: <strong class="text-blue-600">+${addP.toLocaleString('tr-TR')}</strong></p>
+            <p>${getYears().t1} ${isEn ? 'Target Pop' : 'Hedef Nüfus'}: <strong>${tgtP.toLocaleString('tr-TR')}</strong></p>
+            <p>${isEn ? 'Saturation' : 'Doygunluk'}: <strong>%${satPct.toFixed(1)}</strong></p>
+            <p class="mt-1 font-semibold ${isOver ? 'text-red-600' : 'text-emerald-600'}">${isOver ? (isEn ? '⚠️ Capacity Exceeded' : '⚠️ Kapasite Aşımı') : (isEn ? '✅ Capacity Available' : '✅ Kapasite Uygun')}</p>
+          </div>
+        `);
+
+        leafletMarkersGroup.addLayer(circle);
+      });
+
+      leafletBounds = bounds;
+      if (bounds.length > 0) {
+        leafletMapInstance.fitBounds(bounds, { padding: [35, 35], maxZoom: 14 });
+      } else {
+        leafletMapInstance.setView(baseLoc, 12);
+      }
+      setTimeout(() => { try { leafletMapInstance.invalidateSize(); } catch(e){} }, 100);
+    }
+
+    function renderMpyyTab(mpyy) {
+      if (!mpyy) return;
+      const tbody = document.getElementById("mpyyTableBody");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+      const isEn = currentLang === 'en';
+      const mpyyEnNames = {
+        "Eğitim Alanları (Anaokulu, İlkokul, Ortaokul, Lise)": "Education Facilities (Kindergarten, Primary, Secondary, High School)",
+        "Açık ve Yeşil Alanlar (Park, Çocuk Bahçesi, Oyun Alanı)": "Open & Green Spaces (Parks, Playgrounds, Recreation)",
+        "Sağlık Tesisleri Alanı (Aile Sağlığı, Hastane vb.)": "Healthcare Facilities (Clinics, Hospitals, Health Centers)",
+        "Sosyal ve Kültürel Tesis Alanları": "Social & Cultural Facilities",
+        "İbadet Yeri Alanları": "Religious Facilities (Places of Worship)",
+        "Teknik Altyapı ve Belediye Hizmet Alanları": "Technical Infrastructure & Municipal Service Areas"
+      };
+
+      for (const [key, item] of Object.entries(mpyy)) {
+        if (key === 'total' || !item) continue;
+        const tr = document.createElement("tr");
+        const dispName = isEn ? (mpyyEnNames[item.name] || item.name) : item.name;
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 font-semibold text-slate-800">${dispName}</td>
+          <td class="py-2.5 px-3 text-right font-mono">${(item.per_capita || 0).toFixed(1)} ${isEn ? 'm²/person' : 'm²/kişi'}</td>
+          <td class="py-2.5 px-3 text-right font-bold text-slate-800">${(item.total_sqm || 0).toLocaleString('tr-TR', { maximumFractionDigits: 0 })} m²</td>
+          <td class="py-2.5 px-3 text-right font-extrabold text-rose-700">${(item.ha || 0).toFixed(2)} ${isEn ? 'Hectares' : 'Hektar'}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+
+      // Total row
+      const tot = mpyy.total;
+      if (tot) {
+        const trTot = document.createElement("tr");
+        trTot.className = "bg-rose-50 font-bold border-t-2 border-rose-300";
+        trTot.innerHTML = `
+          <td class="py-3 px-3 text-rose-950 uppercase">${isEn ? 'TOTAL REQUIRED URBAN AMENITY AREA' : 'TOPLAM GEREKLİ KENTSEL DONATI ALANI'}</td>
+          <td class="py-3 px-3 text-right font-mono text-rose-950">${(tot.per_capita || 19.0).toFixed(1)} ${isEn ? 'm²/person' : 'm²/kişi'}</td>
+          <td class="py-3 px-3 text-right text-rose-950">${(tot.total_sqm || 0).toLocaleString('tr-TR', { maximumFractionDigits: 0 })} m²</td>
+          <td class="py-3 px-3 text-right text-rose-900 text-sm font-black">${(tot.ha || 0).toFixed(2)} ${isEn ? 'Hectares' : 'Hektar'}</td>
+        `;
+        tbody.appendChild(trTot);
+      }
+    }
+
+    
+    // ==========================================
+    // 🌐 BILINGUAL I18N SYSTEM (TÜRKÇE / ENGLISH)
+    // ==========================================
+    let currentLang = localStorage.getItem("demografi_lang") || "tr";
+
+    const I18N = {
+      tr: {
+        appTitle: "KENTSEL DEMOGRAFİ & NÜFUS PROJEKSİYONU PRO",
+        appSubtitle: "Açık Kaynak Kentsel Planlama | Mert Çubukçu Metodolojisi & TÜİK Standartları",
+        btnQR: "📱 Telefondan Bağlan",
+        btnExcel: "Excel İndir (.xlsx)",
+        btnCalculate: "Hesapla",
+        btnLang: "English",
+        kpi1Title: "1. Mevcut Nüfus",
+        kpi1Sub: "Başlangıç Yılı",
+        kpi2Title: "2. Düşük Senaryo",
+        kpi2Sub: "(%0 Göç, Doğal)",
+        kpi3Title: "3. Orta Senaryo",
+        kpi3Sub: "(Geçmiş Trend)",
+        kpi4Title: "4. Yüksek Senaryo",
+        kpi4Sub: "(Plan Kabulü)",
+        kpi5Title: "5. Model Uyumu",
+        kpi6Title: "6. MPYY Donatı",
+        kpi6Sub: "Ek-2 Yasal Standart",
+        tabData: "📂 1. Çalışma Alanı & Veri",
+        tabCurves: "📈 2. Curve Fitting (6 Model)",
+        tabCohort: "👥 3. Kuşak-Bileşen & Piramit",
+        tabEconomic: "💼 4. İktisadi Taban Çarpanı",
+        tabShocks: "⚡ 5. Demografik Şoklar",
+        tabHansen: "🗺️ 6. Hansen Mekânsal & Harita",
+        tabMpyy: "📐 7. MPYY Standartları",
+        tabCitations: "📚 8. Metodoloji & Kaynakça",
+        tuikTitle: "TÜİK RESMİ ADNKS İL & İLÇE NÜFUS VE CİNSİYET VERİ TABANI (2024)",
+        tuikSub: "81 İl & 923+ İlçe • Cinsiyete Göre Nüfus (Kadın / Erkek) • 2015–2024 Yıllık Geçmiş Trend Serisi",
+        tuikUpload: "Resmi TÜİK Tablosu Yükle (.csv / .xlsx)",
+        tuikProvLabel: "1. İl Seçin (81 İl):",
+        tuikDistLabel: "2. İlçe Seçin:",
+        tuikLiveIndicators: "3. Canlı Demografik Göstergeler:",
+        tuikApplyBtn: "Bu İlçeyi Modellerime Yükle",
+        templateSectionTitle: "ÇALIŞMA ALANI SEÇİMİ VE DIŞ VERİ YÜKLEME",
+        lblTemplate: "Hazır Kent / Plan Şablonu:",
+        btnBlankTpl: "Boş Şablon İndir",
+        btnAgeTpl: "Yaş Şablonu İndir",
+        macroTitle: "TEMEL MAKRO PARAMETRELER (CANLI DEĞİŞTİRİLEBİLİR)",
+        lblBaseYear: "Başlangıç Yılı",
+        lblBasePop: "Mevcut Nüfus (P0)",
+        lblTarget1: "Hedef Yıl 1",
+        lblTarget2: "Hedef Yıl 2",
+        lblHhSize: "Hanehalkı Büyüklüğü",
+        lblHansenAlpha: "Hansen Alfa (α)",
+        subzonesTitle: "Alt Bölge / Mahalle Veri Tablosu",
+        subzonesSub: "Mevcut Nüfus, İstihdam, Boş Alan ve Merkeze Mesafe Parametreleri",
+        btnAddZone: "Mahalle Ekle",
+        btnSaveZone: "Değişiklikleri Kaydet & Hesapla",
+        thZone: "MAHALLE / ALT BÖLGE ADI",
+        thPop: "MEVCUT NÜFUS",
+        thEmp: "İSTİHDAM",
+        thVacant: "BOŞ ALAN (HA)",
+        thDist: "MESAFE (DK)",
+        thCap: "KAPASİTE (KİŞİ)",
+        thAction: "İŞLEM",
+        curvesTitle: "MATEMATİKSEL EĞRİ UYDURMA (6 MODEL)",
+        curvesSub: "En Küçük Kareler Yöntemi ile 6 Analitik Projeksiyon Modeli",
+        thModel: "MODEL TÜRÜ",
+        thFormula: "MATEMATİKSEL FORMÜL",
+        thR2: "BELİRLEME KATSAYISI (R²)",
+        thMape: "MAPE HATA PAYI",
+        thTargetPop: "HEDEF PROJEKSİYON",
+        thEval: "PLANLAMA DEĞERLENDİRMESİ",
+        cohortTitle: "KUŞAK-BİLEŞEN (COHORT-COMPONENT) VE 4 TEMEL DEMOGRAFİK DİNAMİK",
+        cohortSub: "Prof. Dr. K. Mert Çubukçu Metodolojisi & TÜİK MEDAS / Hayat Tabloları Entegrasyonu",
+        kpiChildDep: "ÇOCUK BAĞIMLILIĞI (0-14)",
+        kpiOldDep: "YAŞLI BAĞIMLILIĞI (65+)",
+        kpiTotDep: "TOPLAM BAĞIMLILIK ORANI",
+        kpiAgingIdx: "YAŞLANMA İNDEKSİ",
+        pyramidTitle: "Demografik Yaş-Cinsiyet Nüfus Piramidi",
+        pyramidLegend: "Mavi: Erkek | Pembe: Kadın",
+        pyramidYearLabel: "Görüntülenen Piramit Yılı:",
+        cohortTableTitle: "5'ER YILLIK YAŞ GRUPLARI VE TÜİK YAŞAM ORANLARI",
+        thAge: "YAŞ GRUBU",
+        thMale: "ERKEK",
+        thFemale: "KADIN",
+        thTot: "TOPLAM",
+        thCohortTarget: "HEDEF",
+        thSxM: "SX (ERKEK)",
+        thSxF: "SX (KADIN)",
+        econTitle: "İKTİSADİ TABAN (ECONOMIC BASE) ÇARPANI ANALİZİ",
+        econSub: "Minimum Gereksinimler (MG) ve Konum Katsayısı (LQ) Yöntemleri ile Yerel İstihdam Projeksiyonu",
+        shocksTitle: "DEMOGRAFİK ŞOKLAR VE POLİTİKA MÜDAHALELERİ",
+        shocksSub: "Beklenmedik Dışsal Olaylar, Deprem Göçü, Sanayi Yatırımları ve Kentsel Dönüşüm Etkileri",
+        btnAddShock: "Şok Ekle",
+        hansenMapTitle: "İnteraktif Kentsel Mekânsal Harita (Leaflet)",
+        hansenMapLegend: "Yeşil: Uygun | Kırmızı: Kapasite Aşımı",
+        hansenChartTitle: "Hansen Modeli Alt Bölge Nüfus Dağıtımı",
+        hansenTableTitle: "MAHALLE BAZINDA HEDEF NÜFUS VE KAPASİTE DOYGUNLUK ANALİZİ",
+        thDistAdd: "DAĞITILAN İLAVE (Gi)",
+        thHouseNeed: "KONUT İHTİYACI",
+        thSaturation: "DOYGUNLUK (%)",
+        thCapStatus: "KAPASİTE DURUMU",
+        statusExceeded: "Kapasite Aşımı",
+        statusOk: "Uygun",
+        statusHigh: "Yüksek",
+        mpyyTitle: "MEKÂNSAL PLANLAR YAPIM YÖNETMELİĞİ (MPYY) STANDARTLARI",
+        mpyySub: "Ek-2 Farklı Nüfus Gruplarında Asgari Kentsel Sosyal ve Teknik Altyapı Alanları",
+        thFacility: "DONATI TÜRÜ",
+        thStd: "KİŞİ BAŞI ASGARİ ALAN",
+        thReqArea: "GEREKLİ ALAN (M²)",
+        thReqHa: "ALAN (HEKTAR)",
+        citationsTitle: "METODOLOJİ VE BİLİMSEL KAYNAKÇA",
+        peopleSuffix: "Kişi",
+        mobData: "Veri",
+        mobCurves: "Modeller",
+        mobCohort: "Kohort",
+        mobEcon: "İktisat",
+        mobHansen: "Harita",
+        qrModalClose: "Anladım, Kapat",
+        qrModalTitle: "📱 Telefondan Bağlanın (Aynı Wi-Fi Ağı)",
+        qrModalDesc: "Bilgisayarınız ve cep telefonunuz aynı Wi-Fi ağına bağlıyken kameranızla QR kodu okutun veya tarayıcınıza aşağıdaki adresi yazın:"
+      },
+      en: {
+        appTitle: "URBAN DEMOGRAPHICS & POPULATION PROJECTION PRO",
+        appSubtitle: "Open Source Urban Planning | Mert Cubukcu Methodology & TUIK Standards",
+        btnQR: "📱 Mobile Connect",
+        btnExcel: "Export Excel (.xlsx)",
+        btnCalculate: "Calculate",
+        btnLang: "Türkçe",
+        kpi1Title: "1. Current Population",
+        kpi1Sub: "Base Year",
+        kpi2Title: "2. Low Scenario",
+        kpi2Sub: "(0% Migration, Natural)",
+        kpi3Title: "3. Medium Scenario",
+        kpi3Sub: "(Historical Trend)",
+        kpi4Title: "4. High Scenario",
+        kpi4Sub: "(Master Plan Policy)",
+        kpi5Title: "5. Model Fit",
+        kpi6Title: "6. MPYY Amenities",
+        kpi6Sub: "Annex-2 Legal Std",
+        tabData: "📂 1. Study Area & Data",
+        tabCurves: "📈 2. Curve Fitting (6 Models)",
+        tabCohort: "👥 3. Cohort-Component & Pyramid",
+        tabEconomic: "💼 4. Economic Base Multiplier",
+        tabShocks: "⚡ 5. Demographic Shocks",
+        tabHansen: "🗺️ 6. Hansen Spatial & Map",
+        tabMpyy: "📐 7. MPYY Standards",
+        tabCitations: "📚 8. Methodology & References",
+        tuikTitle: "TÜİK OFFICIAL ADNKS PROVINCE & DISTRICT POPULATION & SEX DATABASE (2024)",
+        tuikSub: "81 Provinces & 923+ Districts • Sex-Disaggregated Population • 2015–2024 Historical Trend Series",
+        tuikUpload: "Upload Official TÜİK Table (.csv / .xlsx)",
+        tuikProvLabel: "1. Select Province (81 Provinces):",
+        tuikDistLabel: "2. Select District:",
+        tuikLiveIndicators: "3. Live Demographic Indicators:",
+        tuikApplyBtn: "Load This District into My Models",
+        templateSectionTitle: "STUDY AREA SELECTION & EXTERNAL DATA UPLOAD",
+        lblTemplate: "Pre-Loaded City / Plan Template:",
+        btnBlankTpl: "Download Blank Template",
+        btnAgeTpl: "Download Age Template",
+        macroTitle: "CORE MACRO PARAMETERS (LIVE EDITABLE)",
+        lblBaseYear: "Base Year",
+        lblBasePop: "Current Population (P0)",
+        lblTarget1: "Target Year 1",
+        lblTarget2: "Target Year 2",
+        lblHhSize: "Household Size",
+        lblHansenAlpha: "Hansen Alpha (α)",
+        subzonesTitle: "Sub-Zone / Neighborhood Data Table",
+        subzonesSub: "Current Population, Employment, Vacant Land and Center Distance Parameters",
+        btnAddZone: "Add Neighborhood",
+        btnSaveZone: "Save Changes & Calculate",
+        thZone: "NEIGHBORHOOD / SUB-ZONE NAME",
+        thPop: "CURRENT POPULATION",
+        thEmp: "EMPLOYMENT",
+        thVacant: "VACANT AREA (HA)",
+        thDist: "DISTANCE (MIN)",
+        thCap: "CAPACITY (PERSONS)",
+        thAction: "ACTION",
+        curvesTitle: "MATHEMATICAL CURVE FITTING (6 MODELS)",
+        curvesSub: "6 Analytical Projection Models via Ordinary Least Squares (OLS)",
+        thModel: "MODEL TYPE",
+        thFormula: "MATHEMATICAL FORMULA",
+        thR2: "COEFFICIENT OF DETERMINATION (R²)",
+        thMape: "MAPE ERROR (%)",
+        thTargetPop: "TARGET PROJECTION",
+        thEval: "PLANNING EVALUATION",
+        cohortTitle: "COHORT-COMPONENT METHOD & 4 CORE DEMOGRAPHIC DYNAMICS",
+        cohortSub: "Prof. Dr. K. Mert Cubukcu Methodology & TÜİK MEDAS / Life Tables Integration",
+        kpiChildDep: "CHILD DEPENDENCY (0-14)",
+        kpiOldDep: "OLD AGE DEPENDENCY (65+)",
+        kpiTotDep: "TOTAL DEPENDENCY RATIO",
+        kpiAgingIdx: "AGING INDEX",
+        pyramidTitle: "Demographic Age-Sex Population Pyramid",
+        pyramidLegend: "Blue: Male | Pink: Female",
+        pyramidYearLabel: "Displayed Pyramid Year:",
+        cohortTableTitle: "5-YEAR AGE GROUPS & TÜİK SURVIVAL RATIOS",
+        thAge: "AGE GROUP",
+        thMale: "MALE",
+        thFemale: "FEMALE",
+        thTot: "TOTAL",
+        thCohortTarget: "TARGET",
+        thSxM: "SX (MALE)",
+        thSxF: "SX (FEMALE)",
+        econTitle: "ECONOMIC BASE MULTIPLIER ANALYSIS",
+        econSub: "Local Employment Projection via Minimum Requirements (MR) & Location Quotient (LQ) Methods",
+        shocksTitle: "DEMOGRAPHIC SHOCKS & POLICY INTERVENTIONS",
+        shocksSub: "Exogenous Events, Disaster Migration, Industrial Mega-Investments & Urban Regeneration Impacts",
+        btnAddShock: "Add Shock",
+        hansenMapTitle: "Interactive Urban Spatial Map (Leaflet)",
+        hansenMapLegend: "Green: Available | Red: Capacity Exceeded",
+        hansenChartTitle: "Hansen Model Sub-Zone Population Allocation",
+        hansenTableTitle: "NEIGHBORHOOD TARGET POPULATION & CAPACITY SATURATION ANALYSIS",
+        thDistAdd: "ALLOCATED ADDITIONAL (Gi)",
+        thHouseNeed: "HOUSING NEED",
+        thSaturation: "SATURATION (%)",
+        thCapStatus: "CAPACITY STATUS",
+        statusExceeded: "Capacity Exceeded",
+        statusOk: "Available",
+        statusHigh: "High",
+        mpyyTitle: "SPATIAL PLAN DESIGN REGULATION (MPYY) STANDARDS",
+        mpyySub: "Annex-2 Minimum Urban Social and Technical Infrastructure Areas for Different Population Groups",
+        thFacility: "AMENITY TYPE",
+        thStd: "MIN. AREA PER CAPITA",
+        thReqArea: "REQUIRED AREA (SQM)",
+        thReqHa: "AREA (HECTARES)",
+        citationsTitle: "METHODOLOGY AND SCIENTIFIC REFERENCES",
+        peopleSuffix: "People",
+        mobData: "Data",
+        mobCurves: "Models",
+        mobCohort: "Cohort",
+        mobEcon: "Economy",
+        mobHansen: "Map",
+        qrModalClose: "Close",
+        qrModalTitle: "📱 Connect via Mobile Phone (Same Wi-Fi)",
+        qrModalDesc: "While your computer and mobile phone are connected to the same Wi-Fi network, scan this QR code or type the address below in your mobile browser:"
+      }
+    };
+
+    function toggleLanguage() {
+      currentLang = currentLang === "tr" ? "en" : "tr";
+      localStorage.setItem("demografi_lang", currentLang);
+      applyLanguage(currentLang);
+    }
+
+    const PHRASE_PAIRS = [
+      ["Başlangıç Yılı", "Base Year"],
+      ["(%0 Göç, Doğal)", "(0% Migration, Natural)"],
+      ["(Geçmiş Trend)", "(Historical Trend)"],
+      ["Plan Kabulü", "Master Plan Policy"],
+      ["Ek-2 Yasal Standart", "Annex-2 Legal Standard"],
+      ["3. Canlı Demografik Göstergeler:", "3. Live Demographic Indicators:"],
+      ["👥 2024 Toplam:", "👥 2024 Total:"],
+      ["👨 Erkek:", "👨 Male:"],
+      ["👩 Kadın:", "👩 Female:"],
+      ["Kaynak: TÜİK Adrese Dayalı Nüfus Kayıt Sistemi (ADNKS) 2024", "Source: TÜİK Address Based Population Registration System (ADNKS) 2024"],
+      ["📌 Çalışma Alanı Seçimi ve Dış Veri Yükleme", "📌 Study Area Selection & External Data Upload"],
+      ["Hazır Kent / Plan Şablonu:", "Pre-Loaded City / Plan Template:"],
+      ["Excel (.xlsx) veya TÜİK CSV Yükle:", "Upload Excel (.xlsx) or TÜİK CSV:"],
+      ["📥 Boş Şablon İndir", "📥 Download Blank Template"],
+      ["👥 Yaş Şablonu İndir", "👥 Download Age Template"],
+      ["Mahalle / Alt Bölge Adı", "Neighborhood / Sub-Zone Name"],
+      ["Mevcut Nüfus", "Current Population"],
+      ["İstihdam", "Employment"],
+      ["Boş Alan (Ha)", "Vacant Area (Ha)"],
+      ["Mesafe (Dk)", "Distance (Min)"],
+      ["Kapasite (Kişi)", "Capacity (Persons)"],
+      ["İşlem", "Action"],
+      ["6 Matematiksel Regresyon Modeli Karşılaştırması", "Comparison of 6 Mathematical Regression Models"],
+      ["Projeksiyonu", "Projection"],
+      ["⭐ En İyi Uyumlu Model", "⭐ Best Fitting Model"],
+      ["Matematiksel Modellerin Formülleri ve Hata Parametreleri", "Formulas and Error Parameters of Mathematical Models"],
+      ["Model Adı", "Model Name"],
+      ["Formül", "Formula"],
+      ["R² (Uyum Katsayısı)", "R² (Coefficient of Determination)"],
+      ["SSE (Hata Kareler Toplamı)", "SSE (Sum of Squared Errors)"],
+      ["Değerlendirme", "Evaluation"],
+      ["KUŞAK-BİLEŞEN (COHORT-COMPONENT) VE 4 TEMEL DEMOGRAFİK DİNAMİK", "COHORT-COMPONENT METHOD & 4 CORE DEMOGRAPHIC DYNAMICS"],
+      ["Prof. Dr. K. Mert Çubukçu Metodolojisi & TÜİK MEDAS / Hayat Tabloları Entegrasyonu", "Prof. Dr. K. Mert Cubukcu Methodology & TÜİK MEDAS / Life Tables Integration"],
+      ["TÜİK MEDAS Yaş Tablosu Yükle (.xls / .xlsx / .csv)", "Upload TÜİK MEDAS Age Table (.xls / .xlsx / .csv)"],
+      ["Şablon İndir", "Download Template"],
+      ["1. Taban Yaş-Cinsiyet Nüfusu", "1. Base Age-Sex Population"],
+      ["17 yaş grubu (0-4...80+) kadın ve erkek ayrımı. Seçilen ilçeden otomatik sentezlenir veya MEDAS'tan yüklenir.", "17 age cohorts (0-4...80+) by sex. Automatically synthesized from selected district or uploaded from MEDAS."],
+      ["2. Doğurganlık Hızları (ASFR/TFR)", "2. Fertility Rates (ASFR/TFR)"],
+      ["3. TÜİK TD-10 Hayat Tablosu (Sx)", "3. TÜİK TD-10 Life Table (Sx)"],
+      ["Resmi TÜİK ölüm ve hayatta kalma katsayıları ile her 5 yılda bir sonraki yaş kademesine aktarma.", "Official TÜİK survival ratios advancing each cohort to the next 5-year age group."],
+      ["4. Net Göç ve Yaş Dağılımı", "4. Net Migration & Age Distribution"],
+      ["İktisadi taban çarpanı ($k$) ve bağımlılık ($b$) ile tetiklenen ekonomik göçün çalışma çağına (20-39) aktarılması.", "Allocation of economic migration triggered by base multiplier (k) and dependency (b) into working-age cohorts (20-39)."],
+      ["TÜİK TD-10 Hayat Tablosu", "TÜİK TD-10 Life Table"],
+      [" Erkek", " Male"],
+      [" Kadın", " Female"],
+      [" Toplam", " Total"],
+      [" Hedef", " Target"],
+      ["TÜRKİYE İL VE İLÇE RESMİ İKTİSADİ TABAN ÇARPANI VERİ TABANI", "OFFICIAL TURKEY PROVINCE & DISTRICT ECONOMIC BASE MULTIPLIER DATABASE"],
+      ["Yeni Çarpan Dosyası Yükle (.xls / .csv)", "Upload Custom Multiplier File (.xls / .csv)"],
+      ["1. İl Seçin:", "1. Select Province:"],
+      ["2. İlçe Seçin:", "2. Select District:"],
+      ["3. Resmi Çarpan Yöntemi Seçin (İki Yöntem Arasında Geçiş):", "3. Select Official Multiplier Method (Switch Between Two Methods):"],
+      ["📊 Konum Katsayısı (LQ)", "📊 Location Quotient (LQ)"],
+      ["Dış pazar katsayılı çarpan", "Export-oriented location quotient multiplier"],
+      ["📉 Minimum Gereksinimler (MG)", "📉 Minimum Requirements (MR)"],
+      ["Asgari pay katsayılı çarpan", "Minimum share threshold multiplier"],
+      ["İktisadi Taban Parametreleri", "Economic Base Parameters"],
+      ["Mevcut Toplam İstihdam (Et)", "Current Total Employment (Et)"],
+      ["Temel / Baz İstihdam (Eb - İhracata Yönelik)", "Basic Employment (Eb - Export Oriented)"],
+      ["Planlanan Yeni Baz İstihdam (ΔEb - Yeni OSB / Sanayi)", "Planned New Basic Jobs (ΔEb - New Industrial Zone)"],
+      ["İktisadi Göçü Yeniden Hesapla", "Recalculate Economic Migration"],
+      ["İktisadi Taban Çarpanı & Nüfus Sentezi", "Economic Base Multiplier & Population Synthesis"],
+      ["Baz Çarpanı (k = Et / Eb)", "Base Multiplier (k = Et / Eb)"],
+      ["Bağımlılık (b = P / Et)", "Dependency Ratio (b = P / Et)"],
+      ["Aktivite Oranı (%)", "Activity Rate (%)"],
+      ["İstihdam / Toplam Nüfus", "Employment / Total Population"],
+      ["Öngörülen İstihdam ve Göç Sonucu", "Projected Employment & Induced Migration"],
+      ["Yıllara Özel Demografik Şok ve Yatırım Simülatörü", "Year-Specific Demographic Shock & Investment Simulator"],
+      ["Yeni OSB, Deprem/Afet Göçü, Üniversite Kampüsü veya Hızlı Yatırım Projeleri", "New Industrial Zones, Disaster Migration, University Campus or Rapid Investments"],
+      ["➕ Yeni Şok Ekle", "➕ Add New Shock"],
+      ["Yıl", "Year"],
+      ["Şok / Proje Adı", "Shock / Project Name"],
+      ["Nüfus Etkisi (+/-)", "Population Impact (+/-)"],
+      ["Ağırlıklı Yaş Grubu", "Target Age Cohort"],
+      ["Tür", "Type"],
+      ["Dağıtılan İlave (Gi)", "Allocated Add. (Gi)"],
+      ["Kapasite Durumu", "Capacity Status"],
+      ["Mekânsal Planlar Yapım Yönetmeliği (Ek-2) Standartları", "Spatial Plan Design Regulation (Annex-2) Standards"],
+      ["Toplam 19 m² / Kişi", "Total 19 m² / Person"],
+      ["Kentsel Donatı Kategorisi", "Urban Amenity Category"],
+      ["Yasal Kişi Başı Standart (m²/kişi)", "Legal Standard Per Capita (m²/person)"],
+      ["Gereken İlave Alan (m²)", "Required Additional Area (m²)"],
+      ["Gereken İlave Alan (Hektar)", "Required Additional Area (Hectares)"],
+      ["Prof. Dr. Mert Çubukçu Metodolojisi & Bilimsel Literatür", "Prof. Dr. Mert Cubukcu Methodology & Scientific Literature"],
+      ["Dokuz Eylül Üniversitesi Şehir ve Bölge Planlama Bölümü", "Dokuz Eylul University Department of City and Regional Planning"],
+      ["📖 1. İktisadi Taban (Economic Base) & Kentsel Büyüme", "📖 1. Economic Base & Urban Growth"],
+      ["🗺️ 2. Hansen Mekânsal Çekim & Doygunluk Modeli", "🗺️ 2. Hansen Spatial Gravity & Saturation Model"],
+      ["👥 3. Kuşak-Bileşen (Cohort-Component) & TÜİK TD-10 Standartları", "👥 3. Cohort-Component & TÜİK TD-10 Standards"],
+      ["ResearchGate Akademik Referanslar:", "Academic References (ResearchGate):"]
+    ];
+
+    function translateDOMTextNodes(lang) {
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+      let node;
+      while ((node = walker.nextNode())) {
+        if (!node.parentElement) continue;
+        const tag = node.parentElement.tagName;
+        if (tag === "SCRIPT" || tag === "STYLE") continue;
+        let val = node.nodeValue;
+        if (!val || !val.trim()) continue;
+        const trimmed = val.trim();
+        for (const [trStr, enStr] of PHRASE_PAIRS) {
+          if (lang === "en" && trimmed === trStr) {
+            node.nodeValue = val.replace(trStr, enStr);
+            break;
+          } else if (lang === "tr" && trimmed === enStr) {
+            node.nodeValue = val.replace(enStr, trStr);
+            break;
+          }
+        }
+      }
+    }
+
+    function applyLanguage(lang) {
+      if (!I18N[lang]) lang = "tr";
+      currentLang = lang;
+      const dict = I18N[lang];
+      document.documentElement.lang = lang;
+
+      // Update toggle button label
+      const lblLang = document.getElementById("lblLang");
+      if (lblLang) lblLang.textContent = dict.btnLang;
+
+      // Update elements with data-i18n
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (dict[key]) {
+          el.textContent = dict[key];
+        }
+      });
+
+      // Update elements with data-i18n-html
+      document.querySelectorAll("[data-i18n-html]").forEach(el => {
+        const key = el.getAttribute("data-i18n-html");
+        if (dict[key]) {
+          el.innerHTML = dict[key];
+        }
+      });
+
+      // Translate static text nodes bidirectionally
+      translateDOMTextNodes(lang);
+
+      // Refresh dynamic sections
+      refreshYearLabels();
+      try { onAdnksDistChanged(false); } catch(e) {}
+      try { onDistrictChanged(false); } catch(e) {}
+      try { renderShocksTable(); } catch(e) {}
+      if (state.calculationResult) {
+        updateUIWithResults(state.calculationResult);
+      }
+    }
+
+
+    async function exportExcel() {
+      if (!state.calculationResult) {
+        alert("Lütfen önce hesaplama yapın.");
+        return;
+      }
+
+      const payload = {
+        template_data: {
+          name: state.templates[state.currentTemplateKey]?.name || "Kentsel Çalışma Alanı",
+          base_year: parseInt(document.getElementById("inpBaseYear").value) || 2025,
+          base_pop: parseInt(document.getElementById("inpBasePop").value) || 65395,
+          target_year_1: getYears().t1,
+          target_year_2: getYears().t2,
+          target_pop_1: (state.calculationResult.kpis.high_t1 !== undefined ? state.calculationResult.kpis.high_t1 : state.calculationResult.kpis.high_2045),
+          target_pop_2: (state.calculationResult.kpis.high_t2 !== undefined ? state.calculationResult.kpis.high_t2 : Math.round(state.calculationResult.kpis.high_2045 * 1.055))
+        },
+        curve_results: state.calculationResult.curve_results,
+        cohort_results: state.calculationResult.cohort_results,
+        economic_base: state.calculationResult.economic_base,
+        demographic_shocks: state.calculationResult.demographic_shocks
+      };
+
+      try {
+        const res = await fetch("/api/export-report", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          const blob = await res.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `Kentsel_Projeksiyon_Raporu_${state.currentTemplateKey}.xlsx`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        } else {
+          alert("Excel raporu üretilemedi: " + (await res.text()));
+        }
+      } catch (err) {
+        alert("Excel indirme hatası: " + err);
+      }
+    }
+  
+  </script>
+</body>
+</html>

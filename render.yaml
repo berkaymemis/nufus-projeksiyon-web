@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: kent-demografi-web
+    env: python
+    region: frankfurt
+    plan: free
+    buildCommand: ""
+    startCommand: python server.py --port $PORT --no-browser
+    healthCheckPath: /api/status
+    autoDeploy: true
