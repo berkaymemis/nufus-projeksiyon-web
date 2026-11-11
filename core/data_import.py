@@ -7,9 +7,14 @@ Herhangi bir şehir, ilçe veya çalışma alanı için Excel (.xlsx) ve CSV ent
 
 import os, re, csv
 from typing import Dict, Any, List, Optional
-import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-from openpyxl.utils import get_column_letter
+try:
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+    HAS_OPENPYXL = True
+except ImportError:
+    HAS_OPENPYXL = False
+    openpyxl = None
 
 
 def normalize_col_name(name: str) -> str:

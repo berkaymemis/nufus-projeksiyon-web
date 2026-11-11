@@ -27,43 +27,23 @@ WORKSPACE_ROOT = PLUGIN_ROOT.parent.parent
 if str(CURRENT_DIR) not in sys.path:
     sys.path.insert(0, str(CURRENT_DIR))
 
-try:
-    from core.curve_fitting import CurveFittingEngine
-    from core.cohort_model import CohortComponentEngine, AGE_GROUPS
-    from core.economic_base import EconomicBaseEngine
-    from core.demographic_shocks import ShockEngine, DemographicShock
-    from core.hansen_model import HansenAllocationEngine
-    from core.city_templates import CITY_TEMPLATES
-    from core.data_import import DataImportEngine
-    from core.xlsx_export import ExcelReportEngine
-    from core.researchgate_citations import CUBUKCU_CITATIONS, EXPLANATION_TEXTS
-    from core.district_multipliers import (
-        DISTRICT_BASE_MULTIPLIERS, get_all_provinces, get_districts_by_province,
-        get_district_info, parse_custom_multiplier_file, CITATION_CUBUKCU_2011, CITATION_KUZIP_2026
-    )
-    from core.tuik_adnks import (
-        TUIK_ADNKS_DATA, get_adnks_provinces, get_adnks_districts,
-        get_adnks_district_data, search_adnks_districts, parse_tuik_adnks_file
-    )
-except ImportError:
-    # Alternative import path when invoked from workspace root
-    from plugins.incubating.nufus_projeksiyon_tum.core.curve_fitting import CurveFittingEngine
-    from plugins.incubating.nufus_projeksiyon_tum.core.cohort_model import CohortComponentEngine, AGE_GROUPS
-    from plugins.incubating.nufus_projeksiyon_tum.core.economic_base import EconomicBaseEngine
-    from plugins.incubating.nufus_projeksiyon_tum.core.demographic_shocks import ShockEngine, DemographicShock
-    from plugins.incubating.nufus_projeksiyon_tum.core.hansen_model import HansenAllocationEngine
-    from plugins.incubating.nufus_projeksiyon_tum.core.city_templates import CITY_TEMPLATES
-    from plugins.incubating.nufus_projeksiyon_tum.core.data_import import DataImportEngine
-    from plugins.incubating.nufus_projeksiyon_tum.core.xlsx_export import ExcelReportEngine
-    from plugins.incubating.nufus_projeksiyon_tum.core.researchgate_citations import CUBUKCU_CITATIONS, EXPLANATION_TEXTS
-    from plugins.incubating.nufus_projeksiyon_tum.core.district_multipliers import (
-        DISTRICT_BASE_MULTIPLIERS, get_all_provinces, get_districts_by_province,
-        get_district_info, parse_custom_multiplier_file, CITATION_CUBUKCU_2011, CITATION_KUZIP_2026
-    )
-    from plugins.incubating.nufus_projeksiyon_tum.core.tuik_adnks import (
-        TUIK_ADNKS_DATA, get_adnks_provinces, get_adnks_districts,
-        get_adnks_district_data, search_adnks_districts, parse_tuik_adnks_file
-    )
+from core.curve_fitting import CurveFittingEngine
+from core.cohort_model import CohortComponentEngine, AGE_GROUPS
+from core.economic_base import EconomicBaseEngine
+from core.demographic_shocks import ShockEngine, DemographicShock
+from core.hansen_model import HansenAllocationEngine
+from core.city_templates import CITY_TEMPLATES
+from core.data_import import DataImportEngine
+from core.xlsx_export import ExcelReportEngine
+from core.researchgate_citations import CUBUKCU_CITATIONS, EXPLANATION_TEXTS
+from core.district_multipliers import (
+    DISTRICT_BASE_MULTIPLIERS, get_all_provinces, get_districts_by_province,
+    get_district_info, parse_custom_multiplier_file, CITATION_CUBUKCU_2011, CITATION_KUZIP_2026
+)
+from core.tuik_adnks import (
+    TUIK_ADNKS_DATA, get_adnks_provinces, get_adnks_districts,
+    get_adnks_district_data, search_adnks_districts, parse_tuik_adnks_file
+)
 
 
 def get_local_ip() -> str:

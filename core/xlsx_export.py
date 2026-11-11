@@ -5,9 +5,14 @@ Destekleyici Formüllü Projeksiyon Çalışma Kitabı (.xlsx)
 """
 
 import os, zipfile, xml.etree.ElementTree as ET
-import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-from openpyxl.utils import get_column_letter
+try:
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+    HAS_OPENPYXL = True
+except ImportError:
+    HAS_OPENPYXL = False
+    openpyxl = None
 from typing import Dict, Any, List
 
 

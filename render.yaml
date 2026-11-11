@@ -1,10 +1,10 @@
 services:
   - type: web
-    name: kent-demografi-web
+    name: nufus-projeksiyon
     env: python
     region: frankfurt
     plan: free
-    buildCommand: ""
-    startCommand: python server.py --port $PORT --no-browser
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python server.py --port $PORT --no-browser"
     healthCheckPath: /api/status
     autoDeploy: true
