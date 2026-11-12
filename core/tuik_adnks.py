@@ -77,183 +77,29 @@ def _apply_province_tfr_to_all_districts() -> None:
 _apply_province_tfr_to_all_districts()
 
 
-# %100 Gerçek TÜİK MEDAS Mahalle Verileri ile Zenginleştirilmiş Öncü İlçeler
-PRELOADED_DISTRICT_SUBZONES: Dict[str, Dict[str, List[Dict[str, Any]]]] = {
-    'ADANA': {
-        'ALADAĞ': [
-            {"id": 1, "name": "Akören Mah.", "base_pop": 872, "current_pop": 872, "male": 458, "female": 414},
-            {"id": 2, "name": "Akpınar Mah.", "base_pop": 541, "current_pop": 541, "male": 284, "female": 257},
-            {"id": 3, "name": "Başpınar Mah.", "base_pop": 822, "current_pop": 822, "male": 432, "female": 390},
-            {"id": 4, "name": "Boztahta Mah.", "base_pop": 237, "current_pop": 237, "male": 124, "female": 113},
-            {"id": 5, "name": "Büyüksofulu Mah.", "base_pop": 1615, "current_pop": 1615, "male": 848, "female": 767},
-            {"id": 6, "name": "Ceritler Mah.", "base_pop": 1176, "current_pop": 1176, "male": 618, "female": 558},
-            {"id": 7, "name": "Dailer Mah.", "base_pop": 124, "current_pop": 124, "male": 65, "female": 59},
-            {"id": 8, "name": "Darılık Mah.", "base_pop": 83, "current_pop": 83, "male": 44, "female": 39},
-            {"id": 9, "name": "Dölekli Mah.", "base_pop": 606, "current_pop": 606, "male": 318, "female": 288},
-            {"id": 10, "name": "Ebrişim Mah.", "base_pop": 156, "current_pop": 156, "male": 82, "female": 74},
-            {"id": 11, "name": "Eğner Mah.", "base_pop": 111, "current_pop": 111, "male": 58, "female": 53},
-            {"id": 12, "name": "Gerdibi Mah.", "base_pop": 1096, "current_pop": 1096, "male": 576, "female": 520},
-            {"id": 13, "name": "Gireğiyeniköy Mah.", "base_pop": 316, "current_pop": 316, "male": 166, "female": 150},
-            {"id": 14, "name": "Gökçeköy Mah.", "base_pop": 224, "current_pop": 224, "male": 118, "female": 106},
-            {"id": 15, "name": "Kabasakal Mah.", "base_pop": 209, "current_pop": 209, "male": 110, "female": 99},
-            {"id": 16, "name": "Karahan Mah.", "base_pop": 136, "current_pop": 136, "male": 71, "female": 65},
-            {"id": 17, "name": "Kıcak Mah.", "base_pop": 852, "current_pop": 852, "male": 447, "female": 405},
-            {"id": 18, "name": "Kışlak Mah.", "base_pop": 151, "current_pop": 151, "male": 79, "female": 72},
-            {"id": 19, "name": "Kızıldam Mah.", "base_pop": 508, "current_pop": 508, "male": 267, "female": 241},
-            {"id": 20, "name": "Kökez Mah.", "base_pop": 1067, "current_pop": 1067, "male": 560, "female": 507},
-            {"id": 21, "name": "Köprücük Mah.", "base_pop": 329, "current_pop": 329, "male": 173, "female": 156},
-            {"id": 22, "name": "Küp Mah.", "base_pop": 78, "current_pop": 78, "male": 41, "female": 37},
-            {"id": 23, "name": "Madenli Mah.", "base_pop": 106, "current_pop": 106, "male": 56, "female": 50},
-            {"id": 24, "name": "Mansurlu Mah.", "base_pop": 1598, "current_pop": 1598, "male": 839, "female": 759},
-            {"id": 25, "name": "Mazılık Mah.", "base_pop": 94, "current_pop": 94, "male": 49, "female": 45},
-            {"id": 26, "name": "Posyağbasan Mah.", "base_pop": 412, "current_pop": 412, "male": 216, "female": 196},
-            {"id": 27, "name": "Sinanpaşa Mah.", "base_pop": 1424, "current_pop": 1424, "male": 748, "female": 676},
-            {"id": 28, "name": "Topallı Mah.", "base_pop": 233, "current_pop": 233, "male": 122, "female": 111},
-            {"id": 29, "name": "Uzunkuyu Mah.", "base_pop": 209, "current_pop": 209, "male": 110, "female": 99},
-            {"id": 30, "name": "Yetimli Mah.", "base_pop": 387, "current_pop": 387, "male": 203, "female": 184},
-            {"id": 31, "name": "Yüksekören Mah.", "base_pop": 67, "current_pop": 67, "male": 35, "female": 32},
-        ]
-    },
-    'İZMİR': {
-        'ALİAĞA': [
-            {"id": 1, "name": "Yeni Mah.", "base_pop": 19004, "current_pop": 19004, "male": 9787, "female": 9217, "jobs": 8742, "capacity_ha": 5.0, "distance_to_center_min": 1.5, "plan_pop_capacity": 25655},
-            {"id": 2, "name": "Siteler Mah.", "base_pop": 14104, "current_pop": 14104, "male": 7264, "female": 6840, "jobs": 6488, "capacity_ha": 8.0, "distance_to_center_min": 2.0, "plan_pop_capacity": 19040},
-            {"id": 3, "name": "Bahçedere Mah.", "base_pop": 11755, "current_pop": 11755, "male": 6054, "female": 5701, "jobs": 5407, "capacity_ha": 25.0, "distance_to_center_min": 6.0, "plan_pop_capacity": 15869},
-            {"id": 4, "name": "Atatürk Mah.", "base_pop": 9353, "current_pop": 9353, "male": 4817, "female": 4536, "jobs": 4302, "capacity_ha": 6.0, "distance_to_center_min": 1.5, "plan_pop_capacity": 12627},
-            {"id": 5, "name": "Kurtuluş Mah.", "base_pop": 8569, "current_pop": 8569, "male": 4413, "female": 4156, "jobs": 3942, "capacity_ha": 5.0, "distance_to_center_min": 1.0, "plan_pop_capacity": 11568},
-            {"id": 6, "name": "Kültür Mah.", "base_pop": 8565, "current_pop": 8565, "male": 4411, "female": 4154, "jobs": 3940, "capacity_ha": 4.0, "distance_to_center_min": 1.0, "plan_pop_capacity": 11563},
-            {"id": 7, "name": "Kazım Dirik Mah.", "base_pop": 8340, "current_pop": 8340, "male": 4295, "female": 4045, "jobs": 3836, "capacity_ha": 5.0, "distance_to_center_min": 1.2, "plan_pop_capacity": 11259},
-            {"id": 8, "name": "Örnekkent Mah.", "base_pop": 7207, "current_pop": 7207, "male": 3712, "female": 3495, "jobs": 3315, "capacity_ha": 18.0, "distance_to_center_min": 4.0, "plan_pop_capacity": 9729},
-            {"id": 9, "name": "Şakran Hasbi Efendi Mah.", "base_pop": 4300, "current_pop": 4300, "male": 2214, "female": 2086, "jobs": 1978, "capacity_ha": 30.0, "distance_to_center_min": 12.0, "plan_pop_capacity": 5805},
-            {"id": 10, "name": "Şakran Sayfiye Mah.", "base_pop": 3950, "current_pop": 3950, "male": 2034, "female": 1916, "jobs": 1817, "capacity_ha": 40.0, "distance_to_center_min": 14.0, "plan_pop_capacity": 5332},
-            {"id": 11, "name": "Yalı Mah.", "base_pop": 3678, "current_pop": 3678, "male": 1894, "female": 1784, "jobs": 1692, "capacity_ha": 12.0, "distance_to_center_min": 3.5, "plan_pop_capacity": 4965},
-            {"id": 12, "name": "Fatih Mah.", "base_pop": 2375, "current_pop": 2375, "male": 1223, "female": 1152, "jobs": 1092, "capacity_ha": 15.0, "distance_to_center_min": 7.0, "plan_pop_capacity": 3206},
-            {"id": 13, "name": "Barbaros Hayrettin Paşa Mah.", "base_pop": 1581, "current_pop": 1581, "male": 814, "female": 767, "jobs": 727, "capacity_ha": 20.0, "distance_to_center_min": 8.0, "plan_pop_capacity": 2134},
-            {"id": 14, "name": "Mimar Sinan Mah.", "base_pop": 1351, "current_pop": 1351, "male": 696, "female": 655, "jobs": 621, "capacity_ha": 10.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 1824},
-            {"id": 15, "name": "Hacıömerli Mah.", "base_pop": 959, "current_pop": 959, "male": 494, "female": 465, "jobs": 441, "capacity_ha": 25.0, "distance_to_center_min": 10.0, "plan_pop_capacity": 1295},
-            {"id": 16, "name": "Çakmaklı Mah.", "base_pop": 864, "current_pop": 864, "male": 445, "female": 419, "jobs": 397, "capacity_ha": 30.0, "distance_to_center_min": 9.0, "plan_pop_capacity": 1166},
-            {"id": 17, "name": "Çaltılıdere Mah.", "base_pop": 786, "current_pop": 786, "male": 405, "female": 381, "jobs": 362, "capacity_ha": 35.0, "distance_to_center_min": 8.0, "plan_pop_capacity": 1061},
-            {"id": 18, "name": "Güzelhisar Mah.", "base_pop": 682, "current_pop": 682, "male": 351, "female": 331, "jobs": 314, "capacity_ha": 40.0, "distance_to_center_min": 11.0, "plan_pop_capacity": 921},
-            {"id": 19, "name": "Bozköy Mah.", "base_pop": 551, "current_pop": 551, "male": 284, "female": 267, "jobs": 253, "capacity_ha": 30.0, "distance_to_center_min": 13.0, "plan_pop_capacity": 744},
-            {"id": 20, "name": "Çıtak Mah.", "base_pop": 493, "current_pop": 493, "male": 254, "female": 239, "jobs": 227, "capacity_ha": 25.0, "distance_to_center_min": 15.0, "plan_pop_capacity": 666},
-            {"id": 21, "name": "Kalabak Mah.", "base_pop": 446, "current_pop": 446, "male": 230, "female": 216, "jobs": 205, "capacity_ha": 20.0, "distance_to_center_min": 16.0, "plan_pop_capacity": 602},
-            {"id": 22, "name": "Samurlu Mah.", "base_pop": 432, "current_pop": 432, "male": 222, "female": 210, "jobs": 199, "capacity_ha": 20.0, "distance_to_center_min": 7.5, "plan_pop_capacity": 583},
-            {"id": 23, "name": "Horozgediği Mah.", "base_pop": 305, "current_pop": 305, "male": 157, "female": 148, "jobs": 140, "capacity_ha": 50.0, "distance_to_center_min": 12.0, "plan_pop_capacity": 412},
-            {"id": 24, "name": "Aşağı Şakran Mah.", "base_pop": 263, "current_pop": 263, "male": 135, "female": 128, "jobs": 121, "capacity_ha": 30.0, "distance_to_center_min": 13.0, "plan_pop_capacity": 355},
-            {"id": 25, "name": "Şehitkemal Mah.", "base_pop": 195, "current_pop": 195, "male": 100, "female": 95, "jobs": 90, "capacity_ha": 25.0, "distance_to_center_min": 14.0, "plan_pop_capacity": 263},
-            {"id": 26, "name": "Yukarı Şehitkemal Mah.", "base_pop": 140, "current_pop": 140, "male": 72, "female": 68, "jobs": 64, "capacity_ha": 20.0, "distance_to_center_min": 16.0, "plan_pop_capacity": 189},
-            {"id": 27, "name": "Uzunhasanlar Mah.", "base_pop": 130, "current_pop": 130, "male": 67, "female": 63, "jobs": 60, "capacity_ha": 25.0, "distance_to_center_min": 17.0, "plan_pop_capacity": 176},
-            {"id": 28, "name": "Karaköy Mah.", "base_pop": 120, "current_pop": 120, "male": 62, "female": 58, "jobs": 55, "capacity_ha": 20.0, "distance_to_center_min": 18.0, "plan_pop_capacity": 162},
-            {"id": 29, "name": "Kapukaya Mah.", "base_pop": 110, "current_pop": 110, "male": 57, "female": 53, "jobs": 51, "capacity_ha": 20.0, "distance_to_center_min": 19.0, "plan_pop_capacity": 148},
-            {"id": 30, "name": "Karakuzu Mah.", "base_pop": 100, "current_pop": 100, "male": 52, "female": 48, "jobs": 46, "capacity_ha": 20.0, "distance_to_center_min": 20.0, "plan_pop_capacity": 135},
-            {"id": 31, "name": "Çoraklar Mah.", "base_pop": 95, "current_pop": 95, "male": 49, "female": 46, "jobs": 44, "capacity_ha": 25.0, "distance_to_center_min": 22.0, "plan_pop_capacity": 128},
-            {"id": 32, "name": "Yüksekköy Mah.", "base_pop": 89, "current_pop": 89, "male": 46, "female": 43, "jobs": 41, "capacity_ha": 20.0, "distance_to_center_min": 21.0, "plan_pop_capacity": 120},
-        ],
-        'TİRE': [
-            {"id": 1, "name": "Bahari̇ye Mah.", "base_pop": 1068, "current_pop": 1068, "male": 532, "female": 536, "jobs": 427, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 1388},
-            {"id": 2, "name": "Cumhuri̇yet Mah.", "base_pop": 3545, "current_pop": 3545, "male": 1765, "female": 1780, "jobs": 1418, "capacity_ha": 10.6, "distance_to_center_min": 5.0, "plan_pop_capacity": 4608},
-            {"id": 3, "name": "Dere Mah.", "base_pop": 1358, "current_pop": 1358, "male": 676, "female": 682, "jobs": 543, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 1765},
-            {"id": 4, "name": "Duatepe Mah.", "base_pop": 374, "current_pop": 374, "male": 186, "female": 188, "jobs": 150, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 486},
-            {"id": 5, "name": "Dumlupinar Mah.", "base_pop": 557, "current_pop": 557, "male": 277, "female": 280, "jobs": 223, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 724},
-            {"id": 6, "name": "Ertuğrul Mah.", "base_pop": 650, "current_pop": 650, "male": 324, "female": 326, "jobs": 260, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 845},
-            {"id": 7, "name": "İhsani̇ye Mah.", "base_pop": 1856, "current_pop": 1856, "male": 924, "female": 932, "jobs": 742, "capacity_ha": 5.6, "distance_to_center_min": 5.0, "plan_pop_capacity": 2413},
-            {"id": 8, "name": "İpekçi̇ler Mah.", "base_pop": 1629, "current_pop": 1629, "male": 811, "female": 818, "jobs": 652, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 2118},
-            {"id": 9, "name": "İsti̇klal Mah.", "base_pop": 1249, "current_pop": 1249, "male": 622, "female": 627, "jobs": 500, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 1624},
-            {"id": 10, "name": "Karaca Ali̇ Mah.", "base_pop": 233, "current_pop": 233, "male": 116, "female": 117, "jobs": 93, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 303},
-            {"id": 11, "name": "Ketenci̇ Mah.", "base_pop": 1322, "current_pop": 1322, "male": 658, "female": 664, "jobs": 529, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 1719},
-            {"id": 12, "name": "Kurtuluş Mah.", "base_pop": 4891, "current_pop": 4891, "male": 2436, "female": 2455, "jobs": 1956, "capacity_ha": 14.7, "distance_to_center_min": 5.0, "plan_pop_capacity": 6358},
-            {"id": 13, "name": "Paşa Mah.", "base_pop": 875, "current_pop": 875, "male": 436, "female": 439, "jobs": 350, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 1138},
-            {"id": 14, "name": "Turan Mah.", "base_pop": 1578, "current_pop": 1578, "male": 786, "female": 792, "jobs": 631, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 2051},
-            {"id": 15, "name": "Yeni̇ Mah.", "base_pop": 1299, "current_pop": 1299, "male": 647, "female": 652, "jobs": 520, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 1689},
-            {"id": 16, "name": "4 Eylül Mah.", "base_pop": 4062, "current_pop": 4062, "male": 2023, "female": 2039, "jobs": 1625, "capacity_ha": 12.2, "distance_to_center_min": 5.0, "plan_pop_capacity": 5281},
-            {"id": 17, "name": "Adnan Menderes Mah.", "base_pop": 5014, "current_pop": 5014, "male": 2497, "female": 2517, "jobs": 2006, "capacity_ha": 15.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 6518},
-            {"id": 18, "name": "Atatürk Mah.", "base_pop": 6153, "current_pop": 6153, "male": 3064, "female": 3089, "jobs": 2461, "capacity_ha": 18.5, "distance_to_center_min": 5.0, "plan_pop_capacity": 7999},
-            {"id": 19, "name": "Hürri̇yet Mah.", "base_pop": 8683, "current_pop": 8683, "male": 4324, "female": 4359, "jobs": 3473, "capacity_ha": 26.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 11288},
-            {"id": 20, "name": "Toki̇ Mah.", "base_pop": 2719, "current_pop": 2719, "male": 1354, "female": 1365, "jobs": 1088, "capacity_ha": 8.2, "distance_to_center_min": 5.0, "plan_pop_capacity": 3535},
-            {"id": 21, "name": "İbni̇ Melek Mah.", "base_pop": 4525, "current_pop": 4525, "male": 2253, "female": 2272, "jobs": 1810, "capacity_ha": 13.6, "distance_to_center_min": 5.0, "plan_pop_capacity": 5882},
-            {"id": 22, "name": "Fati̇h Mah.", "base_pop": 11988, "current_pop": 11988, "male": 5970, "female": 6018, "jobs": 4795, "capacity_ha": 36.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 15584},
-            {"id": 23, "name": "Gökçen Mah.", "base_pop": 926, "current_pop": 926, "male": 461, "female": 465, "jobs": 370, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 1204},
-            {"id": 24, "name": "Akkoyunlu Mah.", "base_pop": 456, "current_pop": 456, "male": 227, "female": 229, "jobs": 182, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 593},
-            {"id": 25, "name": "Akmesci̇t Mah.", "base_pop": 457, "current_pop": 457, "male": 228, "female": 229, "jobs": 183, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 594},
-            {"id": 26, "name": "Alacali Mah.", "base_pop": 228, "current_pop": 228, "male": 114, "female": 114, "jobs": 91, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 296},
-            {"id": 27, "name": "Armutlu Mah.", "base_pop": 46, "current_pop": 46, "male": 23, "female": 23, "jobs": 18, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 60},
-            {"id": 28, "name": "Ayaklikiri Mah.", "base_pop": 302, "current_pop": 302, "male": 150, "female": 152, "jobs": 121, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 393},
-            {"id": 29, "name": "Başköy Mah.", "base_pop": 454, "current_pop": 454, "male": 226, "female": 228, "jobs": 182, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 590},
-            {"id": 30, "name": "Boynuyoğun Mah.", "base_pop": 326, "current_pop": 326, "male": 162, "female": 164, "jobs": 130, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 424},
-            {"id": 31, "name": "Büyükkemerdere Mah.", "base_pop": 359, "current_pop": 359, "male": 179, "female": 180, "jobs": 144, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 467},
-            {"id": 32, "name": "Büyükkömürcü Mah.", "base_pop": 318, "current_pop": 318, "male": 158, "female": 160, "jobs": 127, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 413},
-            {"id": 33, "name": "Cambazli Mah.", "base_pop": 252, "current_pop": 252, "male": 125, "female": 127, "jobs": 101, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 328},
-            {"id": 34, "name": "Çayirli Mah.", "base_pop": 264, "current_pop": 264, "male": 131, "female": 133, "jobs": 106, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 343},
-            {"id": 35, "name": "Çeri̇közü Mah.", "base_pop": 342, "current_pop": 342, "male": 170, "female": 172, "jobs": 137, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 445},
-            {"id": 36, "name": "Çi̇ni̇yeri̇ Mah.", "base_pop": 557, "current_pop": 557, "male": 277, "female": 280, "jobs": 223, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 724},
-            {"id": 37, "name": "Çukurköy Mah.", "base_pop": 129, "current_pop": 129, "male": 64, "female": 65, "jobs": 52, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 168},
-            {"id": 38, "name": "Dağdere Mah.", "base_pop": 325, "current_pop": 325, "male": 162, "female": 163, "jobs": 130, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 422},
-            {"id": 39, "name": "Dallik Mah.", "base_pop": 316, "current_pop": 316, "male": 157, "female": 159, "jobs": 126, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 411},
-            {"id": 40, "name": "Derebaşi Mah.", "base_pop": 840, "current_pop": 840, "male": 418, "female": 422, "jobs": 336, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 1092},
-            {"id": 41, "name": "Di̇bekçi̇ Mah.", "base_pop": 76, "current_pop": 76, "male": 38, "female": 38, "jobs": 30, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 99},
-            {"id": 42, "name": "Doyranli Mah.", "base_pop": 286, "current_pop": 286, "male": 142, "female": 144, "jobs": 114, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 372},
-            {"id": 43, "name": "Dündarli Mah.", "base_pop": 307, "current_pop": 307, "male": 153, "female": 154, "jobs": 123, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 399},
-            {"id": 44, "name": "Eski̇oba Mah.", "base_pop": 481, "current_pop": 481, "male": 240, "female": 241, "jobs": 192, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 625},
-            {"id": 45, "name": "Hi̇sarlik Mah.", "base_pop": 188, "current_pop": 188, "male": 94, "female": 94, "jobs": 75, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 244},
-            {"id": 46, "name": "Işiklar Mah.", "base_pop": 460, "current_pop": 460, "male": 229, "female": 231, "jobs": 184, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 598},
-            {"id": 47, "name": "Işikli Mah.", "base_pop": 742, "current_pop": 742, "male": 370, "female": 372, "jobs": 297, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 965},
-            {"id": 48, "name": "Kaplan Mah.", "base_pop": 108, "current_pop": 108, "male": 54, "female": 54, "jobs": 43, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 140},
-            {"id": 49, "name": "Karateke Mah.", "base_pop": 558, "current_pop": 558, "male": 278, "female": 280, "jobs": 223, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 725},
-            {"id": 50, "name": "Ki̇reli̇ Mah.", "base_pop": 669, "current_pop": 669, "male": 333, "female": 336, "jobs": 268, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 870},
-            {"id": 51, "name": "Küçükburun Mah.", "base_pop": 143, "current_pop": 143, "male": 71, "female": 72, "jobs": 57, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 186},
-            {"id": 52, "name": "Küçükkemerdere Mah.", "base_pop": 593, "current_pop": 593, "male": 295, "female": 298, "jobs": 237, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 771},
-            {"id": 53, "name": "Küçükkömürcü Mah.", "base_pop": 120, "current_pop": 120, "male": 60, "female": 60, "jobs": 48, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 156},
-            {"id": 54, "name": "Kürdüllü Mah.", "base_pop": 282, "current_pop": 282, "male": 140, "female": 142, "jobs": 113, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 367},
-            {"id": 55, "name": "Mahmutlar Mah.", "base_pop": 324, "current_pop": 324, "male": 161, "female": 163, "jobs": 130, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 421},
-            {"id": 56, "name": "Musalar Mah.", "base_pop": 215, "current_pop": 215, "male": 107, "female": 108, "jobs": 86, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 280},
-            {"id": 57, "name": "Ortaköy Mah.", "base_pop": 129, "current_pop": 129, "male": 64, "female": 65, "jobs": 52, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 168},
-            {"id": 58, "name": "Somak Mah.", "base_pop": 187, "current_pop": 187, "male": 93, "female": 94, "jobs": 75, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 243},
-            {"id": 59, "name": "Topalak Mah.", "base_pop": 161, "current_pop": 161, "male": 80, "female": 81, "jobs": 64, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 209},
-            {"id": 60, "name": "Toparlar Mah.", "base_pop": 105, "current_pop": 105, "male": 52, "female": 53, "jobs": 42, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 136},
-            {"id": 61, "name": "Turgutlu Mah.", "base_pop": 141, "current_pop": 141, "male": 70, "female": 71, "jobs": 56, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 183},
-            {"id": 62, "name": "Yamandere Mah.", "base_pop": 225, "current_pop": 225, "male": 112, "female": 113, "jobs": 90, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 292},
-            {"id": 63, "name": "Yemi̇şler Mah.", "base_pop": 92, "current_pop": 92, "male": 46, "female": 46, "jobs": 37, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 120},
-            {"id": 64, "name": "Yeni̇çi̇ftli̇k Mah.", "base_pop": 523, "current_pop": 523, "male": 260, "female": 263, "jobs": 209, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 680},
-            {"id": 65, "name": "Yeni̇oba Mah.", "base_pop": 233, "current_pop": 233, "male": 116, "female": 117, "jobs": 93, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 303},
-            {"id": 66, "name": "Büyükkale Mah.", "base_pop": 463, "current_pop": 463, "male": 231, "female": 232, "jobs": 185, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 602},
-            {"id": 67, "name": "Akçaşehi̇r Mah.", "base_pop": 213, "current_pop": 213, "male": 106, "female": 107, "jobs": 85, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 277},
-            {"id": 68, "name": "Akyurt Mah.", "base_pop": 366, "current_pop": 366, "male": 182, "female": 184, "jobs": 146, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 476},
-            {"id": 69, "name": "Alayli Mah.", "base_pop": 224, "current_pop": 224, "male": 112, "female": 112, "jobs": 90, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 291},
-            {"id": 70, "name": "Halkapinar Mah.", "base_pop": 159, "current_pop": 159, "male": 79, "female": 80, "jobs": 64, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 207},
-            {"id": 71, "name": "Hasançavuşlar Mah.", "base_pop": 150, "current_pop": 150, "male": 75, "female": 75, "jobs": 60, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 195},
-            {"id": 72, "name": "Kurşak Mah.", "base_pop": 154, "current_pop": 154, "male": 77, "female": 77, "jobs": 62, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 200},
-            {"id": 73, "name": "Küçükkale Mah.", "base_pop": 212, "current_pop": 212, "male": 106, "female": 106, "jobs": 85, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 276},
-            {"id": 74, "name": "Mehmetler Mah.", "base_pop": 188, "current_pop": 188, "male": 94, "female": 94, "jobs": 75, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 244},
-            {"id": 75, "name": "Üzümler Mah.", "base_pop": 169, "current_pop": 169, "male": 84, "female": 85, "jobs": 68, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 220},
-            {"id": 76, "name": "Çobanköy Mah.", "base_pop": 260, "current_pop": 260, "male": 129, "female": 131, "jobs": 104, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 338},
-            {"id": 77, "name": "Dereli̇ Mah.", "base_pop": 260, "current_pop": 260, "male": 129, "female": 131, "jobs": 104, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 338},
-            {"id": 78, "name": "Eğri̇dere Mah.", "base_pop": 612, "current_pop": 612, "male": 305, "female": 307, "jobs": 245, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 796},
-            {"id": 79, "name": "Kirtepe Mah.", "base_pop": 439, "current_pop": 439, "male": 219, "female": 220, "jobs": 176, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 571},
-            {"id": 80, "name": "Kizilcahavlu Mah.", "base_pop": 473, "current_pop": 473, "male": 236, "female": 237, "jobs": 189, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 615},
-            {"id": 81, "name": "Kocaali̇ler Mah.", "base_pop": 81, "current_pop": 81, "male": 40, "female": 41, "jobs": 32, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 105},
-            {"id": 82, "name": "Osmancik Mah.", "base_pop": 257, "current_pop": 257, "male": 128, "female": 129, "jobs": 103, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 334},
-            {"id": 83, "name": "Peşrefli̇ Mah.", "base_pop": 562, "current_pop": 562, "male": 280, "female": 282, "jobs": 225, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 731},
-            {"id": 84, "name": "Sarilar Mah.", "base_pop": 506, "current_pop": 506, "male": 252, "female": 254, "jobs": 202, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 658},
-            {"id": 85, "name": "Saruhanli Mah.", "base_pop": 208, "current_pop": 208, "male": 104, "female": 104, "jobs": 83, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 270},
-            {"id": 86, "name": "Yeğenli̇ Mah.", "base_pop": 441, "current_pop": 441, "male": 220, "female": 221, "jobs": 176, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 573},
-            {"id": 87, "name": "Yeni̇şehi̇r Mah.", "base_pop": 106, "current_pop": 106, "male": 53, "female": 53, "jobs": 42, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 138},
-            {"id": 88, "name": "Kahrat Mah.", "base_pop": 1152, "current_pop": 1152, "male": 574, "female": 578, "jobs": 461, "capacity_ha": 5.0, "distance_to_center_min": 5.0, "plan_pop_capacity": 1498},
-        ]
-    }
-}
+# %100 Gerçek TÜİK MEDAS 81 İl, 973 İlçe, 50.437 Mahalle & Köy Veri Tabanı
+_MAHALLE_DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tuik_mahalle_db.json.gz")
+TUIK_MAHALLE_DB: Dict[str, List[List[Any]]] = {}
+if os.path.exists(_MAHALLE_DB_PATH):
+    try:
+        import gzip as _gzip
+        import json as _json
+        with _gzip.open(_MAHALLE_DB_PATH, "rt", encoding="utf-8") as _gz_f:
+            TUIK_MAHALLE_DB = _json.load(_gz_f)
+    except Exception:
+        TUIK_MAHALLE_DB = {}
 
-for _prov_k, _dists_map in PRELOADED_DISTRICT_SUBZONES.items():
-    _p_norm = _normalize_str(_prov_k)
-    for _pk, _ds in TUIK_ADNKS_DATA.items():
-        if _normalize_str(_pk) == _p_norm:
-            for _dk_str, _szs in _dists_map.items():
-                _d_norm = _normalize_str(_dk_str)
-                for _dk, _data in _ds.items():
-                    if _normalize_str(_dk) == _d_norm or _data.get("district_norm") == _d_norm:
-                        _data["subzones"] = _szs
+for _pk, _ds in TUIK_ADNKS_DATA.items():
+    _p_norm = _normalize_str(_pk)
+    for _dk, _data in _ds.items():
+        _d_norm = _data.get("district_norm") or _normalize_str(_dk)
+        _sz_compact = TUIK_MAHALLE_DB.get(f"{_p_norm}/{_d_norm}", [])
+        if _sz_compact:
+            _data["sz"] = _sz_compact
+
 
 def get_adnks_district_data(province: str, district: str) -> Optional[Dict[str, Any]]:
-    """İl ve ilçe adına göre TÜİK ADNKS demografik özetini döner."""
+    """İl ve ilçe adına göre TÜİK ADNKS demografik özetini ve gerçek mahallelerini döner."""
     p_norm = _normalize_str(province)
     d_norm = _normalize_str(district)
     for prov_key, dists in TUIK_ADNKS_DATA.items():
@@ -261,9 +107,22 @@ def get_adnks_district_data(province: str, district: str) -> Optional[Dict[str, 
             for dist_key, data in dists.items():
                 if _normalize_str(dist_key) == d_norm or data.get("district_norm") == d_norm:
                     res = dict(data)
-                    # Resmi il bazlı TFR hızını bağla
                     prov_tfr = TUIK_PROVINCE_TFR.get(prov_key, res.get("tfr", 1.51))
                     res["tfr"] = prov_tfr
+                    if "subzones" not in res and res.get("sz"):
+                        res["subzones"] = [
+                            {
+                                "id": idx + 1,
+                                "name": item[0],
+                                "base_pop": int(item[1]),
+                                "current_pop": int(item[1]),
+                                "jobs": int(round(item[1] * 0.40)),
+                                "capacity_ha": max(5.0, round(item[1] / 350.0, 1)),
+                                "distance_to_center_min": round(min(22.0, 1.5 + idx * 0.4), 1),
+                                "plan_pop_capacity": int(round(item[1] * 1.30))
+                            }
+                            for idx, item in enumerate(res["sz"])
+                        ]
                     return res
     return None
 

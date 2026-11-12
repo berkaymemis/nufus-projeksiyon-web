@@ -1,5 +1,5 @@
 // Service Worker for Urban Demographics Pro PWA (Network-First Cache)
-const CACHE_NAME = 'nufus-pro-v6';
+const CACHE_NAME = 'nufus-pro-v7';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

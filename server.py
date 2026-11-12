@@ -182,10 +182,17 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
 
     def send_json(self, data: dict, status: int = 200):
         try:
-            payload = json.dumps(data, ensure_ascii=False, indent=2).encode("utf-8")
+            payload = json.dumps(data, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+            accept_enc = self.headers.get("Accept-Encoding", "") if hasattr(self, "headers") and self.headers else ""
+            use_gzip = "gzip" in accept_enc and len(payload) > 4096
+            if use_gzip:
+                import gzip
+                payload = gzip.compress(payload, compresslevel=6)
             self.send_response(status)
             self.send_cors_headers()
             self.send_header("Content-Type", "application/json; charset=utf-8")
+            if use_gzip:
+                self.send_header("Content-Encoding", "gzip")
             self.send_header("Content-Length", str(len(payload)))
             self.end_headers()
             self.wfile.write(payload)
