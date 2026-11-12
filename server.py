@@ -443,11 +443,25 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
             curve_results["history"] = {"years": t_hist, "pop": p_hist}
             best_model_key = "linear"
             best_r2 = -1.0
+            # Kentsel Planlama Standardı (Prof. Dr. K. Mert Çubukçu / KUZİP):
+            # Model önceliği: Doğrusal (linear) ve 2. Derece Polinom (poly2) imar planlarının omurgasıdır.
+            # Poly3 kuralı: 3. derece polinom geçmişe yüksek R² verse bile gelecekte negatif/aşırı uç savrulması (Runge etkisi) ürettiği için Best Model seçilemez.
             for m_key, m_val in curve_results["models"].items():
+                if not m_val.get("is_valid", True):
+                    continue
+                preds = list(m_val.get("predictions", {}).values())
+                if any(p <= 0 for p in preds):
+                    continue
+                if m_key == "poly3":
+                    continue
                 r2 = m_val["metrics"].get("r2", 0.0)
                 if r2 > best_r2:
                     best_r2 = r2
                     best_model_key = m_key
+
+            if best_r2 < 0.0 and "linear" in curve_results["models"]:
+                best_model_key = "linear"
+
             curve_results["best_model"] = best_model_key
 
             # 2. Economic Base Engine

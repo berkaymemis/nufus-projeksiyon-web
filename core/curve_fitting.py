@@ -250,48 +250,79 @@ class CurveFittingEngine:
         # 3. Future predictions
         start_year = years_hist[0]
         t_future = [float(yr - start_year + 1) for yr in target_years]
+        base_pop_val = pop_hist[-1]
+
+        # Her model için gelecek tahminlerini ve demografik geçerlilik kontrolünü yap
+        pred_lin_future = {yr: max(0, round(a_lin * t + b_lin)) for yr, t in zip(target_years, t_future)}
+
+        pred_p2_future = {}
+        poly2_is_valid = True
+        for yr, t in zip(target_years, t_future):
+            val = round(a_p2 * t**2 + b_p2 * t + c_p2)
+            if val <= 0:
+                poly2_is_valid = False
+            pred_p2_future[yr] = max(0, val)
+
+        pred_p3_future = {}
+        poly3_is_valid = True
+        for yr, t in zip(target_years, t_future):
+            val = round(a_p3 * t**3 + b_p3 * t**2 + c_p3 * t + d_p3)
+            # Demografik sınır kontrolü: nüfus negatif olamaz veya sıfıra çökemez
+            if val <= 0 or (base_pop_val > 1000 and val < base_pop_val * 0.25):
+                poly3_is_valid = False
+            pred_p3_future[yr] = max(0, val)
+
+        pred_exp_future = {yr: max(0, round(a_exp * math.exp(b_exp * t))) for yr, t in zip(target_years, t_future)}
+        pred_log_future = {yr: max(0, round(a_log * math.log(max(0.001, t)) + b_log)) for yr, t in zip(target_years, t_future)}
+        pred_pow_future = {yr: max(0, round(a_pow * (t**b_pow))) for yr, t in zip(target_years, t_future)}
 
         models = {
             "linear": {
                 "name": "Doğrusal (Linear)",
                 "formula_str": f"y = {a_lin:.2f} × t + {b_lin:,.2f}",
                 "metrics": cls.calculate_metrics(pop_hist, pred_lin_h),
-                "predictions": {yr: round(a_lin * t + b_lin) for yr, t in zip(target_years, t_future)},
+                "predictions": pred_lin_future,
+                "is_valid": True,
                 "academic_review": "Plan kararına esas alınan en istikrarlı matematiksel trend modeli (Yüksek R² ve düşük standart hata)."
             },
             "poly2": {
-                "name": "2. Derece Polinom",
+                "name": "2. Derece Polinom (Parabolik)",
                 "formula_str": f"y = {a_p2:.4f}t² + {b_p2:.2f}t + {c_p2:,.2f}",
                 "metrics": cls.calculate_metrics(pop_hist, pred_p2_h),
-                "predictions": {yr: round(a_p2 * t**2 + b_p2 * t + c_p2) for yr, t in zip(target_years, t_future)},
-                "academic_review": "Çok yüksek R² uyumu; orta-uzun vadede doğrusal model ile tutarlı seyreder."
+                "predictions": pred_p2_future,
+                "is_valid": poly2_is_valid,
+                "academic_review": "Çok yüksek R² uyumu; orta-uzun vadede kontrollü eğri uyumu sağlar." if poly2_is_valid else "⚠️ TEKNİK AYKIRI: İleriye dönük negatif değer ürettiği için geçersiz."
             },
             "poly3": {
                 "name": "3. Derece Polinom",
                 "formula_str": f"y = {a_p3:.4f}t³ + {b_p3:.4f}t² + {c_p3:.2f}t + {d_p3:,.2f}",
                 "metrics": cls.calculate_metrics(pop_hist, pred_p3_h),
-                "predictions": {yr: round(a_p3 * t**3 + b_p3 * t**2 + c_p3 * t + d_p3) for yr, t in zip(target_years, t_future)},
-                "academic_review": "TEKNİK AYKIRI: R² yüksek görünse de ileriye dönük parabolik çöküş/aşırı sıçrama riski taşır."
+                "predictions": pred_p3_future,
+                "is_valid": poly3_is_valid,
+                "academic_review": "⚠️ TEKNİK AYKIRI (GEÇERSİZ): İleriye dönük negatif nüfus / parabolik çöküş riski taşır (Runge etkisi). İmar planı kararına ESAS ALINAMAZ." if not poly3_is_valid else "3. Derece Polinom (Uçlarda dalgalanma riski nedeniyle dikkatle izlenmelidir)."
             },
             "exponential": {
                 "name": "Üstel (Exponential)",
                 "formula_str": f"y = {a_exp:,.2f} × e^({b_exp:.5f}t)",
                 "metrics": cls.calculate_metrics(pop_hist, pred_exp_h),
-                "predictions": {yr: round(a_exp * math.exp(b_exp * t)) for yr, t in zip(target_years, t_future)},
+                "predictions": pred_exp_future,
+                "is_valid": True,
                 "academic_review": "AŞIRI YÜKSEK: Ekolojik ve kentsel kaynak eşiklerini aşan geometrik bileşik büyüme."
             },
             "logarithmic": {
-                "name": "Logaritmik",
+                "name": "Logaritmik (Yavaşlayan)",
                 "formula_str": f"y = {a_log:,.2f} × ln(t) + {b_log:,.2f}",
                 "metrics": cls.calculate_metrics(pop_hist, pred_log_h),
-                "predictions": {yr: round(a_log * math.log(max(0.001, t)) + b_log) for yr, t in zip(target_years, t_future)},
+                "predictions": pred_log_future,
+                "is_valid": True,
                 "academic_review": "YETERSİZ: Erken doygunluk varsayımı nedeniyle kentin büyüme dinamiklerini bastırır."
             },
             "power": {
                 "name": "Kuvvet (Power)",
                 "formula_str": f"y = {a_pow:,.2f} × t^{b_pow:.4f}",
                 "metrics": cls.calculate_metrics(pop_hist, pred_pow_h),
-                "predictions": {yr: round(a_pow * (t**b_pow)) for yr, t in zip(target_years, t_future)},
+                "predictions": pred_pow_future,
+                "is_valid": True,
                 "academic_review": "YETERSİZ: R² düşük, kentsel gelişmeyi yavaşlatıcı gösterir."
             }
         }
