@@ -642,7 +642,7 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
             if mig_mode == "rate" and enable_econ_mig:
                 high_assumption = f"Yıllık Net Göç Hızı (%{econ_mig.get('annual_migration_rate', 0.0):.2f}) ile Toplam +{migrant_t1:,} Göçmen Nüfus"
             elif enable_econ_mig:
-                high_assumption = f"TOSBİ vb. Sanayi Genişlemesi + Baz Çarpanı ({k_mult:.2f}) + Bağımlılık ({b_ratio:.2f}) Göçü"
+                high_assumption = f"İktisadi Taban Sanayi Genişlemesi + Baz Çarpanı ({k_mult:.2f}) + Bağımlılık ({b_ratio:.2f}) Göçü"
             else:
                 high_assumption = "Plan kabulü / Dinamik Şoklar"
 

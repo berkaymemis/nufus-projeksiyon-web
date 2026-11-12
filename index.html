@@ -444,7 +444,7 @@
         <!-- ===== TAB 2: COHORT & PYRAMID (KUŞAK-BİLEŞEN) ===== -->
         <div id="tabContent-cohort" class="hidden space-y-5">
 
-          <!-- İktisadi Temel & Göç Senaryosu İşaretleme Kutucuğu (Açılır Kontrol Çubuğu) -->
+          <!-- İktisadi Taban & Göç Senaryosu İşaretleme Kutucuğu -->
           <div class="bg-gradient-to-r from-blue-50/90 via-indigo-50/50 to-slate-50 border border-blue-200 rounded-2xl p-4 shadow-sm transition">
             <div class="flex items-center justify-between flex-wrap gap-3">
               <label class="flex items-center gap-3 cursor-pointer select-none">
@@ -452,111 +452,52 @@
                 <div class="flex flex-col">
                   <span class="text-xs sm:text-sm font-extrabold text-slate-800 flex items-center gap-2">
                     <span>🏭</span>
-                    <span>İktisadi Temel, Sanayi İstihdamı & Göç Senaryosu Ekle (TOSBİ & Çarpan Modeli)</span>
+                    <span>İktisadi Taban, İstihdam & Net Göç Modeli (Çarpan & Yıllık Göç Hızı)</span>
                   </span>
-                  <span class="text-[11px] text-slate-500 font-medium">İşaretlendiğinde baz çarpanı, bağımlılık oranı ve istihdam hedefleri açılır; piramit, yaş göstergeleri ve senaryolar canlı güncellenir.</span>
+                  <span class="text-[11px] text-slate-500 font-medium">İşaretlendiğinde baz çarpanı, bağımlılık oranı, istihdam ve yıllık net göç hızı aktifleşir; piramit ve senaryolar canlı güncellenir.</span>
                 </div>
               </label>
               <span id="badgeEconStatus" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-700">🌱 Doğal Yaşlanma (Sıfır Göç)</span>
             </div>
 
-            <!-- Açılır Kontrol Paneli (Varsayılan Kapalı) -->
-            <div id="econControlPanel" class="hidden mt-4 pt-4 border-t border-blue-200/80 space-y-4">
-              <!-- Alt Sekme Seçici: İstihdam Çarpanı vs % Göç / Kişi -->
-              <div class="flex items-center gap-2 border-b border-blue-200/70 pb-3 flex-wrap">
-                <button type="button" id="subtabBtn-emp" onclick="switchMigrationSubtab('emp')" class="py-1.5 px-3 rounded-lg text-xs font-black transition bg-blue-600 text-white shadow-sm flex items-center gap-1.5">
-                  <span>🏭</span> <span>1. İktisadi Temel & İstihdam Çarpanı (Mert Hoca Modeli)</span>
-                </button>
-                <button type="button" id="subtabBtn-rate" onclick="switchMigrationSubtab('rate')" class="py-1.5 px-3 rounded-lg text-xs font-bold transition bg-white text-slate-700 hover:bg-slate-100 border border-slate-300 flex items-center gap-1.5">
-                  <span>📈</span> <span>2. Yıllık Net Göç Hızı (%) & Kaç Göç (Kişi) Modeli</span>
-                </button>
-              </div>
-
-              <!-- 1. ALT PANEL: İSTİHDAM & BAZ ÇARPANI MODELİ -->
-              <div id="migSubpanel-emp" class="space-y-3">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-                  <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Baz Çarpanı (Multiplier k):</label>
-                    <input type="number" id="inpCohortK" step="0.01" min="1.0" max="15.0" value="4.90" onchange="onCohortParamChanged()" class="w-full font-black text-slate-900 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
-                    <span class="block text-[10px] text-slate-400 mt-1">1 temel çalışan başına toplam iş</span>
-                  </div>
-                  <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Bağımlılık Oranı (b):</label>
-                    <input type="number" id="inpCohortB" step="0.01" min="0.5" max="10.0" value="1.96" onchange="onCohortParamChanged()" class="w-full font-black text-slate-900 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
-                    <span class="block text-[10px] text-slate-400 mt-1">1 çalışan başına kentsel nüfus yükü</span>
-                  </div>
-                  <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                    <label class="block text-[11px] font-bold text-slate-700 mb-1">2025 Mevcut İstihdam:</label>
-                    <input type="number" id="inpCohortCurEmp" step="500" min="1000" value="32000" onchange="onCohortParamChanged()" class="w-full font-black text-slate-900 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
-                    <span class="block text-[10px] text-slate-400 mt-1">Başlangıç yılı mevcut istihdamı</span>
-                  </div>
-                  <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Hedef Yıl İstihdamı (TOSBİ vb.):</label>
-                    <input type="number" id="inpCohortTargetEmp" step="500" min="1000" value="45000" onchange="onCohortParamChanged()" class="w-full font-black text-blue-700 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
-                    <span class="block text-[10px] text-blue-600 font-bold mt-1">Net Yeni İş: <strong id="lblCohortNetJobs">+13.000</strong></span>
-                  </div>
+            <!-- Tek ve Sade Kontrol Paneli (Sekmesiz, Evrensel) -->
+            <div id="econControlPanel" class="hidden mt-4 pt-4 border-t border-blue-200/80 space-y-3">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Baz Çarpanı (Multiplier k):</label>
+                  <input type="number" id="inpCohortK" step="0.01" min="1.0" max="15.0" value="4.90" onchange="onCohortParamChanged()" class="w-full font-black text-slate-900 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                  <span class="block text-[10px] text-slate-400 mt-1">1 temel çalışan başına toplam iş</span>
                 </div>
-
-                <!-- Hızlı Butonlar & Eşdeğer Göç Özeti -->
-                <div class="flex items-center justify-between flex-wrap gap-2 pt-1">
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <button type="button" onclick="applyMertHocaTirePreset()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold py-2 px-3.5 rounded-xl shadow-sm transition flex items-center gap-1.5">
-                      <span>🎯</span> <span>Mert Hoca 1/5000 Standart Değerleri (Baz: 4.90 | Bağımlılık: 1.96 | İstihdam: 32k → 45k | Göç: +25.480)</span>
-                    </button>
-                    <span id="lblEmpEquivBadge" class="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-emerald-200">
-                      📊 Eşdeğer Göç: +25.480 Kişi (Yıllık Net Hız: %+1.82/yıl)
-                    </span>
-                  </div>
-                  <button type="button" onclick="onCohortParamChanged(true)" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold py-2 px-3.5 rounded-xl shadow-sm transition flex items-center gap-1.5">
-                    <span>🚀</span> <span>İstihdam ve Göç Projeksiyonunu Güncelle</span>
-                  </button>
+                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Bağımlılık Oranı (b):</label>
+                  <input type="number" id="inpCohortB" step="0.01" min="0.5" max="10.0" value="1.96" onchange="onCohortParamChanged()" class="w-full font-black text-slate-900 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                  <span class="block text-[10px] text-slate-400 mt-1">1 çalışan başına kentsel nüfus yükü</span>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Mevcut İstihdam:</label>
+                  <input type="number" id="inpCohortCurEmp" step="500" min="1000" value="32000" onchange="onCohortParamChanged()" class="w-full font-black text-slate-900 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                  <span class="block text-[10px] text-slate-400 mt-1">Başlangıç yılı mevcut istihdamı</span>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Hedef Yıl İstihdamı:</label>
+                  <input type="number" id="inpCohortTargetEmp" step="500" min="1000" value="45000" onchange="onCohortParamChanged()" class="w-full font-black text-blue-700 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                  <span class="block text-[10px] text-blue-600 font-bold mt-1">Net Yeni İş: <strong id="lblCohortNetJobs">+13.000</strong></span>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Yıllık Net Göç Hızı (%):</label>
+                  <input type="number" id="inpCohortMigRate" step="0.05" min="-5.0" max="10.0" value="1.82" oninput="onMigRateOnlyChanged()" class="w-full font-black text-emerald-700 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                  <span class="block text-[10px] text-emerald-600 font-bold mt-1">Toplam Göç: <strong id="lblCohortTotalMig">+25.480</strong></span>
                 </div>
               </div>
 
-              <!-- 2. ALT PANEL: % GÖÇ VE DOĞRUDAN KAÇ GÖÇ MODELİ -->
-              <div id="migSubpanel-rate" class="hidden space-y-3">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-                  <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Yıllık Net Göç Hızı (%):</label>
-                    <input type="number" id="inpCohortMigRate" step="0.05" min="-5.0" max="10.0" value="1.82" oninput="onMigRateInputChanged('rate')" class="w-full font-black text-blue-700 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
-                    <span class="block text-[10px] text-slate-400 mt-1">Yıllık net göç artış yüzdesi (%)</span>
-                  </div>
-                  <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Yıllık Net Göç (Kişi / Yıl):</label>
-                    <input type="number" id="inpCohortMigAnnual" step="50" min="-10000" max="50000" value="1700" oninput="onMigRateInputChanged('annual')" class="w-full font-black text-slate-900 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
-                    <span class="block text-[10px] text-slate-400 mt-1">Her yıl kente gelen net kişi</span>
-                  </div>
-                  <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Hedef Yıla Toplam Göç (Kaç Göç):</label>
-                    <input type="number" id="inpCohortMigTotal" step="500" min="-50000" max="200000" value="25480" oninput="onMigRateInputChanged('total')" class="w-full font-black text-emerald-700 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
-                    <span class="block text-[10px] text-slate-400 mt-1">Hedef yıla kadar toplam net göçmen</span>
-                  </div>
-                  <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Göç Yaş Dağılım Profili:</label>
-                    <select id="selCohortMigProfile" onchange="onCohortParamChanged(true)" class="w-full font-bold text-slate-800 text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
-                      <option value="working_family" selected>👨‍👩‍👧‍👦 Çalışma Çağı & Genç Aile (%70 İşgücü 20-44)</option>
-                      <option value="general">👥 Kent Piramidine Orantılı Dengeli</option>
-                      <option value="young_student">🎓 Genç & Öğrenci Nüfus (18-29 Yaş)</option>
-                      <option value="retirement">🏖️ Emekli & Sayfiye Göçü (55+ Yaş)</option>
-                    </select>
-                    <span class="block text-[10px] text-slate-400 mt-1">Piramit basamaklarına dağıtım ağırlığı</span>
-                  </div>
-                </div>
-
-                <!-- Hızlı % Göç Preset Butonları -->
-                <div class="flex items-center justify-between flex-wrap gap-2 pt-1">
-                  <div class="flex items-center gap-1.5 flex-wrap">
-                    <span class="text-[11px] font-bold text-slate-600">Hızlı Oranlar:</span>
-                    <button type="button" onclick="applyMigRatePreset(0.00)" class="py-1 px-2.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 transition">%0.00 (Sıfır Göç)</button>
-                    <button type="button" onclick="applyMigRatePreset(0.50)" class="py-1 px-2.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 transition">%0.50 (Düşük Göç)</button>
-                    <button type="button" onclick="applyMigRatePreset(1.00)" class="py-1 px-2.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 transition">%1.00 (Trend Göç)</button>
-                    <button type="button" onclick="applyMigRatePreset(1.82)" class="py-1 px-2.5 rounded-lg text-xs font-bold bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100 transition">%1.82 (Tire TOSBİ: +25.480)</button>
-                    <button type="button" onclick="applyMigRatePreset(2.50)" class="py-1 px-2.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 transition">%2.50 (Yüksek Çekim)</button>
-                  </div>
-                  <button type="button" onclick="onCohortParamChanged(true)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-3.5 rounded-xl shadow-sm transition flex items-center gap-1.5">
-                    <span>🚀</span> <span>% Göç Projeksiyonunu Güncelle</span>
-                  </button>
-                </div>
+              <!-- Alt Bilgi ve Güncelle Butonu -->
+              <div class="flex items-center justify-between flex-wrap gap-2 pt-1">
+                <span id="lblEmpEquivBadge" class="text-[11px] font-bold text-slate-700 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+                  📊 Net Yeni İstihdam: +13.000 | Göç ile Gelecek Nüfus: +25.480 Kişi
+                </span>
+                <button type="button" onclick="onCohortParamChanged(true)" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold py-2 px-4 rounded-xl shadow-sm transition flex items-center gap-1.5">
+                  <span>🚀</span> <span>İstihdam ve Göç Projeksiyonunu Güncelle</span>
+                </button>
               </div>
             </div>
           </div>
@@ -696,7 +637,7 @@
                   </div>
                   <p id="scenHighPop" class="text-2xl font-black text-emerald-600 mt-2">-</p>
                   <p id="scenHighDiff" class="text-xs font-bold text-emerald-600 mt-1">Değişim: -</p>
-                  <p id="scenHighDesc" class="text-[11px] text-slate-600 mt-2 bg-emerald-50 p-2 rounded border border-emerald-100">TOSBİ vb. + İstihdam Çarpanı ile gelen işgücü göçü</p>
+                  <p id="scenHighDesc" class="text-[11px] text-slate-600 mt-2 bg-emerald-50 p-2 rounded border border-emerald-100">İktisadi Taban ve İstihdam Çarpanı ile gelen işgücü ve aile göçü</p>
                 </div>
                 <button type="button" onclick="selectPlanningScenario('high')" id="btnScenHigh" class="mt-3 w-full py-1.5 px-3 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition shadow-sm">
                   ✓ Bu Senaryoyu Seç (YÜKSEK)
@@ -2929,17 +2870,15 @@
       const yearsDiff = Math.max(1, targetYear - baseYear);
       const annRate = (((migPop / yearsDiff) / basePop) * 100.0).toFixed(2);
 
+      const inpRate = document.getElementById("inpCohortMigRate");
+      if (inpRate) inpRate.value = annRate;
+
+      const lblTot = document.getElementById("lblCohortTotalMig");
+      if (lblTot) lblTot.innerText = `+${migPop.toLocaleString('tr-TR')}`;
+
       const eqBadge = document.getElementById("lblEmpEquivBadge");
       if (eqBadge) {
-        eqBadge.innerText = `📊 Eşdeğer Göç: +${migPop.toLocaleString('tr-TR')} Kişi (Yıllık Net Hız: %+${annRate}/yıl)`;
-      }
-      const inpTotal = document.getElementById("inpCohortMigTotal");
-      if (inpTotal && (!state.migrationSubtab || state.migrationSubtab === 'emp')) {
-        inpTotal.value = migPop;
-        const inpRate = document.getElementById("inpCohortMigRate");
-        if (inpRate) inpRate.value = annRate;
-        const inpAnnual = document.getElementById("inpCohortMigAnnual");
-        if (inpAnnual) inpAnnual.value = Math.round(migPop / yearsDiff);
+        eqBadge.innerText = `📊 Net Yeni İstihdam: +${net.toLocaleString('tr-TR')} | Göç ile Gelecek Nüfus: +${migPop.toLocaleString('tr-TR')} Kişi`;
       }
 
       clearTimeout(cohortParamDebounce);
@@ -2950,23 +2889,36 @@
       }
     }
 
-    function onMigRateInputChanged(which, immediate = false) {
+    function onMigRateOnlyChanged() {
       const basePop = parseInt(document.getElementById("inpBasePop").value) || 87528;
       const baseYear = parseInt(document.getElementById("inpBaseYear").value) || 2025;
       const targetYear = parseInt(document.getElementById("inpTargetYear1").value) || 2040;
       const yearsDiff = Math.max(1, targetYear - baseYear);
 
       const inpRate = document.getElementById("inpCohortMigRate");
-      const inpAnnual = document.getElementById("inpCohortMigAnnual");
-      const inpTotal = document.getElementById("inpCohortMigTotal");
+      const rateVal = parseFloat(inpRate ? inpRate.value : 0) || 0.0;
+      const totalMig = Math.round(basePop * (rateVal / 100.0) * yearsDiff);
 
-      if (which === 'rate' && inpRate) {
-        const rateVal = parseFloat(inpRate.value) || 0.0;
-        const totalMig = Math.round(basePop * (rateVal / 100.0) * yearsDiff);
-        const annualMig = Math.round(totalMig / yearsDiff);
-        if (inpTotal) inpTotal.value = totalMig;
-        if (inpAnnual) inpAnnual.value = annualMig;
-      } else if (which === 'annual' && inpAnnual) {
+      const lblTot = document.getElementById("lblCohortTotalMig");
+      if (lblTot) lblTot.innerText = `${totalMig >= 0 ? '+' : ''}${totalMig.toLocaleString('tr-TR')}`;
+
+      const bRatio = parseFloat(document.getElementById("inpCohortB").value) || 1.96;
+      const equivNetEmp = Math.round(totalMig / bRatio);
+      const curEmp = parseInt(document.getElementById("inpCohortCurEmp").value) || 32000;
+      const inpTargetEmp = document.getElementById("inpCohortTargetEmp");
+      if (inpTargetEmp) inpTargetEmp.value = curEmp + equivNetEmp;
+
+      const lblJobs = document.getElementById("lblCohortNetJobs");
+      if (lblJobs) lblJobs.innerText = `${equivNetEmp >= 0 ? '+' : ''}${equivNetEmp.toLocaleString('tr-TR')}`;
+
+      const eqBadge = document.getElementById("lblEmpEquivBadge");
+      if (eqBadge) {
+        eqBadge.innerText = `📊 Net Yeni İstihdam: +${equivNetEmp.toLocaleString('tr-TR')} | Göç ile Gelecek Nüfus: +${totalMig.toLocaleString('tr-TR')} Kişi`;
+      }
+
+      clearTimeout(cohortParamDebounce);
+      cohortParamDebounce = setTimeout(() => recalculate(), 600);
+    }
         const annualMig = parseInt(inpAnnual.value) || 0;
         const totalMig = annualMig * yearsDiff;
         const rateVal = ((annualMig / basePop) * 100.0);
