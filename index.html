@@ -1067,7 +1067,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v5') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v20') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -1157,8 +1157,7 @@
           const selZ = document.getElementById("selAdnksZone");
           if (selZ) selZ.innerHTML = '<option value="">-- Önce İl ve İlçe Seçiniz --</option>';
 
-          // URL Parametreleri Kontrolü (SEO & Paylaşılabilir Link Desteği)
-          // Örn: https://nufus.bm-geo.com/?il=istanbul&yil=2030
+          // URL Parametreleri Kontrolü veya Varsayılan Şehir (İzmir / Tire) ile Canlı Başlatma
           try {
             const urlParams = new URLSearchParams(window.location.search);
             const qIl = urlParams.get("il");
@@ -1166,10 +1165,17 @@
             const qYil = urlParams.get("yil");
             if (qIl) {
               setTimeout(() => {
-                quickAsk(qIl, qIlce || "TÜM İLÇELER", parseInt(qYil) || 2030);
+                quickAsk(qIl, qIlce || "TÜM İLÇELER", parseInt(qYil) || 2030, false);
+              }, 150);
+            } else {
+              // Sayfa ilk açılışta boş '-' kalmasın, canlı TÜİK verisiyle hazır başlasın
+              setTimeout(() => {
+                quickAsk("İZMİR", "TİRE", 2030, false);
               }, 150);
             }
-          } catch (e) {}
+          } catch (e) {
+            setTimeout(() => recalculate(), 200);
+          }
         }
       } catch (err) {
         console.error("TÜİK ADNKS fetch failed:", err);
@@ -1196,7 +1202,7 @@
       }
     }
 
-    function quickAsk(provName, distName, targetYear) {
+    function quickAsk(provName, distName, targetYear, shouldScroll = true) {
       const selP = document.getElementById("selAdnksProv");
       const selD = document.getElementById("selAdnksDist");
       const inpY = document.getElementById("inpTargetYear1");
@@ -1243,10 +1249,12 @@
         window.history.replaceState({}, "", newUrl);
       } catch (e) {}
 
-      // Kartlara yumuşakça kaydır
-      const kpiEl = document.getElementById("kpiHighPop");
-      if (kpiEl) {
-        kpiEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Kartlara yumuşakça kaydır (sadece kullanıcı tıklamalarında)
+      if (shouldScroll) {
+        const kpiEl = document.getElementById("kpiHighPop");
+        if (kpiEl) {
+          kpiEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
       }
     }
 
