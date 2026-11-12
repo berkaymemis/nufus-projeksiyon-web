@@ -411,7 +411,10 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
             upper_pop_hist = None
             upper_name = "Türkiye Geneli"
 
-            if dist_input == "IL_GENELI" or dist_input == "TÜM İLÇELER" or (not dist_input and prov_input):
+            if req.get("upper_pop_hist") and req.get("upper_name"):
+                upper_pop_hist = [float(v) for v in req.get("upper_pop_hist")]
+                upper_name = str(req.get("upper_name"))
+            elif dist_input == "IL_GENELI" or dist_input == "TÜM İLÇELER" or (not dist_input and prov_input):
                 # İl Geneli modellendiğinde üst bölge Türkiye Geneli'dir (85 Milyon)
                 upper_name = "Türkiye Geneli"
                 hist_len = len(t_hist)
@@ -817,6 +820,7 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
 
             response_data = {
                 "success": True,
+                "upper_region_name": upper_name,
                 "years": {"base": base_year, "t1": target_1, "t2": target_2},
                 "kpis": kpis,
                 "curve_results": curve_results,

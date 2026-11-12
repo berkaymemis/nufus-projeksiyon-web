@@ -207,8 +207,8 @@
           <p id="kpiBasePop" class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">-</p>
         </div>
         <p class="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
-          <span><span data-yr="base">2025</span> Başlangıç</span>
-          <span class="text-blue-600 font-bold">TÜİK ADNKS</span>
+          <span id="kpiBaseSubtitle"><span data-yr="base">2025</span> Başlangıç</span>
+          <span id="kpiBaseTag" class="text-blue-600 font-bold">TÜİK ADNKS</span>
         </p>
       </div>
 
@@ -222,8 +222,8 @@
           <p id="kpiHighPop" class="text-2xl sm:text-3xl font-black text-emerald-600 mt-2">-</p>
         </div>
         <p class="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
-          <span>Hedef Yıl: <strong class="text-slate-800" data-yr="t1">2030</strong></span>
-          <span class="text-emerald-600 font-bold">Projeksiyon</span>
+          <span id="kpiHighSubtitle">Hedef Yıl: <strong class="text-slate-800" data-yr="t1">2030</strong></span>
+          <span id="kpiHighTag" class="text-emerald-600 font-bold">Projeksiyon</span>
         </p>
       </div>
 
@@ -854,7 +854,7 @@
             <div class="grid grid-cols-3 gap-2 pt-1">
               <div class="bg-white p-2 rounded-lg border border-slate-200">
                 <span class="block text-[10px] font-semibold text-slate-500">Yeni Yatırım İşi (ΔEb)</span>
-                <input type="number" id="inpNewBasicJobsVisible" value="3545" min="0" step="100" onchange="onVisibleBasicJobsChanged(this.value)" class="w-full font-extrabold text-slate-800 text-xs bg-transparent border-b border-slate-300 focus:outline-none focus:border-blue-600 mt-0.5" />
+                <input type="number" id="inpNewBasicJobsVisible" value="3545" min="0" step="100" oninput="onVisibleBasicJobsChanged(this.value)" onchange="onVisibleBasicJobsChanged(this.value)" class="w-full font-extrabold text-slate-800 text-xs bg-transparent border-b border-slate-300 focus:outline-none focus:border-blue-600 mt-0.5" />
               </div>
               <div class="bg-white p-2 rounded-lg border border-slate-200">
                 <span class="block text-[10px] font-semibold text-slate-500">Toplam Yeni İş (ΔEt)</span>
@@ -1067,7 +1067,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v21') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v22') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -1521,34 +1521,64 @@
       ensureDistrictSubzones(dData);
 
       const pTot = dData.pop_2025 || dData.pop_2024;
+      const distName = dData.display_name || dist;
+
+      // Mahalle / Alt Bölge Seçimi Kontrolü
+      const chosenZoneVal = selZ ? selZ.value : "all";
+      let isZoneSelected = false;
+      let zObj = null;
+      if (chosenZoneVal !== "all" && chosenZoneVal !== "upload" && chosenZoneVal !== "") {
+        const zoneIdx = parseInt(chosenZoneVal) - 1;
+        zObj = (dData.subzones && dData.subzones[zoneIdx]) || null;
+        if (zObj) isZoneSelected = true;
+      }
+
+      const activePop = isZoneSelected ? (zObj.current_pop || zObj.base_pop || 0) : pTot;
+      const zRatio = pTot > 0 ? (activePop / pTot) : 1.0;
+      const activeName = isZoneSelected ? `${distName} / ${zObj.name}` : distName;
+
       state.currentTfr = dData.tfr || 1.51;
       state.currentMaleRatio = (dData.male && dData.female) ? (dData.male / (dData.male + dData.female)) : undefined;
-      state.customCohort = null; // Reset custom cohort so district profile takes effect
+      state.customCohort = null; // Reset custom cohort so district/zone profile takes effect
       const bTfr = document.getElementById("lblCohortTfrBadge");
       if (bTfr) bTfr.innerText = (dData.tfr || 1.51).toFixed(2);
 
       document.getElementById("inpBaseYear").value = 2025;
       refreshYearLabels();
-      document.getElementById("inpBasePop").value = pTot;
-      document.getElementById("inpTotalJobs").value = Math.round(pTot * 0.45);
-      document.getElementById("inpBasicJobs").value = Math.round(pTot * 0.12);
-      // Yeni temel istihdam yatırımı ilçe ölçeğine göre ölçeklenir
-      const scaledNbj = Math.max(10, Math.round(pTot * 0.0405));
+      document.getElementById("inpBasePop").value = activePop;
+      document.getElementById("inpTotalJobs").value = Math.round(activePop * 0.45);
+      document.getElementById("inpBasicJobs").value = Math.round(activePop * 0.12);
+
+      // Yeni temel istihdam yatırımı seçili alana göre ölçeklenir
+      const scaledNbj = Math.max(5, Math.round(activePop * 0.0405));
       const inpNbj = document.getElementById("inpNewBasicJobs");
       if (inpNbj) inpNbj.value = scaledNbj;
       const inpNbjVis = document.getElementById("inpNewBasicJobsVisible");
       if (inpNbjVis) inpNbjVis.value = scaledNbj;
 
-      if (state.currentData) {
-        state.currentData.base_pop = pTot;
-        state.currentData.base_year = 2025;
-        state.currentData.years_hist = dData.years || [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025];
-        state.currentData.pop_hist = dData.pop_history;
-      }
+      // 10 Yıllık Geçmiş Trend Serisi (Mahalle seçiliyse mahalle payına oranlanır)
+      const histYears = dData.years || [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025];
+      const histPops = (dData.pop_history || []).map(p => Math.round(p * zRatio));
 
-      // Realistic Urban Planning Parameters (Prof. Dr. K. Mert Çubukçu / KUZİP Standartları) or Real Subzones
-      const distName = dData.display_name || dist;
-      if (dData.subzones && dData.subzones.length > 0) {
+      if (state.currentData) {
+        state.currentData.base_pop = activePop;
+        state.currentData.base_year = 2025;
+        state.currentData.years_hist = histYears;
+        state.currentData.pop_hist = histPops;
+      }
+      state.macroHistory = histYears.map((y, i) => ({ year: y, pop: histPops[i] }));
+
+      // Alt bölgeler (Hansen Mekansal Dağıtım için)
+      if (isZoneSelected) {
+        const pM = Math.round(activePop * 0.45);
+        const pG = Math.round(activePop * 0.35);
+        const pK = Math.max(1, activePop - (pM + pG));
+        state.subzones = [
+          { id: 1, name: `${zObj.name} - Konut Alanı`, current_pop: pM, base_pop: pM, employment: Math.round(pM * 0.40), jobs: Math.round(pM * 0.40), vacant_area_ha: 12.0, capacity_ha: 12.0, dist_to_center_min: 1.5, distance_to_center_min: 1.5, plan_capacity_pop: Math.round(pM * 1.35), plan_pop_capacity: Math.round(pM * 1.35) },
+          { id: 2, name: `${zObj.name} - Yeni Gelişme Alanı`, current_pop: pG, base_pop: pG, employment: Math.round(pG * 0.35), jobs: Math.round(pG * 0.35), vacant_area_ha: 20.0, capacity_ha: 20.0, dist_to_center_min: 2.5, distance_to_center_min: 2.5, plan_capacity_pop: Math.round(pG * 1.60), plan_pop_capacity: Math.round(pG * 1.60) },
+          { id: 3, name: `${zObj.name} - Ticaret & Donatı`, current_pop: pK, base_pop: pK, employment: Math.round(pK * 0.60), jobs: Math.round(pK * 0.60), vacant_area_ha: 8.0, capacity_ha: 8.0, dist_to_center_min: 1.0, distance_to_center_min: 1.0, plan_capacity_pop: Math.round(pK * 1.40), plan_pop_capacity: Math.round(pK * 1.40) }
+        ];
+      } else if (dData.subzones && dData.subzones.length > 0) {
         state.subzones = dData.subzones.map((sz, i) => {
           const sp = sz.base_pop || sz.current_pop || 0;
           const vac = sz.vacant_area_ha || sz.capacity_ha || Math.max(5.0, Math.round((sp / 350.0) * 10) / 10);
@@ -1568,24 +1598,34 @@
             plan_pop_capacity: sz.plan_pop_capacity || sz.plan_capacity_pop || Math.round(sp * 1.30)
           };
         });
-      } else {
-        const pM = Math.round(pTot * 0.35);
-        const pG = Math.round(pTot * 0.25);
-        const pS = Math.round(pTot * 0.15);
-        const pC = Math.round(pTot * 0.15);
-        const pK = Math.max(1, pTot - (pM + pG + pS + pC));
-        state.subzones = [
-          { id: 1, name: `${distName} Merkez Mah.`, current_pop: pM, base_pop: pM, employment: Math.round(pM * 0.45), jobs: Math.round(pM * 0.45), vacant_area_ha: 8.0, capacity_ha: 8.0, dist_to_center_min: 1.5, distance_to_center_min: 1.5, plan_capacity_pop: Math.round(pM * 1.65), plan_pop_capacity: Math.round(pM * 1.65) },
-          { id: 2, name: `${distName} Yeni Gelişme Mah.`, current_pop: pG, base_pop: pG, employment: Math.round(pG * 0.35), jobs: Math.round(pG * 0.35), vacant_area_ha: 55.0, capacity_ha: 55.0, dist_to_center_min: 3.0, distance_to_center_min: 3.0, plan_capacity_pop: Math.round(pG * 2.80), plan_pop_capacity: Math.round(pG * 2.80) },
-          { id: 3, name: `${distName} Sanayi & Ticaret Bölgesi`, current_pop: pS, base_pop: pS, employment: Math.round(pS * 0.70), jobs: Math.round(pS * 0.70), vacant_area_ha: 30.0, capacity_ha: 30.0, dist_to_center_min: 4.5, distance_to_center_min: 4.5, plan_capacity_pop: Math.round(pS * 2.20), plan_pop_capacity: Math.round(pS * 2.20) },
-          { id: 4, name: `${distName} Cumhuriyet Konutları`, current_pop: pC, base_pop: pC, employment: Math.round(pC * 0.30), jobs: Math.round(pC * 0.30), vacant_area_ha: 35.0, capacity_ha: 35.0, dist_to_center_min: 3.5, distance_to_center_min: 3.5, plan_capacity_pop: Math.round(pC * 2.50), plan_pop_capacity: Math.round(pC * 2.50) },
-          { id: 5, name: `${distName} Kırsal Çevre Yerleşim`, current_pop: pK, base_pop: pK, employment: Math.round(pK * 0.25), jobs: Math.round(pK * 0.25), vacant_area_ha: 45.0, capacity_ha: 45.0, dist_to_center_min: 7.5, distance_to_center_min: 7.5, plan_capacity_pop: Math.round(pK * 1.80), plan_pop_capacity: Math.round(pK * 1.80) }
-        ];
       }
 
-      // Update macro history
-      if (dData.years && dData.pop_history) {
-        state.macroHistory = dData.years.map((y, i) => ({ year: y, pop: dData.pop_history[i] }));
+      // Meta Başlık ve Cinsiyet İstatistiklerini Güncelle
+      const lblTot = document.getElementById("lblAdnksTotPop");
+      const lblM = document.getElementById("lblAdnksMale");
+      const lblF = document.getElementById("lblAdnksFemale");
+      const meta = document.getElementById("adnksMetaText");
+      const isEn = currentLang === 'en';
+      const loc = isEn ? 'en-US' : 'tr-TR';
+      const pSuf = isEn ? 'People' : 'Kişi';
+
+      if (isZoneSelected) {
+        const zMale = Math.round(activePop * (dData.male / Math.max(1, dData.male + dData.female)));
+        const zFemale = activePop - zMale;
+        const zPctStr = (zRatio * 100).toFixed(1);
+        if (lblTot) lblTot.innerText = `${activePop.toLocaleString(loc)} ${pSuf} (${distName}: ${pTot.toLocaleString(loc)})`;
+        if (lblM) lblM.innerText = `${zMale.toLocaleString(loc)} (%${dData.male_pct})`;
+        if (lblF) lblF.innerText = `${zFemale.toLocaleString(loc)} (%${dData.female_pct})`;
+        if (meta) meta.innerText = isEn
+          ? `📍 Selected: ${prov} / ${distName} / ${zObj.name} — 2025 Population: ${activePop.toLocaleString(loc)} People (%${zPctStr} Share of ${distName}) | District Total: ${pTot.toLocaleString(loc)}`
+          : `📍 Seçili: ${prov} / ${distName} / ${zObj.name} — 2025 Mahalle Nüfusu: ${activePop.toLocaleString(loc)} Kişi (%${zPctStr} ${distName} Payı) | İlçe Toplamı: ${pTot.toLocaleString(loc)} Kişi`;
+      } else {
+        if (lblTot) lblTot.innerText = `${activePop.toLocaleString(loc)} ${pSuf}`;
+        if (lblM) lblM.innerText = `${dData.male.toLocaleString(loc)} (%${dData.male_pct})`;
+        if (lblF) lblF.innerText = `${dData.female.toLocaleString(loc)} (%${dData.female_pct})`;
+        if (meta) meta.innerText = isEn
+          ? `📍 Selected: ${prov} / ${distName} — 2025 TÜİK Population: ${activePop.toLocaleString(loc)} People | Fertility (TFR): ${(dData.tfr || 1.51).toFixed(2)}`
+          : `📍 Seçili: ${prov} / ${distName} — 2025 TÜİK Nüfusu: ${activePop.toLocaleString(loc)} Kişi | Doğurganlık (TFR): ${(dData.tfr || 1.51).toFixed(2)}`;
       }
 
       // Update template dropdown text
@@ -1598,47 +1638,22 @@
           selTmpl.prepend(optAdnks);
         }
         optAdnks.value = "tuik_adnks_selected";
-        optAdnks.innerText = `🏛️ ${prov} / ${distName} (TÜİK ADNKS - ${pTot.toLocaleString('tr-TR')} Kişi)`;
+        optAdnks.innerText = `🏛️ ${activeName} (TÜİK ADNKS - ${activePop.toLocaleString('tr-TR')} Kişi)`;
         selTmpl.value = "tuik_adnks_selected";
         state.currentTemplateKey = "tuik_adnks_selected";
       }
 
       renderSettlementsTable();
-
-      // Sync Economic Base Multiplier with Top Selected Province & District
       syncCubukcuMultiplier(prov, dist, distName);
-
       recalculate();
 
-      // Mahalle Özel Gösterimi (Eğer belirli bir mahalle seçilmişse)
-      const chosenZoneVal = selZ ? selZ.value : "all";
-      const meta = document.getElementById("adnksMetaText");
-      if (chosenZoneVal !== "all" && chosenZoneVal !== "upload") {
-        const zoneIdx = parseInt(chosenZoneVal) - 1;
-        const zObj = state.subzones && state.subzones[zoneIdx];
-        if (zObj && meta) {
-          const zPop = zObj.current_pop || zObj.base_pop || 0;
-          const zCap = zObj.plan_capacity_pop || zObj.plan_pop_capacity || Math.round(zPop * 1.3);
-          const zPct = pTot > 0 ? ((zPop / pTot) * 100).toFixed(1) : "0";
-
-          // Calculate proportional target projection for this neighborhood
-          const distTargetPop = (state.lastResults && state.lastResults.fitted && state.lastResults.fitted.best_model)
-            ? state.lastResults.fitted.best_model.proj1
-            : Math.round(pTot * 1.35);
-          const zTargetPop = Math.round(distTargetPop * (zPop / Math.max(1, pTot)));
-
-          meta.innerText = `📍 ${prov} / ${distName} / ${zObj.name} — 2025 Nüfusu: ${zPop.toLocaleString('tr-TR')} Kişi (%${zPct} İlçe Payı) | Hedef Projeksiyon: ${zTargetPop.toLocaleString('tr-TR')} Kişi`;
-
-          const kpiBase = document.getElementById("kpiBasePop");
-          const kpiHigh = document.getElementById("kpiHighPop");
-          if (kpiBase) kpiBase.innerText = `${zPop.toLocaleString('tr-TR')} Kişi`;
-          if (kpiHigh) kpiHigh.innerText = `${zTargetPop.toLocaleString('tr-TR')} Kişi`;
-        }
-      }
-
       if (!silent) {
-        const mCount = (dData.subzones && dData.subzones.length > 0) ? `${dData.subzones.length} Gerçek Mahalle` : `5 Temsili Alt Bölge`;
-        alert(`🏛️ TÜİK ADNKS Resmi Verisi Yüklendi!\n\n📍 ${prov} / ${distName}\n👥 2025 Nüfusu: ${pTot.toLocaleString('tr-TR')} Kişi\n👨 Erkek: ${dData.male.toLocaleString('tr-TR')} (%${dData.male_pct})\n👩 Kadın: ${dData.female.toLocaleString('tr-TR')} (%${dData.female_pct})\n👶 İlin TÜİK Doğurganlık Hızı (TFR): ${(dData.tfr || 1.51).toFixed(2)}\n🏘️ ${mCount} Yüklendi\n📈 11 Yıllık Geçmiş Trend Serisi (2015–2025) Modellere Aktarıldı.`);
+        if (isZoneSelected) {
+          alert(`🏛️ TÜİK Mahalle Verisi Modellendi!\n\n📍 ${prov} / ${distName} / ${zObj.name}\n👥 2025 Mahalle Nüfusu: ${activePop.toLocaleString('tr-TR')} Kişi (%${(zRatio*100).toFixed(1)} İlçe Payı)\n🏛️ Bağlı Olduğu İlçe: ${pTot.toLocaleString('tr-TR')} Kişi\n📈 11 Yıllık Geçmiş Eğilim Mahalle Payına Oranlanarak Modellere Aktarıldı.`);
+        } else {
+          const mCount = (dData.subzones && dData.subzones.length > 0) ? `${dData.subzones.length} Gerçek Mahalle` : `5 Temsili Alt Bölge`;
+          alert(`🏛️ TÜİK ADNKS Resmi Verisi Yüklendi!\n\n📍 ${prov} / ${distName}\n👥 2025 Nüfusu: ${pTot.toLocaleString('tr-TR')} Kişi\n👨 Erkek: ${dData.male.toLocaleString('tr-TR')} (%${dData.male_pct})\n👩 Kadın: ${dData.female.toLocaleString('tr-TR')} (%${dData.female_pct})\n👶 İlin TÜİK Doğurganlık Hızı (TFR): ${(dData.tfr || 1.51).toFixed(2)}\n🏘️ ${mCount} Yüklendi\n📈 11 Yıllık Geçmiş Trend Serisi (2015–2025) Modellere Aktarıldı.`);
+        }
       }
     }
 
@@ -1778,6 +1793,28 @@
       return null;
     }
 
+    function updateCubukcuLiveOutputs() {
+      const inpEb = document.getElementById("inpNewBasicJobsVisible");
+      const deltaEb = parseInt(inpEb ? inpEb.value : 0) || 0;
+      const distData = state.currentMultiplierData || { bm_lq: 2.850, bm_mg: 2.150 };
+      const method = state.activeMultiplierMethod || 'LQ';
+      const k = Number((method === 'MG' ? distData.bm_mg : distData.bm_lq) || 2.85);
+
+      const bInp = document.getElementById("inpCohortB");
+      const b = parseFloat(bInp ? bInp.value : 0) || 1.96;
+
+      const deltaEt = Math.round(deltaEb * k);
+      const deltaP = Math.round(deltaEt * b);
+
+      const isEn = currentLang === 'en';
+      const loc = isEn ? 'en-US' : 'tr-TR';
+
+      const elEt = document.getElementById("econNewTotalJobs");
+      const elP = document.getElementById("econMigrantPop");
+      if (elEt) elEt.innerText = `${deltaEt.toLocaleString(loc)} ${isEn ? 'Jobs' : 'İş'}`;
+      if (elP) elP.innerText = `${deltaP.toLocaleString(loc)} ${isEn ? 'People' : 'Kişi'}`;
+    }
+
     function syncCubukcuMultiplier(prov, dist, distDisp) {
       const matched = findDistrictMultiplier(prov, dist);
       const distData = (matched && matched.data) ? matched.data : { bm_lq: 2.850, bm_mg: 2.150, pop_2000: 45000 };
@@ -1799,12 +1836,14 @@
       if (bJobsInput && activeK > 0) {
         bJobsInput.value = Math.max(1, Math.round(totJobs / activeK));
       }
+      updateCubukcuLiveOutputs();
     }
 
     function onVisibleBasicJobsChanged(val) {
       const parsed = Math.max(0, parseInt(val) || 0);
       const inpHidden = document.getElementById("inpNewBasicJobs");
       if (inpHidden) inpHidden.value = parsed;
+      updateCubukcuLiveOutputs();
       recalculate();
     }
 
@@ -1883,6 +1922,7 @@
       if (bJobsInput && activeK > 0) {
         bJobsInput.value = Math.max(1, Math.round(totJobs / activeK));
       }
+      updateCubukcuLiveOutputs();
       recalculate();
     }
 
@@ -2641,10 +2681,27 @@
       const migRatePct = document.getElementById("inpCohortMigRate") ? parseFloat(document.getElementById("inpCohortMigRate").value) : 1.82;
       const migTotal = document.getElementById("inpCohortMigTotal") ? parseInt(document.getElementById("inpCohortMigTotal").value) : 25480;
 
+      const selZ = document.getElementById("selAdnksZone");
+      const chosenZoneVal = selZ ? selZ.value : "all";
+      const isZoneSelected = chosenZoneVal !== "all" && chosenZoneVal !== "upload" && chosenZoneVal !== "";
+      let upperNameReq = undefined;
+      let upperHistReq = undefined;
+      if (isZoneSelected && topP && topP.value && topD && topD.value) {
+        const provVal = topP.value;
+        const distVal = topD.value;
+        const dData = (distVal === "IL_GENELI" ? getProvinceTotalData(provVal) : (state.adnksData[provVal] && state.adnksData[provVal][distVal])) || null;
+        if (dData && dData.pop_history) {
+          upperNameReq = `${dData.display_name || distVal} Geneli`;
+          upperHistReq = dData.pop_history;
+        }
+      }
+
       const payload = {
         template_key: state.currentTemplateKey,
         province: (topP && topP.value) || undefined,
         district: (topD && topD.value) || undefined,
+        upper_name: upperNameReq,
+        upper_pop_hist: upperHistReq,
         base_pop: parseInt(document.getElementById("inpBasePop").value) || 65395,
         base_year: parseInt(document.getElementById("inpBaseYear").value) || 2025,
         target_year_1: parseInt(document.getElementById("inpTargetYear1").value) || 2045,
@@ -2707,6 +2764,27 @@
       if (document.getElementById("kpiBestModel")) document.getElementById("kpiBestModel").innerText = (kpis.best_curve_model || "LINEAR").toUpperCase();
       if (document.getElementById("kpiBestModelR2")) document.getElementById("kpiBestModelR2").innerText = `R² = ${(kpis.best_curve_r2 || 1.0).toFixed(4)}`;
       if (document.getElementById("kpiMpyyHa")) document.getElementById("kpiMpyyHa").innerText = `${kpis.mpyy_additional_ha || 0} Ha`;
+
+      const selZ = document.getElementById("selAdnksZone");
+      const chosenZoneVal = selZ ? selZ.value : "all";
+      const isZoneSelected = chosenZoneVal !== "all" && chosenZoneVal !== "upload" && chosenZoneVal !== "";
+      const sub1 = document.getElementById("kpiBaseSubtitle");
+      const tag1 = document.getElementById("kpiBaseTag");
+      const sub2 = document.getElementById("kpiHighSubtitle");
+      const tag2 = document.getElementById("kpiHighTag");
+      const t1Year = (data.years && data.years.t1) || (document.getElementById("inpTargetYear1") ? document.getElementById("inpTargetYear1").value : 2030);
+
+      if (isZoneSelected) {
+        if (sub1) sub1.innerHTML = `<span data-yr="base">${data.years?.base || 2025}</span> Mahalle Nüfusu`;
+        if (tag1) { tag1.innerText = "TÜİK Mahalle"; tag1.className = "text-purple-600 font-bold"; }
+        if (sub2) sub2.innerHTML = `Hedef Yıl: <strong class="text-slate-800">${t1Year}</strong> (Mahalle)`;
+        if (tag2) { tag2.innerText = "Mahalle Projeksiyonu"; tag2.className = "text-emerald-600 font-bold"; }
+      } else {
+        if (sub1) sub1.innerHTML = `<span data-yr="base">${data.years?.base || 2025}</span> Başlangıç`;
+        if (tag1) { tag1.innerText = "TÜİK ADNKS"; tag1.className = "text-blue-600 font-bold"; }
+        if (sub2) sub2.innerHTML = `Hedef Yıl: <strong class="text-slate-800">${t1Year}</strong>`;
+        if (tag2) { tag2.innerText = "Projeksiyon"; tag2.className = "text-emerald-600 font-bold"; }
+      }
 
       // Update Curve Fitting Tab
       try { renderCurveFitting(data.curve_results); } catch (e) { console.error("Curve render error:", e); }
@@ -3463,10 +3541,7 @@
       if (document.getElementById("econDepRatioB")) document.getElementById("econDepRatioB").innerText = Number(b).toFixed(3);
       if (document.getElementById("econActivityRate")) document.getElementById("econActivityRate").innerText = `%${Number(act).toFixed(2)}`;
 
-      const isEn = currentLang === 'en';
-      const loc = isEn ? 'en-US' : 'tr-TR';
-      if (document.getElementById("econNewTotalJobs")) document.getElementById("econNewTotalJobs").innerText = `${newJobs.toLocaleString(loc)} ${isEn ? 'Jobs' : 'İş'}`;
-      if (document.getElementById("econMigrantPop")) document.getElementById("econMigrantPop").innerText = `${migPop.toLocaleString(loc)} ${isEn ? 'People' : 'Kişi'}`;
+      updateCubukcuLiveOutputs();
     }
 
     function renderHansenTab(hansen) {
