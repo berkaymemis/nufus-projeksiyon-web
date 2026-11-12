@@ -136,7 +136,7 @@
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="tuikDistLabel">2. İlçe Seçin:</label>
-          <select id="selAdnksDist" onchange="onAdnksDistChanged()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs sm:text-sm text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 shadow-sm">
+          <select id="selAdnksDist" onchange="onAdnksDistChanged(true)" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs sm:text-sm text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 shadow-sm">
             <option value="">-- Önce İl Seçiniz --</option>
           </select>
         </div>
@@ -264,11 +264,8 @@
       <span id="districtMetaText"></span>
       <span id="tableSummaryBadge"></span>
       <div id="citationsList"></div>
-      <span id="econMultiplierK"></span>
       <span id="econDepRatioB"></span>
       <span id="econActivityRate"></span>
-      <span id="econNewTotalJobs"></span>
-      <span id="econMigrantPop"></span>
     </div>
 
     <!-- ==================== 3. FOUR STREAMLINED TABS (SADELEŞTİRİLMİŞ 4 ANA SEKME) ==================== -->
@@ -550,25 +547,38 @@
         <!-- Economic Base Multiplier & Shocks -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Mert Çubukçu Çarpanları -->
-          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs">
-            <h4 class="font-bold text-slate-800">🏛️ Prof. Dr. Mert Çubukçu Resmi Çarpanı</h4>
-            <div class="grid grid-cols-2 gap-2">
-              <div>
-                <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">İl:</label>
-                <select id="selProvince" onchange="onProvinceChanged()" class="w-full bg-white border border-slate-300 rounded p-1.5 text-xs font-semibold"></select>
-              </div>
-              <div>
-                <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">İlçe:</label>
-                <select id="selDistrict" onchange="onDistrictChanged()" class="w-full bg-white border border-slate-300 rounded p-1.5 text-xs font-semibold"></select>
-              </div>
+          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5 text-xs">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <h4 class="font-bold text-slate-800">🏛️ Prof. Dr. Mert Çubukçu Resmi Çarpanı (İktisadi Taban)</h4>
+              <span id="lblCubukcuActiveDist" class="text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">📍 Yukarıdaki Seçime Bağlı</span>
             </div>
-            <div class="flex items-center gap-2 pt-1">
-              <button type="button" id="btnMethodLQ" onclick="selectMultiplierMethod('LQ')" class="flex-1 py-1.5 px-2 rounded border text-xs font-bold bg-cyan-100 border-cyan-400 text-blue-900">
-                Konum Katsayısı (LQ): <span id="badgeLQVal">3.271</span>
+            <!-- Hidden legacy selects for backward compatibility -->
+            <div class="hidden">
+              <select id="selProvince" onchange="onProvinceChanged()"></select>
+              <select id="selDistrict" onchange="onDistrictChanged()"></select>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" id="btnMethodLQ" onclick="selectMultiplierMethod('LQ')" class="flex-1 py-2 px-2.5 rounded-lg border text-xs font-extrabold transition bg-blue-600 border-blue-600 text-white shadow-sm">
+                Konum Katsayısı (LQ): <span id="badgeLQVal">2.850</span>
               </button>
-              <button type="button" id="btnMethodMG" onclick="selectMultiplierMethod('MG')" class="flex-1 py-1.5 px-2 rounded border text-xs font-bold bg-white border-slate-300 text-slate-700">
-                Min. Gereksinim (MG): <span id="badgeMGVal">2.295</span>
+              <button type="button" id="btnMethodMG" onclick="selectMultiplierMethod('MG')" class="flex-1 py-2 px-2.5 rounded-lg border text-xs font-bold transition bg-white border-slate-300 text-slate-700 hover:bg-slate-100">
+                Min. Gereksinim (MG): <span id="badgeMGVal">2.150</span>
               </button>
+            </div>
+            <div class="grid grid-cols-3 gap-2 pt-1">
+              <div class="bg-white p-2 rounded-lg border border-slate-200">
+                <span class="block text-[10px] font-semibold text-slate-500">Yeni Yatırım İşi (ΔEb)</span>
+                <input type="number" id="inpNewBasicJobsVisible" value="3545" min="0" step="100" onchange="onVisibleBasicJobsChanged(this.value)" class="w-full font-extrabold text-slate-800 text-xs bg-transparent border-b border-slate-300 focus:outline-none focus:border-blue-600 mt-0.5" />
+              </div>
+              <div class="bg-white p-2 rounded-lg border border-slate-200">
+                <span class="block text-[10px] font-semibold text-slate-500">Toplam Yeni İş (ΔEt)</span>
+                <span id="econNewTotalJobs" class="block font-extrabold text-blue-700 text-xs mt-0.5">-</span>
+                <span class="hidden" id="econMultiplierK"></span>
+              </div>
+              <div class="bg-white p-2 rounded-lg border border-slate-200">
+                <span class="block text-[10px] font-semibold text-slate-500">Çarpan Göç Etkisi (ΔP)</span>
+                <span id="econMigrantPop" class="block font-extrabold text-emerald-700 text-xs mt-0.5">-</span>
+              </div>
             </div>
           </div>
 
@@ -1033,8 +1043,11 @@
       document.getElementById("inpTotalJobs").value = Math.round(pTot * 0.45);
       document.getElementById("inpBasicJobs").value = Math.round(pTot * 0.12);
       // Yeni temel istihdam yatırımı ilçe ölçeğine göre ölçeklenir
+      const scaledNbj = Math.max(10, Math.round(pTot * 0.0405));
       const inpNbj = document.getElementById("inpNewBasicJobs");
-      if (inpNbj) inpNbj.value = Math.max(10, Math.round(pTot * 0.0405));
+      if (inpNbj) inpNbj.value = scaledNbj;
+      const inpNbjVis = document.getElementById("inpNewBasicJobsVisible");
+      if (inpNbjVis) inpNbjVis.value = scaledNbj;
 
       if (state.currentData) {
         state.currentData.base_pop = pTot;
@@ -1102,15 +1115,8 @@
 
       renderSettlementsTable();
 
-      // Sync Tab 4 (Economic Base Multiplier)
-      const selP4 = document.getElementById("selProvince");
-      const selD4 = document.getElementById("selDistrict");
-      if (selP4 && selD4) {
-        selP4.value = prov;
-        onProvinceChanged();
-        selD4.value = dist;
-        onDistrictChanged(false);
-      }
+      // Sync Economic Base Multiplier with Top Selected Province & District
+      syncCubukcuMultiplier(prov, dist, distName);
 
       recalculate();
 
@@ -1239,6 +1245,79 @@
       reader.readAsDataURL(file);
     }
 
+    function findDistrictMultiplier(prov, dist) {
+      if (!prov || !state.districtMultipliers) return null;
+      const normP = trNorm(prov);
+      let matchedProvKey = null;
+      for (const pk of Object.keys(state.districtMultipliers)) {
+        const npk = trNorm(pk);
+        if (npk === normP || (normP.startsWith("AFYON") && npk.startsWith("AFYON"))) {
+          matchedProvKey = pk;
+          break;
+        }
+      }
+      if (!matchedProvKey) return null;
+      const distMap = state.districtMultipliers[matchedProvKey] || {};
+      const normD = trNorm(dist || "");
+      if (normD) {
+        for (const dk of Object.keys(distMap)) {
+          const ndk = trNorm(dk);
+          if (ndk === normD || ndk === normD + " MERKEZ" || normD === ndk + " MERKEZ") {
+            return { provKey: matchedProvKey, distKey: dk, data: distMap[dk] };
+          }
+        }
+      }
+      const keys = Object.keys(distMap);
+      if (keys.length > 0) {
+        let sumLq = 0, sumMg = 0, sumPop = 0;
+        keys.forEach(k => {
+          sumLq += (distMap[k].bm_lq || 2.5);
+          sumMg += (distMap[k].bm_mg || 2.0);
+          sumPop += (distMap[k].pop_2000 || 25000);
+        });
+        return {
+          provKey: matchedProvKey,
+          distKey: dist || keys[0],
+          data: {
+            bm_lq: Math.round((sumLq / keys.length) * 1000) / 1000,
+            bm_mg: Math.round((sumMg / keys.length) * 1000) / 1000,
+            pop_2000: Math.round(sumPop / keys.length)
+          }
+        };
+      }
+      return null;
+    }
+
+    function syncCubukcuMultiplier(prov, dist, distDisp) {
+      const matched = findDistrictMultiplier(prov, dist);
+      const distData = (matched && matched.data) ? matched.data : { bm_lq: 2.850, bm_mg: 2.150, pop_2000: 45000 };
+      state.currentMultiplierData = distData;
+
+      const bLQ = document.getElementById("badgeLQVal");
+      const bMG = document.getElementById("badgeMGVal");
+      if (bLQ) bLQ.innerText = Number(distData.bm_lq || 2.85).toFixed(3);
+      if (bMG) bMG.innerText = Number(distData.bm_mg || 2.15).toFixed(3);
+
+      const lblDist = document.getElementById("lblCubukcuActiveDist");
+      if (lblDist && prov) {
+        lblDist.innerText = `📍 ${prov} / ${distDisp || dist}`;
+      }
+
+      const activeK = state.activeMultiplierMethod === 'MG' ? distData.bm_mg : distData.bm_lq;
+      const totJobs = parseInt(document.getElementById("inpTotalJobs").value) || 35000;
+      const bJobsInput = document.getElementById("inpBasicJobs");
+      if (bJobsInput && activeK > 0) {
+        bJobsInput.value = Math.max(1, Math.round(totJobs / activeK));
+      }
+    }
+
+    function onVisibleBasicJobsChanged(val) {
+      const parsed = Math.max(0, parseInt(val) || 0);
+      const inpHidden = document.getElementById("inpNewBasicJobs");
+      if (inpHidden) inpHidden.value = parsed;
+      recalculate();
+    }
+
     async function fetchDistrictMultipliers() {
       try {
         const res = await fetch("/api/district-multipliers");
@@ -1248,17 +1327,23 @@
           const provs = data.provinces || Object.keys(state.districtMultipliers);
 
           const selP = document.getElementById("selProvince");
-          if (!selP) return;
-          selP.innerHTML = "";
-          provs.forEach(p => {
-            const opt = document.createElement("option");
-            opt.value = p;
-            opt.innerText = p;
-            if (p === "İZMİR" || p === "IZMIR") opt.selected = true;
-            selP.appendChild(opt);
-          });
+          if (selP) {
+            selP.innerHTML = "";
+            provs.forEach(p => {
+              const opt = document.createElement("option");
+              opt.value = p;
+              opt.innerText = p;
+              selP.appendChild(opt);
+            });
+          }
 
-          onProvinceChanged(true);
+          const topP = document.getElementById("selAdnksProv");
+          const topD = document.getElementById("selAdnksDist");
+          if (topP && topP.value && topD && topD.value) {
+            syncCubukcuMultiplier(topP.value, topD.value, topD.options[topD.selectedIndex]?.text || topD.value);
+          } else {
+            state.currentMultiplierData = { bm_lq: 2.850, bm_mg: 2.150, pop_2000: 45000 };
+          }
         }
       } catch (err) {
         console.error("District multipliers fetch failed:", err);
@@ -1266,56 +1351,20 @@
     }
 
     function onProvinceChanged(isInitial = false) {
-      const selP = document.getElementById("selProvince");
-      const selD = document.getElementById("selDistrict");
-      if (!selP || !selD) return;
-      const prov = selP.value;
-      const dists = state.districtMultipliers[prov] || {};
-
-      selD.innerHTML = "";
-      const dKeys = Object.keys(dists).sort();
-      dKeys.forEach(d => {
-        const opt = document.createElement("option");
-        opt.value = d;
-        opt.innerText = d;
-        selD.appendChild(opt);
-      });
-
-      onDistrictChanged(!isInitial);
+      const topP = document.getElementById("selAdnksProv");
+      const topD = document.getElementById("selAdnksDist");
+      if (topP && topP.value) {
+        syncCubukcuMultiplier(topP.value, topD ? topD.value : "", topD ? topD.value : "");
+      }
+      if (!isInitial) recalculate();
     }
 
     function onDistrictChanged(triggerRecalc = true) {
-      const selP = document.getElementById("selProvince");
-      const selD = document.getElementById("selDistrict");
-      if (!selP || !selD) return;
-      const prov = selP.value;
-      const dist = selD.value;
-
-      const distData = (state.districtMultipliers[prov] && state.districtMultipliers[prov][dist]) || { bm_lq: 3.271, bm_mg: 2.295, pop_2000: 42988 };
-
-      const bLQ = document.getElementById("badgeLQVal");
-      const bMG = document.getElementById("badgeMGVal");
-      if (bLQ) bLQ.innerText = distData.bm_lq.toFixed(3);
-      if (bMG) bMG.innerText = distData.bm_mg.toFixed(3);
-
-      const isEn = currentLang === 'en';
-      const loc = isEn ? 'en-US' : 'tr-TR';
-      const activeK = state.activeMultiplierMethod === 'MG' ? distData.bm_mg : distData.bm_lq;
-      const popStr = distData.pop_2000 ? `${distData.pop_2000.toLocaleString(loc)} ${isEn ? 'People' : 'Kişi'}` : (isEn ? 'Unknown' : 'Bilinmiyor');
-      const meta = document.getElementById("districtMetaText");
-      if (meta) {
-        meta.innerText = isEn
-          ? `📍 Selected: ${prov} / ${dist} — 2000 Urban Population: ${popStr} | Active Base Multiplier (k): ${activeK.toFixed(3)} (${state.activeMultiplierMethod})`
-          : `📍 Seçili: ${prov} / ${dist} — 2000 Şehir Nüfusu: ${popStr} | Aktif Baz Çarpanı (k): ${activeK.toFixed(3)} (${state.activeMultiplierMethod})`;
+      const topP = document.getElementById("selAdnksProv");
+      const topD = document.getElementById("selAdnksDist");
+      if (topP && topP.value) {
+        syncCubukcuMultiplier(topP.value, topD ? topD.value : "", topD ? topD.value : "");
       }
-
-      // Update basic jobs input
-      const totJobs = parseInt(document.getElementById("inpTotalJobs").value) || 35000;
-      const bJobsInput = document.getElementById("inpBasicJobs");
-      if (bJobsInput) {
-        bJobsInput.value = Math.round(totJobs / activeK);
-      }
-
       if (triggerRecalc) {
         recalculate();
       }
@@ -1326,14 +1375,25 @@
       const btnLQ = document.getElementById("btnMethodLQ");
       const btnMG = document.getElementById("btnMethodMG");
 
+      const activeCls = "flex-1 py-2 px-2.5 rounded-lg border text-xs font-extrabold transition bg-blue-600 border-blue-600 text-white shadow-sm";
+      const inactiveCls = "flex-1 py-2 px-2.5 rounded-lg border text-xs font-bold transition bg-white border-slate-300 text-slate-700 hover:bg-slate-100";
+
       if (method === 'LQ') {
-        if (btnLQ) btnLQ.className = "py-2 px-3 rounded-lg border text-xs font-bold text-left transition bg-cyan-500/30 border-cyan-400 text-cyan-200 shadow-sm ring-1 ring-cyan-400";
-        if (btnMG) btnMG.className = "py-2 px-3 rounded-lg border text-xs font-bold text-left transition bg-blue-950/60 border-blue-600 text-slate-300 hover:border-blue-400";
+        if (btnLQ) btnLQ.className = activeCls;
+        if (btnMG) btnMG.className = inactiveCls;
       } else {
-        if (btnMG) btnMG.className = "py-2 px-3 rounded-lg border text-xs font-bold text-left transition bg-cyan-500/30 border-cyan-400 text-cyan-200 shadow-sm ring-1 ring-cyan-400";
-        if (btnLQ) btnLQ.className = "py-2 px-3 rounded-lg border text-xs font-bold text-left transition bg-blue-950/60 border-blue-600 text-slate-300 hover:border-blue-400";
+        if (btnMG) btnMG.className = activeCls;
+        if (btnLQ) btnLQ.className = inactiveCls;
       }
-      onDistrictChanged(true);
+
+      const distData = state.currentMultiplierData || { bm_lq: 2.850, bm_mg: 2.150 };
+      const activeK = method === 'MG' ? distData.bm_mg : distData.bm_lq;
+      const totJobs = parseInt(document.getElementById("inpTotalJobs").value) || 35000;
+      const bJobsInput = document.getElementById("inpBasicJobs");
+      if (bJobsInput && activeK > 0) {
+        bJobsInput.value = Math.max(1, Math.round(totJobs / activeK));
+      }
+      recalculate();
     }
 
     async function handleMultiplierUpload(e) {
@@ -1831,15 +1891,13 @@
     }
 
     async function recalculate() {
-      const selP = document.getElementById("selProvince");
-      const selD = document.getElementById("selDistrict");
-      let activeK = undefined;
-      if (selP && selD && state.districtMultipliers[selP.value]) {
-        const dData = state.districtMultipliers[selP.value][selD.value];
-        if (dData) {
-          activeK = state.activeMultiplierMethod === 'MG' ? dData.bm_mg : dData.bm_lq;
-        }
+      const topP = document.getElementById("selAdnksProv");
+      const topD = document.getElementById("selAdnksDist");
+      if (topP && topP.value && topD && topD.value && !state.currentMultiplierData) {
+        syncCubukcuMultiplier(topP.value, topD.value, topD.value);
       }
+      const multData = state.currentMultiplierData || { bm_lq: 2.850, bm_mg: 2.150 };
+      const activeK = state.activeMultiplierMethod === 'MG' ? multData.bm_mg : multData.bm_lq;
 
       const payload = {
         template_key: state.currentTemplateKey,
