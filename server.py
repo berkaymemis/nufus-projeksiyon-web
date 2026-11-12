@@ -486,7 +486,36 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
             else:
                 net_new_emp = int(new_basic * k_mult)
 
-            if enable_econ_mig:
+            mig_mode = req.get("migration_mode", "employment")
+            direct_mig_pop = req.get("direct_migrant_pop")
+            mig_rate_pct = req.get("migration_rate_pct")
+            years_diff = max(1, target_1 - base_year)
+
+            if enable_econ_mig and mig_mode == "rate" and (direct_mig_pop is not None or mig_rate_pct is not None):
+                if direct_mig_pop is not None and int(direct_mig_pop) > 0:
+                    migrant_pop = int(direct_mig_pop)
+                    calc_rate = round((migrant_pop / years_diff) / base_pop * 100.0, 2)
+                else:
+                    rate_val = float(mig_rate_pct or 0.0)
+                    migrant_pop = round(base_pop * (rate_val / 100.0) * years_diff)
+                    calc_rate = rate_val
+
+                net_new_emp = round(migrant_pop / max(0.5, b_ratio))
+                new_basic = max(1, int(net_new_emp / max(1.0, k_mult)))
+
+                econ_mig = {
+                    "new_basic_jobs": new_basic,
+                    "base_multiplier_k": round(k_mult, 3),
+                    "dependency_ratio_b": round(b_ratio, 3),
+                    "total_new_jobs": net_new_emp,
+                    "non_basic_new_jobs": max(0, net_new_emp - new_basic),
+                    "total_migrant_pop": migrant_pop,
+                    "plan_share_pct": 100.0,
+                    "plan_migrant_pop": migrant_pop,
+                    "annual_migration_rate": calc_rate,
+                    "formula_summary": f"Yıllık Net Göç Hızı: %{calc_rate:.2f} (Yılda {round(migrant_pop / years_diff):,} Kişi) --> Toplam Göç: {migrant_pop:,} Kişi"
+                }
+            elif enable_econ_mig:
                 econ_mig = EconomicBaseEngine.project_employment_migration(
                     new_basic_jobs=new_basic,
                     base_multiplier_k=k_mult,
@@ -496,6 +525,8 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
                     econ_mig["total_new_jobs"] = net_new_emp
                     econ_mig["total_migrant_pop"] = round(net_new_emp * b_ratio)
                     econ_mig["plan_migrant_pop"] = round(net_new_emp * b_ratio)
+                calc_rate = round((econ_mig["plan_migrant_pop"] / years_diff) / base_pop * 100.0, 2)
+                econ_mig["annual_migration_rate"] = calc_rate
             else:
                 econ_mig = {
                     "new_basic_jobs": 0,
@@ -506,6 +537,7 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
                     "total_migrant_pop": 0,
                     "plan_share_pct": 100.0,
                     "plan_migrant_pop": 0,
+                    "annual_migration_rate": 0.0,
                     "formula_summary": "Doğal Senaryo (İktisadi göç etkinleştirilmedi)"
                 }
 
@@ -600,11 +632,19 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
                 "multiplier_k": round(k_mult, 2),
                 "dependency_b": round(b_ratio, 2),
                 "migrant_pop": migrant_t1,
+                "annual_migration_rate": econ_mig.get("annual_migration_rate", 0.0),
                 "total_plan_pop": total_plan_t1
             }
 
             best_model_name = curve_results.get("best_model", "linear")
             mid_curve_pop = curve_results["models"].get(best_model_name, {}).get("predictions", {}).get(target_1, mid_steps[target_1]["total"])
+
+            if mig_mode == "rate" and enable_econ_mig:
+                high_assumption = f"Yıllık Net Göç Hızı (%{econ_mig.get('annual_migration_rate', 0.0):.2f}) ile Toplam +{migrant_t1:,} Göçmen Nüfus"
+            elif enable_econ_mig:
+                high_assumption = f"TOSBİ vb. Sanayi Genişlemesi + Baz Çarpanı ({k_mult:.2f}) + Bağımlılık ({b_ratio:.2f}) Göçü"
+            else:
+                high_assumption = "Plan kabulü / Dinamik Şoklar"
 
             alternative_scenarios = {
                 "low": {
@@ -625,7 +665,7 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
                     "title": "YÜKSEK (SANAYİ / VİZYON)",
                     "population": total_plan_t1,
                     "diff_pct": round(((total_plan_t1 - base_pop) / base_pop) * 100.0, 2),
-                    "assumption": f"TOSBİ vb. Sanayi Genişlemesi + Baz Çarpanı ({k_mult:.2f}) + Bağımlılık ({b_ratio:.2f}) Göçü" if enable_econ_mig else "Plan kabulü / Dinamik Şoklar",
+                    "assumption": high_assumption,
                     "role": "Nazım İmar Planı Kabulü & Donatı Eşiği (Önerilen)"
                 }
             }
