@@ -493,6 +493,10 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
             years_diff = max(1, target_1 - base_year)
             direct_mig_pop = req.get("direct_migrant_pop")
             mig_rate_pct = req.get("migration_rate_pct")
+            mig_mode = req.get("migration_mode", "employment")
+            net_new_emp = 0
+            migrant_pop = 0
+            calc_rate = 0.0
 
             if not enable_econ_mig or (not use_target_emp and not use_mig_rate):
                 econ_mig = {
