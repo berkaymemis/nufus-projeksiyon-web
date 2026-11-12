@@ -200,7 +200,7 @@
       <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-700 uppercase tracking-wide" data-i18n="kpi1Title">1. Mevcut Nüfus</span>
+            <span class="text-xs font-bold text-slate-700 uppercase tracking-wide" data-i18n="kpi1Title">1. MEVCUT NÜFUS</span>
             <span class="text-base text-blue-600">📍</span>
           </div>
           <p id="kpiBasePop" class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">-</p>
@@ -215,7 +215,7 @@
       <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-700 uppercase tracking-wide" data-i18n="kpiTargetPop">2. Gelecek Hedef Nüfus</span>
+            <span class="text-xs font-bold text-slate-700 uppercase tracking-wide" data-i18n="kpiTargetPop">2. GELECEK HEDEF NÜFUS</span>
             <span class="text-base text-emerald-600">📈</span>
           </div>
           <p id="kpiHighPop" class="text-2xl sm:text-3xl font-black text-emerald-600 mt-2">-</p>
@@ -230,7 +230,7 @@
       <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-700 uppercase tracking-wide" data-i18n="kpi5Title">3. En İyi Uyumlu Model</span>
+            <span class="text-xs font-bold text-slate-700 uppercase tracking-wide" data-i18n="kpi5Title">3. MODEL UYUMU</span>
             <span class="text-base text-indigo-600">⭐</span>
           </div>
           <p id="kpiBestModel" class="text-xl sm:text-2xl font-black text-indigo-600 mt-2">-</p>
@@ -245,7 +245,7 @@
       <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-700 uppercase tracking-wide" data-i18n="kpi6Title">4. MPYY Donatı İhtiyacı</span>
+            <span class="text-xs font-bold text-slate-700 uppercase tracking-wide" data-i18n="kpi6Title">4. MPYY DONATI</span>
             <span class="text-base text-rose-600">📐</span>
           </div>
           <p id="kpiMpyyHa" class="text-2xl sm:text-3xl font-black text-rose-600 mt-2">-</p>
@@ -276,16 +276,16 @@
       <!-- Tab Navigation -->
       <div class="bg-slate-50/80 border-b border-slate-200 px-4 flex overflow-x-auto text-xs sm:text-sm font-semibold">
         <button onclick="switchTab('curves')" id="tabBtn-curves" class="tab-active py-3.5 px-4 whitespace-nowrap flex items-center gap-2 transition">
-          <span data-i18n="tabCurves">📈 1. Nüfus Trendi & 6 Model</span>
+          <span data-i18n="tabCurves">📈 1. Curve Fitting (6 Model)</span>
         </button>
         <button onclick="switchTab('cohort')" id="tabBtn-cohort" class="tab-inactive py-3.5 px-4 whitespace-nowrap flex items-center gap-2 transition">
-          <span data-i18n="tabCohort">👥 2. Yaş Piramidi & Kuşak-Bileşen</span>
+          <span data-i18n="tabCohort">👥 2. Kuşak-Bileşen & Piramit</span>
         </button>
         <button onclick="switchTab('hansen')" id="tabBtn-hansen" class="tab-inactive py-3.5 px-4 whitespace-nowrap flex items-center gap-2 transition">
-          <span data-i18n="tabHansen">🗺️ 3. Mekânsal Harita & Mahalleler</span>
+          <span data-i18n="tabHansen">🗺️ 3. Hansen Mekânsal & Harita</span>
         </button>
         <button onclick="switchTab('mpyy')" id="tabBtn-mpyy" class="tab-inactive py-3.5 px-4 whitespace-nowrap flex items-center gap-2 transition">
-          <span data-i18n="tabMpyy">📐 4. Yasal Donatı Alanları (MPYY)</span>
+          <span data-i18n="tabMpyy">📐 4. MPYY Standartları</span>
         </button>
       </div>
 
@@ -496,13 +496,12 @@
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Hazır Plan Şablonu:</label>
             <select id="selectTemplate" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-semibold">
-              <option value="tire_88_adnks">⭐ Tire İlçesi (TÜİK ADNKS - 88 Mahalle - 87,528 Nüfus)</option>
-              <option value="standart_kentsel_plan">Tire 1/5000 Revizyon Nazım İmar Planı (21 Mahalle - 65,395 Kişi)</option>
-              <option value="hizli_buyuyen_sanayi">Torbalı İlçesi (Ağır Sanayi, OSB ve Lojistik Kenti)</option>
-              <option value="metropoliten_alt_bolge">Aliağa İlçesi (Petrokimya, Ağır Sanayi ve Liman Havzası)</option>
-              <option value="tarimsal_kirsal">Ödemiş İlçesi (Tarımsal Havza ve Kırsal Merkez)</option>
-              <option value="ozel_serbest">⚙️ Özel Kullanıcı Tanımlı Çalışma Alanı (Serbest Giriş)</option>
-              <option id="optSelectedAdnks" class="hidden"></option>
+              <option id="optSelectedAdnks" value="tuik_adnks_selected" selected>🏛️ Seçili İl / İlçe Mahalle Dağılımı (Yukarıdaki Seçim)</option>
+              <option value="metropoliten_alt_bolge">🏙️ Metropoliten & Çok Merkezli Kent Şablonu (290.000 Nüfus)</option>
+              <option value="hizli_buyuyen_sanayi">🏭 Hızlı Büyüyen Ağır Sanayi & OSB Kenti Şablonu (200.000 Nüfus)</option>
+              <option value="standart_kentsel_plan">📐 1/5000 Nazım İmar Planı Şablonu (65.000 Nüfus)</option>
+              <option value="tarimsal_havza">🌾 Tarımsal Havza & Kırsal İlçe Şablonu (130.000 Nüfus)</option>
+              <option value="ozel_alan">⚙️ Özel Kullanıcı Tanımlı Çalışma Alanı (Serbest Giriş)</option>
               <option id="optUploadedFile" class="hidden"></option>
             </select>
           </div>
@@ -725,8 +724,12 @@
         if (res.ok) {
           const data = await res.json();
           state.templates = data.templates || {};
-          const defaultKey = document.getElementById("selectTemplate").value || "tire_88_adnks";
-          loadTemplate(defaultKey);
+          const defaultKey = document.getElementById("selectTemplate").value;
+          if (defaultKey && defaultKey !== "tuik_adnks_selected" && state.templates[defaultKey]) {
+            loadTemplate(defaultKey);
+          } else {
+            loadTemplate("standart_kentsel_plan");
+          }
         }
       } catch (err) {
         console.error("Templates fetch failed:", err);
@@ -1236,11 +1239,11 @@
       const dists = state.districtMultipliers[prov] || {};
 
       selD.innerHTML = "";
-      Object.keys(dists).sort().forEach(d => {
+      const dKeys = Object.keys(dists).sort();
+      dKeys.forEach(d => {
         const opt = document.createElement("option");
         opt.value = d;
         opt.innerText = d;
-        if (d === "TIRE") opt.selected = true;
         selD.appendChild(opt);
       });
 
@@ -1486,7 +1489,9 @@
     function setupEventListeners() {
       document.getElementById("selectTemplate").addEventListener("change", (e) => {
         const k = e.target.value;
-        if (k === "tuik_adnks_selected" || k === "uploaded_custom") {
+        if (k === "tuik_adnks_selected") {
+          applyAdnksDistrictToModel(true);
+        } else if (k === "uploaded_custom") {
           state.currentTemplateKey = k;
           recalculate();
         } else {
@@ -2467,25 +2472,26 @@
         btnExcel: "Excel İndir (.xlsx)",
         btnCalculate: "Hesapla",
         btnLang: "English",
-        kpi1Title: "1. Mevcut Nüfus",
+        kpi1Title: "1. MEVCUT NÜFUS",
         kpi1Sub: "Başlangıç Yılı",
+        kpiTargetPop: "2. GELECEK HEDEF NÜFUS",
         kpi2Title: "2. Düşük Senaryo",
         kpi2Sub: "(%0 Göç, Doğal)",
         kpi3Title: "3. Orta Senaryo",
         kpi3Sub: "(Geçmiş Trend)",
         kpi4Title: "4. Yüksek Senaryo",
         kpi4Sub: "(Plan Kabulü)",
-        kpi5Title: "5. Model Uyumu",
-        kpi6Title: "6. MPYY Donatı",
+        kpi5Title: "3. MODEL UYUMU",
+        kpi6Title: "4. MPYY DONATI",
         kpi6Sub: "Ek-2 Yasal Standart",
         tabData: "📂 1. Çalışma Alanı & Veri",
-        tabCurves: "📈 2. Curve Fitting (6 Model)",
-        tabCohort: "👥 3. Kuşak-Bileşen & Piramit",
+        tabCurves: "📈 1. Curve Fitting (6 Model)",
+        tabCohort: "👥 2. Kuşak-Bileşen & Piramit",
         tabEconomic: "💼 4. İktisadi Taban Çarpanı",
         tabShocks: "⚡ 5. Demografik Şoklar",
-        tabHansen: "🗺️ 6. Hansen Mekânsal & Harita",
-        tabMpyy: "📐 7. MPYY Standartları",
-        tabCitations: "📚 8. Metodoloji & Kaynakça",
+        tabHansen: "🗺️ 3. Hansen Mekânsal & Harita",
+        tabMpyy: "📐 4. MPYY Standartları",
+        tabCitations: "📚 Metodoloji & Kaynakça",
         tuikTitle: "TÜİK RESMİ ADNKS İL & İLÇE NÜFUS VE CİNSİYET VERİ TABANI (2024)",
         tuikSub: "81 İl & 923+ İlçe • Cinsiyete Göre Nüfus (Kadın / Erkek) • 2015–2024 Yıllık Geçmiş Trend Serisi",
         tuikUpload: "Resmi TÜİK Tablosu Yükle (.csv / .xlsx)",
@@ -2583,25 +2589,26 @@
         btnExcel: "Export Excel (.xlsx)",
         btnCalculate: "Calculate",
         btnLang: "Türkçe",
-        kpi1Title: "1. Current Population",
+        kpi1Title: "1. CURRENT POPULATION",
         kpi1Sub: "Base Year",
+        kpiTargetPop: "2. TARGET POPULATION",
         kpi2Title: "2. Low Scenario",
         kpi2Sub: "(0% Migration, Natural)",
         kpi3Title: "3. Medium Scenario",
         kpi3Sub: "(Historical Trend)",
         kpi4Title: "4. High Scenario",
         kpi4Sub: "(Master Plan Policy)",
-        kpi5Title: "5. Model Fit",
-        kpi6Title: "6. MPYY Amenities",
+        kpi5Title: "3. MODEL FIT",
+        kpi6Title: "4. MPYY AMENITIES",
         kpi6Sub: "Annex-2 Legal Std",
         tabData: "📂 1. Study Area & Data",
-        tabCurves: "📈 2. Curve Fitting (6 Models)",
-        tabCohort: "👥 3. Cohort-Component & Pyramid",
+        tabCurves: "📈 1. Curve Fitting (6 Models)",
+        tabCohort: "👥 2. Cohort-Component & Pyramid",
         tabEconomic: "💼 4. Economic Base Multiplier",
         tabShocks: "⚡ 5. Demographic Shocks",
-        tabHansen: "🗺️ 6. Hansen Spatial & Map",
-        tabMpyy: "📐 7. MPYY Standards",
-        tabCitations: "📚 8. Methodology & References",
+        tabHansen: "🗺️ 3. Hansen Spatial & Map",
+        tabMpyy: "📐 4. MPYY Standards",
+        tabCitations: "📚 Methodology & References",
         tuikTitle: "TÜİK OFFICIAL ADNKS PROVINCE & DISTRICT POPULATION & SEX DATABASE (2024)",
         tuikSub: "81 Provinces & 923+ Districts • Sex-Disaggregated Population • 2015–2024 Historical Trend Series",
         tuikUpload: "Upload Official TÜİK Table (.csv / .xlsx)",
