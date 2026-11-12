@@ -39,47 +39,41 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col pb-12">
 
-  <!-- TOP APP BAR (MODERN & SLEEK) -->
-  <header class="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white shadow-md sticky top-0 z-30">
+  <!-- TOP APP BAR (HESAPLAMA.NET SOFT & FERAH STYLE) -->
+  <header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-30">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center space-x-3">
-        <a href="/" class="flex items-center gap-2 group">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 flex items-center justify-center text-white font-black text-xl shadow-lg ring-2 ring-white/20 group-hover:scale-105 transition">
+        <a href="/" class="flex items-center gap-2.5 group">
+          <div class="w-10 h-10 rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center font-black text-xl shadow-sm transition">
             ?
           </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-base sm:text-lg font-black text-slate-900 tracking-tight" data-i18n="appTitle">NüfusKaç?</span>
+              <span class="bg-blue-50 text-blue-700 border border-blue-200 text-[10px] px-2 py-0.5 rounded font-black uppercase">BM-GEO</span>
+              <span class="hidden sm:inline-block bg-slate-100 text-slate-600 border border-slate-200 text-[10px] px-1.5 py-0.5 rounded font-semibold">TÜİK 2024</span>
+            </div>
+            <p class="text-xs text-slate-500 font-medium" data-i18n="appSubtitle">Türkiye 81 İl, İlçe ve Mahalle Gelecek Nüfus Hesaplayıcı (2025–2050)</p>
+          </div>
         </a>
-        <div>
-          <h1 class="text-base sm:text-lg font-extrabold tracking-tight flex items-center gap-2">
-            <span data-i18n="appTitle" class="tracking-wide text-white">NÜFUS KAÇ?</span>
-            <span class="bg-amber-400 text-slate-950 text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider shadow-sm">BM-GEO</span>
-            <span class="hidden sm:inline-block bg-emerald-400/90 text-slate-950 text-[10px] px-1.5 py-0.5 rounded font-bold">2025–2050</span>
-          </h1>
-          <p data-i18n="appSubtitle" class="text-xs text-blue-200">Hangi Yıl, Hangi Şehir Kaç Nüfus Olacak? • 81 İl ve 973 İlçe Canlı Projeksiyon</p>
-        </div>
       </div>
 
       <div class="flex items-center gap-2 flex-wrap">
         <!-- Switch to Classic Mode Button (One click return!) -->
-        <a href="/classic" title="Eski detaylı laboratuvar görünümüne geçin" class="bg-indigo-700/80 hover:bg-indigo-600 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-lg border border-indigo-400/30 shadow flex items-center gap-1.5 transition">
+        <a href="/classic" title="Eski detaylı laboratuvar görünümüne geçin" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 transition">
           <span>🏛️</span>
-          <span class="hidden md:inline">Klasik Detaylı Mod</span>
+          <span class="hidden md:inline">Klasik Plancı Modu</span>
           <span class="md:hidden">Klasik</span>
         </a>
 
         <!-- Bilingual Switcher -->
-        <button id="btnLangToggle" onclick="toggleLanguage()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs sm:text-sm font-black px-3 py-1.5 rounded-lg shadow flex items-center gap-1.5 transition">
+        <button id="btnLangToggle" onclick="toggleLanguage()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs sm:text-sm font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 transition">
           <span class="text-sm">🌐</span>
           <span id="lblLang">English</span>
         </button>
 
-        <!-- Phone connect -->
-        <button id="btnOpenQR" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-lg shadow flex items-center gap-1.5 transition">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
-          <span data-i18n="btnQR">📱 Telefondan Bağlan</span>
-        </button>
-
         <!-- Excel Export -->
-        <button id="btnExportExcel" class="bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-lg shadow flex items-center gap-1.5 transition">
+        <button id="btnExportExcel" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 transition">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           <span class="hidden sm:inline" data-i18n="btnExcel">Excel İndir (.xlsx)</span>
           <span class="sm:hidden">Excel</span>
@@ -91,61 +85,77 @@
   <!-- MAIN CONTAINER -->
   <main class="max-w-7xl mx-auto px-4 mt-5 w-full flex-1 space-y-5">
 
-    <!-- ==================== 1. HERO QUICK EXPLORER (HIZLI İLÇE ARAMA & CANLI ÖZET) ==================== -->
-    <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 sm:p-6 transition hover:shadow-md">
+    <!-- ==================== 1. HERO QUICK EXPLORER (HESAPLAMA.NET SOFT HESAPLAYICI) ==================== -->
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 sm:p-6 transition">
       <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3 mb-4">
         <div>
           <h2 class="text-sm sm:text-base font-extrabold text-slate-800 flex items-center gap-2">
-            <span>🔍</span> <span data-i18n="quickSearchTitle">Şehir ve Yıl Seçin — Gelecekte Nüfus Kaç Olacak?</span>
+            <span class="text-blue-600">📍</span> <span data-i18n="quickSearchTitle">Şehir ve Yıl Seçin — Gelecekte Nüfus Kaç Olacak?</span>
           </h2>
           <p class="text-xs text-slate-500 mt-0.5" data-i18n="quickSearchSub">Türkiye 81 İl ve 973 İlçe Resmi TÜİK ADNKS Veri Tabanı (2015–2024 Gerçek Trend Serisi)</p>
         </div>
         <div class="flex items-center gap-2">
-          <label for="fileTuikAdnks" class="cursor-pointer bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-1.5 px-3 rounded-lg border border-slate-300 transition flex items-center gap-1.5 shadow-sm">
-            <span>📂</span> <span data-i18n="tuikUpload">Özel TÜİK Tablosu Yükle</span>
+          <label for="fileTuikAdnks" class="cursor-pointer bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold py-1.5 px-3 rounded-lg border border-slate-200 transition flex items-center gap-1.5 shadow-sm">
+            <span>📂</span> <span data-i18n="tuikUpload">Özel Tablo Yükle</span>
           </label>
           <input type="file" id="fileTuikAdnks" accept=".csv,.xlsx,.xls" class="hidden" onchange="handleTuikFileUpload(event)">
         </div>
       </div>
 
       <!-- Popüler Sorular (SEO & Hızlı Keşif) -->
-      <div class="mb-4 bg-gradient-to-r from-blue-50/80 to-indigo-50/60 p-3 rounded-xl border border-blue-100 flex flex-wrap items-center gap-2">
-        <span class="text-xs font-black text-blue-900 flex items-center gap-1.5 whitespace-nowrap">
-          <span class="text-amber-500 animate-pulse">⚡</span> <span data-i18n="quickQuestionsTitle">Popüler Sorular:</span>
+      <div class="mb-4 bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 flex flex-wrap items-center gap-2">
+        <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5 whitespace-nowrap">
+          <span class="text-blue-600">🔥</span> <span data-i18n="quickQuestionsTitle">Popüler Sorular:</span>
         </span>
         <div class="flex items-center gap-1.5 flex-wrap text-xs">
-          <button type="button" onclick="quickAsk('İSTANBUL', 'TÜM İLÇELER', 2030)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-600 hover:text-white text-slate-700 font-semibold border border-slate-200/80 shadow-sm transition">
+          <button type="button" onclick="quickAsk('İSTANBUL', 'TÜM İLÇELER', 2030)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
             2030'da İstanbul kaç olur?
           </button>
-          <button type="button" onclick="quickAsk('ANKARA', 'TÜM İLÇELER', 2035)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-600 hover:text-white text-slate-700 font-semibold border border-slate-200/80 shadow-sm transition">
+          <button type="button" onclick="quickAsk('ANKARA', 'TÜM İLÇELER', 2035)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
             2035'te Ankara kaç olur?
           </button>
-          <button type="button" onclick="quickAsk('İZMİR', 'TÜM İLÇELER', 2040)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-600 hover:text-white text-slate-700 font-semibold border border-slate-200/80 shadow-sm transition">
+          <button type="button" onclick="quickAsk('İZMİR', 'TÜM İLÇELER', 2040)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
             2040'ta İzmir kaç olur?
           </button>
-          <button type="button" onclick="quickAsk('ANTALYA', 'TÜM İLÇELER', 2030)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-600 hover:text-white text-slate-700 font-semibold border border-slate-200/80 shadow-sm transition">
+          <button type="button" onclick="quickAsk('ANTALYA', 'TÜM İLÇELER', 2030)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
             2030'da Antalya kaç olur?
           </button>
-          <button type="button" onclick="quickAsk('BURSA', 'TÜM İLÇELER', 2050)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-600 hover:text-white text-slate-700 font-semibold border border-slate-200/80 shadow-sm transition">
+          <button type="button" onclick="quickAsk('BURSA', 'TÜM İLÇELER', 2050)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
             2050'de Bursa kaç olur?
           </button>
         </div>
       </div>
 
-      <!-- Search Controls -->
+      <!-- Search Controls (İl - İlçe - Mahalle - Yıl) -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="tuikProvLabel">1. İl Seçin (81 İl):</label>
-          <select id="selAdnksProv" onchange="onAdnksProvChanged()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs sm:text-sm text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 shadow-sm"></select>
+          <select id="selAdnksProv" onchange="onAdnksProvChanged()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs sm:text-sm text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 shadow-sm">
+            <option value="">-- İl Seçiniz (81 İl) --</option>
+          </select>
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="tuikDistLabel">2. İlçe Seçin:</label>
-          <select id="selAdnksDist" onchange="onAdnksDistChanged()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs sm:text-sm text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 shadow-sm"></select>
+          <select id="selAdnksDist" onchange="onAdnksDistChanged()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs sm:text-sm text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 shadow-sm">
+            <option value="">-- Önce İl Seçiniz --</option>
+          </select>
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="targetYearLabel">3. Hedef Projeksiyon Yılı:</label>
-          <div class="flex items-center gap-2">
-            <input type="number" id="inpTargetYear1" oninput="onYearsChanged()" onchange="onYearsChanged(true)" value="2035" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs sm:text-sm font-black text-blue-700 focus:ring-2 focus:ring-blue-500 shadow-sm">
+          <label class="block text-xs font-bold text-slate-700 mb-1">3. Mahalle / Alt Bölge (İsteğe Bağlı):</label>
+          <select id="selAdnksZone" onchange="onAdnksZoneChanged()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs sm:text-sm text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 shadow-sm">
+            <option value="all">-- Tüm Mahalleler (İlçe Geneli) --</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="targetYearLabel">4. Hedef Projeksiyon Yılı:</label>
+          <div class="flex items-center gap-1.5">
+            <input type="number" id="inpTargetYear1" oninput="onYearsChanged()" onchange="onYearsChanged(true)" value="2030" class="w-24 bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs sm:text-sm font-black text-blue-700 focus:ring-2 focus:ring-blue-500 shadow-sm">
+            <div class="flex items-center gap-1 flex-1">
+              <button type="button" onclick="setTargetYear(2030)" class="btn-yr flex-1 py-2 text-[11px] font-bold rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition">2030</button>
+              <button type="button" onclick="setTargetYear(2035)" class="btn-yr flex-1 py-2 text-[11px] font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition">2035</button>
+              <button type="button" onclick="setTargetYear(2040)" class="btn-yr flex-1 py-2 text-[11px] font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition">2040</button>
+              <button type="button" onclick="setTargetYear(2050)" class="btn-yr flex-1 py-2 text-[11px] font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition">2050</button>
+            </div>
             <input type="hidden" id="inpBaseYear" value="2024">
             <input type="hidden" id="inpTargetYear2" value="2050">
             <input type="hidden" id="inpBasePop" value="87528">
@@ -156,82 +166,84 @@
             <input type="hidden" id="inpNewBasicJobs" value="3545">
           </div>
         </div>
-        <div>
-          <button type="button" onclick="applyAdnksDistrictToModel()" class="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-teal-600 hover:from-blue-500 hover:to-teal-500 text-white font-extrabold py-2.5 px-4 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-xs sm:text-sm">
-            <span>⚡</span> <span data-i18n="tuikApplyBtn">Bu İlçeyi Yükle & Hesapla</span>
-          </button>
-        </div>
+      </div>
+
+      <!-- Action Button -->
+      <div class="mt-4">
+        <button type="button" onclick="applyAdnksDistrictToModel(true)" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-3 px-6 rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-sm sm:text-base">
+          <span>⚡</span> <span>Gelecek Nüfusu Hesapla</span>
+        </button>
       </div>
 
       <!-- Live Demographic Overview Bar -->
-      <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div id="adnksOverviewBar" class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
         <div class="flex items-center gap-2 text-slate-700 font-semibold">
-          <span id="adnksMetaText" class="bg-blue-50 text-blue-900 py-1 px-2.5 rounded-lg border border-blue-200">📍 Seçili: İZMİR / TİRE — 2024 TÜİK Nüfusu: 87.528 Kişi</span>
-          <span class="bg-amber-50 text-amber-900 py-1 px-2.5 rounded-lg border border-amber-200">👶 TFR: <strong id="lblCohortTfrBadge">1.29</strong></span>
+          <span id="adnksMetaText" class="bg-blue-50 text-blue-900 py-1 px-2.5 rounded-lg border border-blue-200">📍 Seçim Yapın: Yukarıdan bir il ve ilçe seçip "Hesapla" butonuna basın</span>
+          <span id="badgeCohortTfr" class="bg-amber-50 text-amber-900 py-1 px-2.5 rounded-lg border border-amber-200 hidden">👶 TFR: <strong id="lblCohortTfrBadge">1.51</strong></span>
         </div>
-        <div class="flex items-center gap-3 text-slate-600 text-xs">
-          <span>👥 Toplam: <strong id="lblAdnksTotPop" class="text-slate-900 font-bold">87.528</strong></span>
-          <span>👨 Erkek: <strong id="lblAdnksMale" class="text-blue-700">43.510 (%49.7)</strong></span>
-          <span>👩 Kadın: <strong id="lblAdnksFemale" class="text-pink-700">44.018 (%50.3)</strong></span>
+        <div id="adnksGenderStats" class="flex items-center gap-3 text-slate-600 text-xs hidden">
+          <span>👥 Toplam: <strong id="lblAdnksTotPop" class="text-slate-900 font-bold">-</strong></span>
+          <span>👨 Erkek: <strong id="lblAdnksMale" class="text-blue-700">-</strong></span>
+          <span>👩 Kadın: <strong id="lblAdnksFemale" class="text-pink-700">-</strong></span>
         </div>
       </div>
     </section>
 
-    <!-- ==================== 2. FOUR CORE KPI CARDS (BÜYÜK & FERAH KARTLAR) ==================== -->
+    <!-- ==================== 2. FOUR CORE KPI CARDS (HESAPLAMA.NET SOFT KARTLAR) ==================== -->
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <!-- 1. Mevcut Nüfus -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex flex-col justify-between">
+      <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-blue-900 uppercase tracking-wide" data-i18n="kpi1Title">1. Mevcut Nüfus</span>
-            <span class="text-lg">📍</span>
+            <span class="text-xs font-bold text-slate-700 uppercase tracking-wide" data-i18n="kpi1Title">1. Mevcut Nüfus</span>
+            <span class="text-base text-blue-600">📍</span>
           </div>
-          <p id="kpiBasePop" class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">87.528 Kişi</p>
+          <p id="kpiBasePop" class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">-</p>
         </div>
         <p class="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
-          <span><span data-yr="base">2024</span> Başlangıç Yılı</span>
+          <span><span data-yr="base">2024</span> Başlangıç</span>
           <span class="text-blue-600 font-bold">TÜİK ADNKS</span>
         </p>
       </div>
 
       <!-- 2. Gelecek Hedef Nüfus -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex flex-col justify-between">
+      <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-emerald-900 uppercase tracking-wide" data-i18n="kpiTargetPop">2. Gelecek Hedef Nüfus</span>
-            <span class="text-lg">📈</span>
+            <span class="text-xs font-bold text-slate-700 uppercase tracking-wide" data-i18n="kpiTargetPop">2. Gelecek Hedef Nüfus</span>
+            <span class="text-base text-emerald-600">📈</span>
           </div>
-          <p id="kpiHighPop" class="text-2xl sm:text-3xl font-black text-emerald-700 mt-2">108.540 Kişi</p>
+          <p id="kpiHighPop" class="text-2xl sm:text-3xl font-black text-emerald-600 mt-2">-</p>
         </div>
         <p class="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
-          <span>Hedef Yıl: <strong class="text-slate-800" data-yr="t1">2035</strong></span>
-          <span class="text-emerald-600 font-bold">Plan Kabulü</span>
+          <span>Hedef Yıl: <strong class="text-slate-800" data-yr="t1">2030</strong></span>
+          <span class="text-emerald-600 font-bold">Projeksiyon</span>
         </p>
       </div>
 
       <!-- 3. Model Uyumu & Trend -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex flex-col justify-between">
+      <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-purple-900 uppercase tracking-wide" data-i18n="kpi5Title">3. En İyi Uyumlu Model</span>
-            <span class="text-lg">⭐</span>
+            <span class="text-xs font-bold text-slate-700 uppercase tracking-wide" data-i18n="kpi5Title">3. En İyi Uyumlu Model</span>
+            <span class="text-base text-indigo-600">⭐</span>
           </div>
-          <p id="kpiBestModel" class="text-xl sm:text-2xl font-black text-purple-700 mt-2">DOĞRUSAL</p>
+          <p id="kpiBestModel" class="text-xl sm:text-2xl font-black text-indigo-600 mt-2">-</p>
         </div>
         <p class="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
-          <span id="kpiBestModelR2" class="font-mono font-bold text-slate-700">R² = 0.9986</span>
-          <span class="text-purple-600 font-semibold">En Küçük Hata</span>
+          <span id="kpiBestModelR2" class="font-mono font-bold text-slate-700">R² = -</span>
+          <span class="text-indigo-600 font-semibold">En Küçük Hata</span>
         </p>
       </div>
 
       <!-- 4. MPYY İlave Donatı -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex flex-col justify-between">
+      <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-rose-900 uppercase tracking-wide" data-i18n="kpi6Title">4. MPYY Donatı İhtiyacı</span>
-            <span class="text-lg">🏗️</span>
+            <span class="text-xs font-bold text-slate-700 uppercase tracking-wide" data-i18n="kpi6Title">4. MPYY Donatı İhtiyacı</span>
+            <span class="text-base text-rose-600">📐</span>
           </div>
-          <p id="kpiMpyyHa" class="text-2xl sm:text-3xl font-black text-rose-700 mt-2">39.92 Ha</p>
+          <p id="kpiMpyyHa" class="text-2xl sm:text-3xl font-black text-rose-600 mt-2">-</p>
         </div>
         <p class="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
           <span>Ek-2 Standart</span>
@@ -722,20 +734,23 @@
         if (res.ok) {
           const data = await res.json();
           state.adnksData = data.districts || {};
-          const provs = data.provinces || Object.keys(state.adnksData);
+          const provs = (data.provinces || Object.keys(state.adnksData)).sort();
 
           const selP = document.getElementById("selAdnksProv");
           if (!selP) return;
-          selP.innerHTML = "";
+          selP.innerHTML = '<option value="">-- İl Seçiniz (81 İl) --</option>';
           provs.forEach(p => {
             const opt = document.createElement("option");
             opt.value = p;
             opt.innerText = p;
-            if (p === "İZMİR" || p === "IZMIR") opt.selected = true;
             selP.appendChild(opt);
           });
 
-          onAdnksProvChanged(true);
+          // Başlangıçta boş kalsın (kullanıcı kendisi seçecek)
+          const selD = document.getElementById("selAdnksDist");
+          if (selD) selD.innerHTML = '<option value="">-- Önce İl Seçiniz --</option>';
+          const selZ = document.getElementById("selAdnksZone");
+          if (selZ) selZ.innerHTML = '<option value="all">-- Tüm Mahalleler (İlçe Geneli) --</option>';
 
           // URL Parametreleri Kontrolü (SEO & Paylaşılabilir Link Desteği)
           // Örn: https://nufus.bm-geo.com/?il=istanbul&yil=2030
@@ -744,15 +759,35 @@
             const qIl = urlParams.get("il");
             const qIlce = urlParams.get("ilce");
             const qYil = urlParams.get("yil");
-            if (qIl || qYil) {
+            if (qIl) {
               setTimeout(() => {
-                quickAsk(qIl || "İSTANBUL", qIlce || "TÜM İLÇELER", parseInt(qYil) || 2030);
+                quickAsk(qIl, qIlce || "TÜM İLÇELER", parseInt(qYil) || 2030);
               }, 150);
             }
           } catch (e) {}
         }
       } catch (err) {
         console.error("TÜİK ADNKS fetch failed:", err);
+      }
+    }
+
+    function setTargetYear(yr) {
+      const inp = document.getElementById("inpTargetYear1");
+      if (inp) {
+        inp.value = yr;
+        onYearsChanged(true);
+      }
+      document.querySelectorAll(".btn-yr").forEach(b => {
+        if (b.innerText.trim() === String(yr)) {
+          b.className = "btn-yr flex-1 py-2 text-[11px] font-bold rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition";
+        } else {
+          b.className = "btn-yr flex-1 py-2 text-[11px] font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition";
+        }
+      });
+      // Eğer ilçe seçiliyse anında hesapla
+      const selD = document.getElementById("selAdnksDist");
+      if (selD && selD.value) {
+        applyAdnksDistrictToModel(true);
       }
     }
 
@@ -784,9 +819,8 @@
         onAdnksDistChanged(false);
       }
 
-      if (targetYear && inpY) {
-        inpY.value = targetYear;
-        onYearsChanged(true);
+      if (targetYear) {
+        setTargetYear(targetYear);
       }
 
       applyAdnksDistrictToModel(true);
@@ -795,7 +829,7 @@
       try {
         const newUrl = new URL(window.location);
         newUrl.searchParams.set("il", selP.value);
-        if (selD.value && selD.value !== "TIRE" && distName && distName !== "TÜM İLÇELER") {
+        if (selD.value && distName && distName !== "TÜM İLÇELER") {
           newUrl.searchParams.set("ilce", selD.value);
         } else {
           newUrl.searchParams.delete("ilce");
@@ -805,7 +839,7 @@
       } catch (e) {}
 
       // Kartlara yumuşakça kaydır
-      const kpiEl = document.getElementById("kpiTargetPopMid");
+      const kpiEl = document.getElementById("kpiHighPop");
       if (kpiEl) {
         kpiEl.scrollIntoView({ behavior: "smooth", block: "center" });
       }
@@ -814,30 +848,51 @@
     function onAdnksProvChanged(isInitial = false) {
       const selP = document.getElementById("selAdnksProv");
       const selD = document.getElementById("selAdnksDist");
+      const selZ = document.getElementById("selAdnksZone");
       if (!selP || !selD) return;
       const prov = selP.value;
-      const dists = state.adnksData[prov] || {};
 
-      selD.innerHTML = "";
-      Object.keys(dists).sort().forEach(d => {
+      if (!prov) {
+        selD.innerHTML = '<option value="">-- Önce İl Seçiniz --</option>';
+        if (selZ) selZ.innerHTML = '<option value="all">-- Tüm Mahalleler (İlçe Geneli) --</option>';
+        const meta = document.getElementById("adnksMetaText");
+        if (meta) meta.innerText = "📍 Seçim Yapın: Yukarıdan bir il ve ilçe seçip 'Hesapla' butonuna basın";
+        const stats = document.getElementById("adnksGenderStats");
+        if (stats) stats.classList.add("hidden");
+        const bTfr = document.getElementById("badgeCohortTfr");
+        if (bTfr) bTfr.classList.add("hidden");
+        return;
+      }
+
+      const dists = state.adnksData[prov] || {};
+      selD.innerHTML = '<option value="">-- İlçe Seçiniz --</option>';
+      const sortedDists = Object.keys(dists).sort();
+      sortedDists.forEach((d, idx) => {
         const opt = document.createElement("option");
         opt.value = d;
-        opt.innerText = d;
-        if (d === "TIRE") opt.selected = true;
+        opt.innerText = dists[d].display_name || d;
         selD.appendChild(opt);
       });
 
-      onAdnksDistChanged(!isInitial);
+      if (sortedDists.length > 0 && !isInitial) {
+        selD.selectedIndex = 1; // İlk ilçeyi seç
+        onAdnksDistChanged(!isInitial);
+      }
     }
 
     function onAdnksDistChanged(triggerRecalc = false) {
       const selP = document.getElementById("selAdnksProv");
       const selD = document.getElementById("selAdnksDist");
+      const selZ = document.getElementById("selAdnksZone");
       if (!selP || !selD) return;
       const prov = selP.value;
       const dist = selD.value;
 
-      const dData = (state.adnksData[prov] && state.adnksData[prov][dist]) || { pop_2024: 87528, male: 43510, female: 44018, male_pct: 49.7, female_pct: 50.3, tfr: 1.29 };
+      if (!prov || !dist) return;
+
+      const dData = (state.adnksData[prov] && state.adnksData[prov][dist]) || null;
+      if (!dData) return;
+
       state.currentTfr = dData.tfr || 1.51;
       state.currentMaleRatio = (dData.male && dData.female) ? (dData.male / (dData.male + dData.female)) : undefined;
 
@@ -846,17 +901,37 @@
       const lblF = document.getElementById("lblAdnksFemale");
       const meta = document.getElementById("adnksMetaText");
       const bTfr = document.getElementById("lblCohortTfrBadge");
+      const stats = document.getElementById("adnksGenderStats");
+      const bTfrWrap = document.getElementById("badgeCohortTfr");
+
+      if (stats) stats.classList.remove("hidden");
+      if (bTfrWrap) bTfrWrap.classList.remove("hidden");
 
       const isEn = currentLang === 'en';
       const loc = isEn ? 'en-US' : 'tr-TR';
       const pSuf = isEn ? 'People' : 'Kişi';
+      const distDisp = dData.display_name || dist;
+
       if (lblTot) lblTot.innerText = `${dData.pop_2024.toLocaleString(loc)} ${pSuf}`;
       if (lblM) lblM.innerText = `${dData.male.toLocaleString(loc)} (%${dData.male_pct})`;
       if (lblF) lblF.innerText = `${dData.female.toLocaleString(loc)} (%${dData.female_pct})`;
       if (bTfr) bTfr.innerText = (dData.tfr || 1.51).toFixed(2);
       if (meta) meta.innerText = isEn
-        ? `📍 Selected: ${prov} / ${dist} — 2024 TÜİK Population: ${dData.pop_2024.toLocaleString(loc)} People | Fertility (TFR): ${(dData.tfr || 1.51).toFixed(2)} | 10-Year Trend Ready`
-        : `📍 Seçili: ${prov} / ${dist} — 2024 TÜİK Nüfusu: ${dData.pop_2024.toLocaleString(loc)} Kişi | Doğurganlık (TFR): ${(dData.tfr || 1.51).toFixed(2)} | 10 Yıllık Trend Hazır`;
+        ? `📍 Selected: ${prov} / ${distDisp} — 2024 TÜİK Population: ${dData.pop_2024.toLocaleString(loc)} People | Fertility (TFR): ${(dData.tfr || 1.51).toFixed(2)}`
+        : `📍 Seçili: ${prov} / ${distDisp} — 2024 TÜİK Nüfusu: ${dData.pop_2024.toLocaleString(loc)} Kişi | Doğurganlık (TFR): ${(dData.tfr || 1.51).toFixed(2)}`;
+
+      // Mahalle / Alt Bölge Dropdown'ını Doldur
+      if (selZ) {
+        selZ.innerHTML = `
+          <option value="all">-- Tüm Mahalleler (İlçe Geneli: ${dData.pop_2024.toLocaleString('tr-TR')} Kişi) --</option>
+          <option value="1">1. ${distDisp} Merkez Mah. (~%35 Nüfus)</option>
+          <option value="2">2. ${distDisp} Yeni Gelişme Mah. (~%25 Nüfus)</option>
+          <option value="3">3. ${distDisp} Sanayi & Ticaret Bölgesi (~%15 Nüfus)</option>
+          <option value="4">4. ${distDisp} Cumhuriyet Konutları (~%15 Nüfus)</option>
+          <option value="5">5. ${distDisp} Kırsal Çevre Yerleşim (~%10 Nüfus)</option>
+        `;
+      }
+
       // Haritayı bu ilçeye hazırla (önbellekte yoksa arka planda konum çöz)
       try {
         const gk = `${trNorm(prov)}/${trNorm(dist)}`;
@@ -864,12 +939,24 @@
       } catch (e) {}
     }
 
+    function onAdnksZoneChanged() {
+      const selZ = document.getElementById("selAdnksZone");
+      if (!selZ) return;
+      applyAdnksDistrictToModel(true);
+    }
+
     function applyAdnksDistrictToModel(silent = false) {
       const selP = document.getElementById("selAdnksProv");
       const selD = document.getElementById("selAdnksDist");
+      const selZ = document.getElementById("selAdnksZone");
       if (!selP || !selD) return;
       const prov = selP.value;
       const dist = selD.value;
+
+      if (!prov || !dist) {
+        if (!silent) alert("Lütfen önce bir il ve ilçe seçin.");
+        return;
+      }
 
       const dData = state.adnksData[prov] && state.adnksData[prov][dist];
       if (!dData) return;
@@ -886,7 +973,7 @@
       document.getElementById("inpBasePop").value = pTot;
       document.getElementById("inpTotalJobs").value = Math.round(pTot * 0.45);
       document.getElementById("inpBasicJobs").value = Math.round(pTot * 0.12);
-      // Yeni temel istihdam yatırımı ilçe ölçeğine göre ölçeklenir (Tire referansı: 2.650 / 65.395 ≈ %4,05)
+      // Yeni temel istihdam yatırımı ilçe ölçeğine göre ölçeklenir
       const inpNbj = document.getElementById("inpNewBasicJobs");
       if (inpNbj) inpNbj.value = Math.max(10, Math.round(pTot * 0.0405));
 
@@ -946,6 +1033,18 @@
       }
 
       recalculate();
+
+      // Mahalle Özel Gösterimi (Eğer belirli bir mahalle seçilmişse)
+      const chosenZoneVal = selZ ? selZ.value : "all";
+      const meta = document.getElementById("adnksMetaText");
+      if (chosenZoneVal !== "all") {
+        const zoneIdx = parseInt(chosenZoneVal) - 1;
+        const zObj = state.subzones[zoneIdx];
+        if (zObj && meta) {
+          meta.innerText = `📍 ${prov} / ${distName} / ${zObj.name} — 2024 Nüfusu: ${zObj.current_pop.toLocaleString('tr-TR')} Kişi | Plan Kapasitesi: ${zObj.plan_capacity_pop.toLocaleString('tr-TR')} Kişi`;
+        }
+      }
+
       if (!silent) {
         alert(`🏛️ TÜİK ADNKS Resmi Verisi Yüklendi!\n\n📍 ${prov} / ${distName}\n👥 2024 Nüfusu: ${pTot.toLocaleString('tr-TR')} Kişi\n👨 Erkek: ${dData.male.toLocaleString('tr-TR')} (%${dData.male_pct})\n👩 Kadın: ${dData.female.toLocaleString('tr-TR')} (%${dData.female_pct})\n👶 İlin TÜİK Doğurganlık Hızı (TFR): ${(dData.tfr || 1.51).toFixed(2)}\n🏘️ 5 Temsili Alt Bölge & Mahalle Oluşturuldu\n📈 10 Yıllık Geçmiş Trend Serisi Modellere Aktarıldı.`);
       }
