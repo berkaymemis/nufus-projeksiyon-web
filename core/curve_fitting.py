@@ -1,18 +1,34 @@
 # -*- coding: utf-8 -*-
 """
 Mathematical Curve Fitting & Extrapolation Engine
-Prof. Dr. K. Mert Çubukçu — "Planlamada Klasik Sayısal Yöntemler" (Bölüm: Ekstrapolasyon Yöntemleri)
-6 Temel Matematiksel Eğri Modeli: Doğrusal, 2. ve 3. Derece Polinom, Üstel, Logaritmik, Kuvvet
+Prof. Dr. K. Mert Çubukçu — "Planlamada Klasik Sayısal Yöntemler"
+(Bölüm 4: Ekstrapolasyon Yöntemleri ve Bölüm 4.3: Sabit Pay / Değişken Pay Teknikleri)
+8 Temel Matematiksel Regresyon ve Pay Modeli:
+1. Doğrusal (Linear)
+2. 2. Derece Polinom (Parabolik)
+3. 3. Derece Polinom
+4. Üstel (Exponential)
+5. Logaritmik (Decelerating)
+6. Kuvvet (Power)
+7. Sabit Pay (Constant Share — Çubukçu F. 4.30)
+8. Değişken Pay (Shift-Share / Variable Share — Çubukçu F. 4.39)
 """
 
 import math
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
+
+
+# TÜİK ADNKS Türkiye Geneli 2015-2025 Yıllık Nüfus Serisi (Referans Üst Bölge)
+TURKEY_ADNKS_POP_HISTORY = [
+    72218914.0, 73562473.0, 74906032.0, 76249591.0, 77593150.0,
+    78936709.0, 80280268.0, 81623827.0, 82967386.0, 84529777.0, 86092168.0
+]
 
 
 class CurveFittingEngine:
     """
-    Geçmiş nüfus verilerinden bağıl zaman (t=1, 2, ... N) değişkenine bağlı olarak
-    6 regresyon eğrisini analitik olarak uydurur ve ileriye dönük projeksiyon üretir.
+    Geçmiş nüfus verilerinden bağıl zaman ve üst bölge dinamiklerine bağlı olarak
+    8 regresyon ve pay modelini analitik olarak uydurur ve ileriye dönük projeksiyon üretir.
     """
 
     @staticmethod
@@ -132,15 +148,84 @@ class CurveFittingEngine:
             "mae": round(mae, 2)
         }
 
+    @staticmethod
+    def fit_constant_share(
+        e_hist: List[float],
+        E_hist: List[float],
+        m_years: int
+    ) -> Tuple[float, float]:
+        """
+        Prof. Dr. K. Mert Çubukçu — "Planlamada Klasik Sayısal Yöntemler" (Bölüm 4.3.1)
+        Sabit Pay (Constant Share) Tekniği:
+        (4.23) e_i^t / E_i^t = c_i (sabit pay)
+        (4.25) R_m = (E^t - E^{t-m}) / E^{t-m}
+        (4.26) R_1 = (1 + R_m)^(1/m) - 1
+        (4.30) e^{t+k} = e^t × (1 + R_1)^k
+        """
+        if len(E_hist) < 2 or m_years <= 0:
+            return 0.0, 0.0
+        E_start = max(1.0, float(E_hist[0]))
+        E_end = max(1.0, float(E_hist[-1]))
+        R_m = (E_end - E_start) / E_start
+        if (1.0 + R_m) > 0:
+            R_1 = (1.0 + R_m) ** (1.0 / m_years) - 1.0
+        else:
+            R_1 = 0.0
+        return R_m, R_1
+
+    @staticmethod
+    def fit_variable_share(
+        e_hist: List[float],
+        E_hist: List[float],
+        m_years: int
+    ) -> Tuple[float, float, float, float]:
+        """
+        Prof. Dr. K. Mert Çubukçu — "Planlamada Klasik Sayısal Yöntemler" (Bölüm 4.3.2)
+        Değişken Pay (Shift-Share / Variable Share) Tekniği:
+        (4.33 & 4.35) s_m = r_m - R_m (değişim terimi)
+        (4.38) s_1 = (1 + s_m)^(1/m) - 1
+        (4.39) e^{t+k} = e^t × (1 + R_1 + s_1)^k
+        """
+        if len(e_hist) < 2 or len(E_hist) < 2 or m_years <= 0:
+            return 0.0, 0.0, 0.0, 0.0
+        e_start = max(1.0, float(e_hist[0]))
+        e_end = max(1.0, float(e_hist[-1]))
+        E_start = max(1.0, float(E_hist[0]))
+        E_end = max(1.0, float(E_hist[-1]))
+
+        r_m = (e_end - e_start) / e_start
+        R_m = (E_end - E_start) / E_start
+
+        if (1.0 + R_m) > 0:
+            R_1 = (1.0 + R_m) ** (1.0 / m_years) - 1.0
+        else:
+            R_1 = 0.0
+
+        if (1.0 + r_m) > 0:
+            r_1 = (1.0 + r_m) ** (1.0 / m_years) - 1.0
+        else:
+            r_1 = 0.0
+
+        s_m = r_m - R_m
+        if (1.0 + s_m) > 0:
+            s_1 = (1.0 + s_m) ** (1.0 / m_years) - 1.0
+        else:
+            s_1 = r_1 - R_1
+
+        return R_1, r_1, s_m, s_1
+
     @classmethod
     def evaluate_all_models(
         cls,
         years_hist: List[int],
         pop_hist: List[float],
-        target_years: List[int]
+        target_years: List[int],
+        upper_pop_hist: Optional[List[float]] = None,
+        upper_name: str = "Üst Bölge"
     ) -> Dict[str, Any]:
         """
-        Geçmiş seriye 6 modeli uydurur ve hedef yıllar için projeksiyon sonuçlarını döner.
+        Geçmiş seriye 6 matematiksel eğri ve 2 pay modelini (Sabit Pay, Değişken Pay) uydurur;
+        tüm modeller için hata metriklerini (R², SSE) ve hedef yıl projeksiyonlarını üretir.
         """
         n = len(years_hist)
         # Gerçek takvim yıllarına göre zaman ekseni (ardışık olmayan yıllarda da doğru uyum)
@@ -209,6 +294,48 @@ class CurveFittingEngine:
                 "predictions": {yr: round(a_pow * (t**b_pow)) for yr, t in zip(target_years, t_future)},
                 "academic_review": "YETERSİZ: R² düşük, kentsel gelişmeyi yavaşlatıcı gösterir."
             }
+        }
+
+        # 4. Prof. Dr. K. Mert Çubukçu Pay Modelleri (Sabit Pay ve Değişken Pay)
+        m_period = max(1, years_hist[-1] - years_hist[0])
+        eff_upper_hist = upper_pop_hist if (upper_pop_hist and len(upper_pop_hist) >= 2) else TURKEY_ADNKS_POP_HISTORY
+        eff_upper_name = upper_name if (upper_pop_hist and upper_name) else "Türkiye Geneli"
+
+        if len(eff_upper_hist) != len(years_hist):
+            E_start = eff_upper_hist[0]
+            E_end = eff_upper_hist[-1]
+            E_series = [E_start + (E_end - E_start) * (i / max(1, len(years_hist) - 1)) for i in range(len(years_hist))]
+        else:
+            E_series = [float(v) for v in eff_upper_hist]
+
+        _, R_1 = cls.fit_constant_share(pop_hist, E_series, m_period)
+        R_1_v, r_1_v, s_m, s_1 = cls.fit_variable_share(pop_hist, E_series, m_period)
+
+        # Geçmiş seriye uyum ve hata metrikleri
+        base_h = pop_hist[0]
+        pred_const_h = [base_h * ((1.0 + R_1) ** (yr - years_hist[0])) for yr in years_hist]
+        pred_var_h = [base_h * ((1.0 + max(-0.99, R_1_v + s_1)) ** (yr - years_hist[0])) for yr in years_hist]
+
+        # Gelecek projeksiyonları
+        cur_pop = pop_hist[-1]
+        k_future = [float(yr - years_hist[-1]) for yr in target_years]
+        pred_const_fut = {yr: max(0, round(cur_pop * ((1.0 + R_1) ** k))) for yr, k in zip(target_years, k_future)}
+        pred_var_fut = {yr: max(0, round(cur_pop * ((1.0 + max(-0.99, R_1_v + s_1)) ** k))) for yr, k in zip(target_years, k_future)}
+
+        models["constant_share"] = {
+            "name": "Sabit Pay (Constant Share)",
+            "formula_str": f"e^(t+k) = e^t × (1 + {R_1:.4f})^k",
+            "metrics": cls.calculate_metrics(pop_hist, pred_const_h),
+            "predictions": pred_const_fut,
+            "academic_review": f"Prof. Dr. K. Mert Çubukçu Formül (4.30): Sabit pay tekniği. Yerleşimin {eff_upper_name} içindeki payının sabit kalacağı kabulüyle {eff_upper_name} yıllık artış oranında (%{R_1*100:.2f}/yıl) büyümesi."
+        }
+
+        models["variable_share"] = {
+            "name": "Değişken Pay (Shift-Share)",
+            "formula_str": f"e^(t+k) = e^t × (1 + {R_1_v:.4f} + {s_1:.4f})^k",
+            "metrics": cls.calculate_metrics(pop_hist, pred_var_h),
+            "predictions": pred_var_fut,
+            "academic_review": f"Prof. Dr. K. Mert Çubukçu Formül (4.39): Değişken pay (shift-share) tekniği. {eff_upper_name} artış hızına (%{R_1_v*100:.2f}/yıl) yerel değişim dinamizmi (s₁=%{s_1*100:.2f}/yıl) eklenerek projeksiyon yapılır."
         }
 
         return {

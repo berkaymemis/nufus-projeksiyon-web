@@ -42,7 +42,8 @@ from core.district_multipliers import (
 )
 from core.tuik_adnks import (
     TUIK_ADNKS_DATA, get_adnks_provinces, get_adnks_districts,
-    get_adnks_district_data, search_adnks_districts, parse_tuik_adnks_file
+    get_adnks_district_data, search_adnks_districts, parse_tuik_adnks_file,
+    _normalize_str
 )
 
 
@@ -404,9 +405,39 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
             t_hist = [int(item["year"]) for item in macro_hist]
             p_hist = [float(item["pop"]) for item in macro_hist]
 
-            # 1. Curve Fitting Engine (6 Models) — geçmişten Hedef Yıl 2'ye kadar her yıl için tahmin
+            # Üst Bölge (İl veya Türkiye Geneli) Popülasyon Serisi (Prof. Dr. K. Mert Çubukçu Pay Modelleri)
+            prov_input = str(req.get("province", "")).strip()
+            upper_pop_hist = None
+            upper_name = "Türkiye Geneli"
+            if prov_input:
+                prov_norm = _normalize_str(prov_input)
+                matched_prov = None
+                for pk in TUIK_ADNKS_DATA.keys():
+                    if _normalize_str(pk) == prov_norm:
+                        matched_prov = pk
+                        break
+                if matched_prov:
+                    districts_dict = TUIK_ADNKS_DATA[matched_prov]
+                    hist_len = len(t_hist)
+                    prov_hist_sum = [0.0] * hist_len
+                    valid_dist_count = 0
+                    for d_key, d_info in districts_dict.items():
+                        dh = d_info.get("pop_history", [])
+                        if len(dh) >= hist_len:
+                            valid_dist_count += 1
+                            for i in range(hist_len):
+                                prov_hist_sum[i] += float(dh[i])
+                    if valid_dist_count > 0:
+                        upper_pop_hist = prov_hist_sum
+                        upper_name = f"{matched_prov} Geneli"
+
+            # 1. Curve Fitting Engine (8 Models: 6 Matematiksel Regresyon + 2 Çubukçu Pay Modeli)
             curve_years = sorted(set(t_hist) | set(range(min(t_hist), end_year + 1)) | {target_1, target_2})
-            curve_results = CurveFittingEngine.evaluate_all_models(t_hist, p_hist, curve_years)
+            curve_results = CurveFittingEngine.evaluate_all_models(
+                t_hist, p_hist, curve_years,
+                upper_pop_hist=upper_pop_hist,
+                upper_name=upper_name
+            )
             curve_results["years"] = curve_years
             curve_results["target_years"] = [target_1, target_2]
             curve_results["history"] = {"years": t_hist, "pop": p_hist}

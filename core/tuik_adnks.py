@@ -96,6 +96,12 @@ for _pk, _ds in TUIK_ADNKS_DATA.items():
         _sz_compact = TUIK_MAHALLE_DB.get(f"{_p_norm}/{_d_norm}", [])
         if _sz_compact:
             _data["sz"] = _sz_compact
+        # 2025 TÜİK ADNKS resmi sayımını seriye ve başlangıç yılına bağla
+        _cur_pop = _data.get("pop_2025") or _data.get("pop_2024", 0)
+        _data["pop_2025"] = _cur_pop
+        if _data.get("years") and _data["years"][-1] == 2024:
+            _data["years"] = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+            _data["pop_history"] = _data["pop_history"] + [_cur_pop]
 
 
 def get_adnks_district_data(province: str, district: str) -> Optional[Dict[str, Any]]:

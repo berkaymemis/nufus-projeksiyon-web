@@ -51,7 +51,7 @@
             <div class="flex items-center gap-2">
               <span class="text-base sm:text-lg font-black text-slate-900 tracking-tight" data-i18n="appTitle">NüfusKaç?</span>
               <span class="bg-blue-50 text-blue-700 border border-blue-200 text-[10px] px-2 py-0.5 rounded font-black uppercase">BM-GEO</span>
-              <span class="hidden sm:inline-block bg-slate-100 text-slate-600 border border-slate-200 text-[10px] px-1.5 py-0.5 rounded font-semibold">TÜİK 2024</span>
+              <span class="hidden sm:inline-block bg-slate-100 text-slate-600 border border-slate-200 text-[10px] px-1.5 py-0.5 rounded font-semibold">TÜİK 2025</span>
             </div>
             <p class="text-xs text-slate-500 font-medium" data-i18n="appSubtitle">Türkiye 81 İl, İlçe ve Mahalle Gelecek Nüfus Hesaplayıcı (2025–2050)</p>
           </div>
@@ -92,7 +92,7 @@
           <h2 class="text-sm sm:text-base font-extrabold text-slate-800 flex items-center gap-2">
             <span class="text-blue-600">📍</span> <span data-i18n="quickSearchTitle">Şehir ve Yıl Seçin — Gelecekte Nüfus Kaç Olacak?</span>
           </h2>
-          <p class="text-xs text-slate-500 mt-0.5" data-i18n="quickSearchSub">Türkiye 81 İl ve 973 İlçe Resmi TÜİK ADNKS Veri Tabanı (2015–2024 Gerçek Trend Serisi)</p>
+          <p class="text-xs text-slate-500 mt-0.5" data-i18n="quickSearchSub">Türkiye 81 İl ve 973 İlçe Resmi TÜİK ADNKS Veri Tabanı (2015–2025 Gerçek Trend Serisi)</p>
         </div>
         <div class="flex items-center gap-2">
           <label for="fileTuikAdnks" class="cursor-pointer bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold py-1.5 px-3 rounded-lg border border-slate-200 transition flex items-center gap-1.5 shadow-sm">
@@ -154,14 +154,15 @@
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="targetYearLabel">4. Hedef Projeksiyon Yılı:</label>
           <div class="flex items-center gap-1.5">
-            <input type="number" id="inpTargetYear1" oninput="onYearsChanged()" onchange="onYearsChanged(true)" value="2030" class="w-24 bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs sm:text-sm font-black text-blue-700 focus:ring-2 focus:ring-blue-500 shadow-sm">
+            <input type="number" id="inpTargetYear1" oninput="onYearsChanged()" onchange="onYearsChanged(true)" value="2030" class="w-20 bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs sm:text-sm font-black text-blue-700 focus:ring-2 focus:ring-blue-500 shadow-sm">
             <div class="flex items-center gap-1 flex-1">
+              <button type="button" onclick="setTargetYear(2027)" class="btn-yr flex-1 py-2 text-[11px] font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition">2027</button>
               <button type="button" onclick="setTargetYear(2030)" class="btn-yr flex-1 py-2 text-[11px] font-bold rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition">2030</button>
               <button type="button" onclick="setTargetYear(2035)" class="btn-yr flex-1 py-2 text-[11px] font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition">2035</button>
               <button type="button" onclick="setTargetYear(2040)" class="btn-yr flex-1 py-2 text-[11px] font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition">2040</button>
               <button type="button" onclick="setTargetYear(2050)" class="btn-yr flex-1 py-2 text-[11px] font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition">2050</button>
             </div>
-            <input type="hidden" id="inpBaseYear" value="2024">
+            <input type="hidden" id="inpBaseYear" value="2025">
             <input type="hidden" id="inpTargetYear2" value="2050">
             <input type="hidden" id="inpBasePop" value="87528">
             <input type="hidden" id="inpHouseholdSize" value="2.85">
@@ -206,7 +207,7 @@
           <p id="kpiBasePop" class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">-</p>
         </div>
         <p class="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
-          <span><span data-yr="base">2024</span> Başlangıç</span>
+          <span><span data-yr="base">2025</span> Başlangıç</span>
           <span class="text-blue-600 font-bold">TÜİK ADNKS</span>
         </p>
       </div>
@@ -273,7 +274,7 @@
       <!-- Tab Navigation -->
       <div class="bg-slate-50/80 border-b border-slate-200 px-4 flex overflow-x-auto text-xs sm:text-sm font-semibold">
         <button onclick="switchTab('curves')" id="tabBtn-curves" class="tab-active py-3.5 px-4 whitespace-nowrap flex items-center gap-2 transition">
-          <span data-i18n="tabCurves">📈 1. Curve Fitting (6 Model)</span>
+          <span data-i18n="tabCurves">📈 1. Curve Fitting & Pay Modelleri (8 Model)</span>
         </button>
         <button onclick="switchTab('cohort')" id="tabBtn-cohort" class="tab-inactive py-3.5 px-4 whitespace-nowrap flex items-center gap-2 transition">
           <span data-i18n="tabCohort">👥 2. Kuşak-Bileşen & Piramit</span>
@@ -289,12 +290,12 @@
       <!-- TAB CONTENT AREA -->
       <div class="p-5 sm:p-6">
 
-        <!-- ===== TAB 1: CURVE FITTING (6 MODELLİ PROJEKSİYON) ===== -->
+        <!-- ===== TAB 1: CURVE FITTING & PAY MODELLERİ (8 MODELLİ PROJEKSİYON) ===== -->
         <div id="tabContent-curves" class="space-y-5">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h3 class="text-sm sm:text-base font-extrabold text-slate-800" data-i18n="curvesTitle">Matematiksel Eğri Uydurma ve Projeksiyon Karşılaştırması</h3>
-              <p class="text-xs text-slate-500" data-i18n="curvesSub">Geçmiş trend verilerine göre en küçük kareler yöntemiyle hesaplanan 6 projeksiyon modeli</p>
+              <h3 class="text-sm sm:text-base font-extrabold text-slate-800" data-i18n="curvesTitle">Matematiksel Eğri Uydurma ve Pay Modelleri (8 Model)</h3>
+              <p class="text-xs text-slate-500" data-i18n="curvesSub">En küçük kareler ve Prof. Dr. K. Mert Çubukçu pay teknikleriyle hesaplanan 8 projeksiyon modeli</p>
             </div>
             <span class="text-xs bg-blue-50 text-blue-800 font-bold px-3 py-1 rounded-full border border-blue-200">
               <span id="curveRangeLabel">2015 - 2050</span> Projeksiyon Aralığı
@@ -370,7 +371,7 @@
             <!-- Pyramid Chart -->
             <div class="bg-slate-50/60 p-4 rounded-xl border border-slate-200">
               <div class="flex items-center justify-between mb-3">
-                <h4 class="text-xs font-bold text-slate-800" data-i18n="pyramidTitle">Demografik Yaş-Cinsiyet Nüfus Piramidi (<span id="pyramidYearLabel">2024</span>)</h4>
+                <h4 class="text-xs font-bold text-slate-800" data-i18n="pyramidTitle">Demografik Yaş-Cinsiyet Nüfus Piramidi (<span id="pyramidYearLabel">2025</span>)</h4>
                 <div class="flex items-center gap-2">
                   <select id="selPyramidYear" onchange="onPyramidYearChanged()" class="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white font-bold"></select>
                   <span class="text-[11px] text-slate-500">Mavi: Erkek | Pembe: Kadın</span>
@@ -392,9 +393,9 @@
                   <thead class="bg-slate-100 text-slate-600 font-bold uppercase border-b border-slate-200 sticky top-0">
                     <tr>
                       <th class="py-2 px-3">Yaş Grubu</th>
-                      <th class="py-2 px-3 text-right"><span data-yr="base">2024</span> Erkek</th>
-                      <th class="py-2 px-3 text-right"><span data-yr="base">2024</span> Kadın</th>
-                      <th class="py-2 px-3 text-right"><span data-yr="base">2024</span> Toplam</th>
+                      <th class="py-2 px-3 text-right"><span data-yr="base">2025</span> Erkek</th>
+                      <th class="py-2 px-3 text-right"><span data-yr="base">2025</span> Kadın</th>
+                      <th class="py-2 px-3 text-right"><span data-yr="base">2025</span> Toplam</th>
                       <th class="py-2 px-3 text-right"><span data-yr="t1">2035</span> Hedef</th>
                       <th class="py-2 px-3 text-right">Sx (Erkek)</th>
                       <th class="py-2 px-3 text-right">Sx (Kadın)</th>
@@ -437,7 +438,7 @@
               <thead class="bg-slate-100 text-slate-600 font-bold uppercase border-b border-slate-200">
                 <tr>
                   <th class="py-2.5 px-3">Mahalle / Alt Bölge</th>
-                  <th class="py-2.5 px-3 text-right">Mevcut (<span data-yr="base">2024</span>)</th>
+                  <th class="py-2.5 px-3 text-right">Mevcut (<span data-yr="base">2025</span>)</th>
                   <th class="py-2.5 px-3 text-right">Dağıtılan İlave (Gi)</th>
                   <th class="py-2.5 px-3 text-right">Hedef Nüfus (<span data-yr="t1">2035</span>)</th>
                   <th class="py-2.5 px-3 text-right" data-i18n="thHouseNeed">Konut İhtiyacı</th>
@@ -611,7 +612,7 @@
         <span class="text-slate-600 font-medium">BM-GEO Demografi & Kentsel Bilişim</span>
       </div>
       <p class="text-slate-500">
-        Resmi Veriler: <strong>TÜİK ADNKS (2024)</strong> • Metodoloji: <strong>Prof. Dr. K. Mert Çubukçu</strong> • Geliştirici: <strong>Berkay Memiş</strong>
+        Resmi Veriler: <strong>TÜİK ADNKS (2025)</strong> • Metodoloji: <strong>Prof. Dr. K. Mert Çubukçu</strong> • Geliştirici: <strong>Berkay Memiş</strong>
       </p>
     </div>
   </footer>
@@ -958,18 +959,19 @@
       const pSuf = isEn ? 'People' : 'Kişi';
       const distDisp = dData.display_name || dist;
 
-      if (lblTot) lblTot.innerText = `${dData.pop_2024.toLocaleString(loc)} ${pSuf}`;
+      const curPop = dData.pop_2025 || dData.pop_2024;
+      if (lblTot) lblTot.innerText = `${curPop.toLocaleString(loc)} ${pSuf}`;
       if (lblM) lblM.innerText = `${dData.male.toLocaleString(loc)} (%${dData.male_pct})`;
       if (lblF) lblF.innerText = `${dData.female.toLocaleString(loc)} (%${dData.female_pct})`;
       if (bTfr) bTfr.innerText = (dData.tfr || 1.51).toFixed(2);
       if (meta) meta.innerText = isEn
-        ? `📍 Selected: ${prov} / ${distDisp} — 2024 TÜİK Population: ${dData.pop_2024.toLocaleString(loc)} People | Fertility (TFR): ${(dData.tfr || 1.51).toFixed(2)}`
-        : `📍 Seçili: ${prov} / ${distDisp} — 2024 TÜİK Nüfusu: ${dData.pop_2024.toLocaleString(loc)} Kişi | Doğurganlık (TFR): ${(dData.tfr || 1.51).toFixed(2)}`;
+        ? `📍 Selected: ${prov} / ${distDisp} — 2025 TÜİK Population: ${curPop.toLocaleString(loc)} People | Fertility (TFR): ${(dData.tfr || 1.51).toFixed(2)}`
+        : `📍 Seçili: ${prov} / ${distDisp} — 2025 TÜİK Nüfusu: ${curPop.toLocaleString(loc)} Kişi | Doğurganlık (TFR): ${(dData.tfr || 1.51).toFixed(2)}`;
 
       // Mahalle / Alt Bölge Dropdown'ını Doldur
       if (selZ) {
         if (dData.subzones && dData.subzones.length > 0) {
-          let opts = `<option value="all">-- Tüm Mahalleler (${dData.subzones.length} Gerçek Mahalle: ${dData.pop_2024.toLocaleString('tr-TR')} Kişi) --</option>`;
+          let opts = `<option value="all">-- Tüm Mahalleler (${dData.subzones.length} Gerçek Mahalle: ${curPop.toLocaleString('tr-TR')} Kişi) --</option>`;
           dData.subzones.forEach((sz, idx) => {
             const szPop = sz.base_pop || sz.current_pop || 0;
             opts += `<option value="${idx + 1}">${idx + 1}. ${sz.name} (${szPop.toLocaleString('tr-TR')} Kişi)</option>`;
@@ -978,7 +980,7 @@
           selZ.innerHTML = opts;
         } else {
           selZ.innerHTML = `
-            <option value="all">-- Tüm Mahalleler (İlçe Geneli: ${dData.pop_2024.toLocaleString('tr-TR')} Kişi) --</option>
+            <option value="all">-- Tüm Mahalleler (İlçe Geneli: ${curPop.toLocaleString('tr-TR')} Kişi) --</option>
             <option value="1">1. ${distDisp} Merkez Mah. (~%35 Nüfus)</option>
             <option value="2">2. ${distDisp} Yeni Gelişme Mah. (~%25 Nüfus)</option>
             <option value="3">3. ${distDisp} Sanayi & Ticaret Bölgesi (~%15 Nüfus)</option>
@@ -1030,14 +1032,14 @@
       if (!dData) return;
       ensureDistrictSubzones(dData);
 
-      const pTot = dData.pop_2024;
+      const pTot = dData.pop_2025 || dData.pop_2024;
       state.currentTfr = dData.tfr || 1.51;
       state.currentMaleRatio = (dData.male && dData.female) ? (dData.male / (dData.male + dData.female)) : undefined;
       state.customCohort = null; // Reset custom cohort so district profile takes effect
       const bTfr = document.getElementById("lblCohortTfrBadge");
       if (bTfr) bTfr.innerText = (dData.tfr || 1.51).toFixed(2);
 
-      document.getElementById("inpBaseYear").value = 2024;
+      document.getElementById("inpBaseYear").value = 2025;
       refreshYearLabels();
       document.getElementById("inpBasePop").value = pTot;
       document.getElementById("inpTotalJobs").value = Math.round(pTot * 0.45);
@@ -1051,8 +1053,8 @@
 
       if (state.currentData) {
         state.currentData.base_pop = pTot;
-        state.currentData.base_year = 2024;
-        state.currentData.years_hist = dData.years || [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
+        state.currentData.base_year = 2025;
+        state.currentData.years_hist = dData.years || [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025];
         state.currentData.pop_hist = dData.pop_history;
       }
 
@@ -1137,7 +1139,7 @@
             : Math.round(pTot * 1.35);
           const zTargetPop = Math.round(distTargetPop * (zPop / Math.max(1, pTot)));
 
-          meta.innerText = `📍 ${prov} / ${distName} / ${zObj.name} — 2024 Nüfusu: ${zPop.toLocaleString('tr-TR')} Kişi (%${zPct} İlçe Payı) | Hedef Projeksiyon: ${zTargetPop.toLocaleString('tr-TR')} Kişi`;
+          meta.innerText = `📍 ${prov} / ${distName} / ${zObj.name} — 2025 Nüfusu: ${zPop.toLocaleString('tr-TR')} Kişi (%${zPct} İlçe Payı) | Hedef Projeksiyon: ${zTargetPop.toLocaleString('tr-TR')} Kişi`;
 
           const kpiBase = document.getElementById("kpiBasePop");
           const kpiHigh = document.getElementById("kpiHighPop");
@@ -1148,7 +1150,7 @@
 
       if (!silent) {
         const mCount = (dData.subzones && dData.subzones.length > 0) ? `${dData.subzones.length} Gerçek Mahalle` : `5 Temsili Alt Bölge`;
-        alert(`🏛️ TÜİK ADNKS Resmi Verisi Yüklendi!\n\n📍 ${prov} / ${distName}\n👥 2024 Nüfusu: ${pTot.toLocaleString('tr-TR')} Kişi\n👨 Erkek: ${dData.male.toLocaleString('tr-TR')} (%${dData.male_pct})\n👩 Kadın: ${dData.female.toLocaleString('tr-TR')} (%${dData.female_pct})\n👶 İlin TÜİK Doğurganlık Hızı (TFR): ${(dData.tfr || 1.51).toFixed(2)}\n🏘️ ${mCount} Yüklendi\n📈 10 Yıllık Geçmiş Trend Serisi Modellere Aktarıldı.`);
+        alert(`🏛️ TÜİK ADNKS Resmi Verisi Yüklendi!\n\n📍 ${prov} / ${distName}\n👥 2025 Nüfusu: ${pTot.toLocaleString('tr-TR')} Kişi\n👨 Erkek: ${dData.male.toLocaleString('tr-TR')} (%${dData.male_pct})\n👩 Kadın: ${dData.female.toLocaleString('tr-TR')} (%${dData.female_pct})\n👶 İlin TÜİK Doğurganlık Hızı (TFR): ${(dData.tfr || 1.51).toFixed(2)}\n🏘️ ${mCount} Yüklendi\n📈 11 Yıllık Geçmiş Trend Serisi (2015–2025) Modellere Aktarıldı.`);
       }
     }
 
@@ -1901,6 +1903,8 @@
 
       const payload = {
         template_key: state.currentTemplateKey,
+        province: (topP && topP.value) || undefined,
+        district: (topD && topD.value) || undefined,
         base_pop: parseInt(document.getElementById("inpBasePop").value) || 65395,
         base_year: parseInt(document.getElementById("inpBaseYear").value) || 2025,
         target_year_1: parseInt(document.getElementById("inpTargetYear1").value) || 2045,
@@ -1985,7 +1989,9 @@
         geometric: "Geometric (Compound Growth)",
         power: "Power Model",
         logarithmic: "Logarithmic (Decelerating)",
-        logistic: "Logistic (S-Curve Carrying Capacity)"
+        logistic: "Logistic (S-Curve Carrying Capacity)",
+        constant_share: "Constant Share (Çubukçu F. 4.30)",
+        variable_share: "Shift-Share / Variable Share (Çubukçu F. 4.39)"
       } : {
         linear: "Doğrusal (Linear Trend)",
         poly2: "2. Derece Polinom (Parabolik)",
@@ -1994,7 +2000,9 @@
         geometric: "Geometrik (Bileşik Artış)",
         power: "Kuvvet (Power) Modeli",
         logarithmic: "Logaritmik (Yavaşlayan)",
-        logistic: "Lojistik (Taşıma Kapasiteli S-Eğrisi)"
+        logistic: "Lojistik (Taşıma Kapasiteli S-Eğrisi)",
+        constant_share: "Sabit Pay (Constant Share — Çubukçu F. 4.30)",
+        variable_share: "Değişken Pay (Shift-Share — Çubukçu F. 4.39)"
       };
 
       const labels = (curve.years && curve.years.length) ? curve.years : [2007, 2010, 2015, 2020, 2025, 2030, 2035, 2040, 2045, 2050];
@@ -2010,10 +2018,14 @@
       const colors = {
         linear: "#2563EB",
         poly2: "#7C3AED",
+        poly3: "#475569",
         exponential: "#DC2626",
         geometric: "#EA580C",
+        power: "#9333EA",
         logarithmic: "#0D9488",
-        logistic: "#16A34A"
+        logistic: "#16A34A",
+        constant_share: "#0284C7",
+        variable_share: "#D97706"
       };
 
       for (const [key, m] of Object.entries(models)) {
@@ -2559,7 +2571,7 @@
         appSubtitle: "Hangi Yıl, Hangi Şehir Kaç Nüfus Olacak? • 81 İl ve 973 İlçe Canlı Projeksiyon",
         quickQuestionsTitle: "Popüler Sorular:",
         quickSearchTitle: "Şehir ve Yıl Seçin — Gelecekte Nüfus Kaç Olacak?",
-        quickSearchSub: "Türkiye 81 İl ve 973 İlçe Resmi TÜİK ADNKS Veri Tabanı (2015–2024 Gerçek Trend Serisi)",
+        quickSearchSub: "Türkiye 81 İl ve 973 İlçe Resmi TÜİK ADNKS Veri Tabanı (2015–2025 Gerçek Trend Serisi)",
         btnQR: "📱 Telefondan Bağlan",
         btnExcel: "Excel İndir (.xlsx)",
         btnCalculate: "Hesapla",
@@ -2577,15 +2589,15 @@
         kpi6Title: "4. MPYY DONATI",
         kpi6Sub: "Ek-2 Yasal Standart",
         tabData: "📂 1. Çalışma Alanı & Veri",
-        tabCurves: "📈 1. Curve Fitting (6 Model)",
+        tabCurves: "📈 1. Curve Fitting & Pay Modelleri (8 Model)",
         tabCohort: "👥 2. Kuşak-Bileşen & Piramit",
         tabEconomic: "💼 4. İktisadi Taban Çarpanı",
         tabShocks: "⚡ 5. Demografik Şoklar",
         tabHansen: "🗺️ 3. Hansen Mekânsal & Harita",
         tabMpyy: "📐 4. MPYY Standartları",
         tabCitations: "📚 Metodoloji & Kaynakça",
-        tuikTitle: "TÜİK RESMİ ADNKS İL & İLÇE NÜFUS VE CİNSİYET VERİ TABANI (2024)",
-        tuikSub: "81 İl & 923+ İlçe • Cinsiyete Göre Nüfus (Kadın / Erkek) • 2015–2024 Yıllık Geçmiş Trend Serisi",
+        tuikTitle: "TÜİK RESMİ ADNKS İL & İLÇE NÜFUS VE CİNSİYET VERİ TABANI (2025)",
+        tuikSub: "81 İl & 923+ İlçe • Cinsiyete Göre Nüfus (Kadın / Erkek) • 2015–2025 Yıllık Geçmiş Trend Serisi",
         tuikUpload: "Resmi TÜİK Tablosu Yükle (.csv / .xlsx)",
         tuikProvLabel: "1. İl Seçin (81 İl):",
         tuikDistLabel: "2. İlçe Seçin:",
@@ -2613,8 +2625,8 @@
         thDist: "MESAFE (DK)",
         thCap: "KAPASİTE (KİŞİ)",
         thAction: "İŞLEM",
-        curvesTitle: "MATEMATİKSEL EĞRİ UYDURMA (6 MODEL)",
-        curvesSub: "En Küçük Kareler Yöntemi ile 6 Analitik Projeksiyon Modeli",
+        curvesTitle: "MATEMATİKSEL EĞRİ VE PAY MODELLERİ (8 MODEL)",
+        curvesSub: "En Küçük Kareler ve Çubukçu Pay Teknikleri ile 8 Analitik Projeksiyon Modeli",
         thModel: "MODEL TÜRÜ",
         thFormula: "MATEMATİKSEL FORMÜL",
         thR2: "BELİRLEME KATSAYISI (R²)",
@@ -2676,7 +2688,7 @@
         appSubtitle: "Which Year, Which City, How Many People? • 81 Provinces & 973 Districts Live Projections",
         quickQuestionsTitle: "Popular Questions:",
         quickSearchTitle: "Select City & Target Year — How Many People in the Future?",
-        quickSearchSub: "Official TÜİK ADNKS Database (2015–2024 Historical Trend Series)",
+        quickSearchSub: "Official TÜİK ADNKS Database (2015–2025 Historical Trend Series)",
         btnQR: "📱 Mobile Connect",
         btnExcel: "Export Excel (.xlsx)",
         btnCalculate: "Calculate",
@@ -2694,15 +2706,15 @@
         kpi6Title: "4. MPYY AMENITIES",
         kpi6Sub: "Annex-2 Legal Std",
         tabData: "📂 1. Study Area & Data",
-        tabCurves: "📈 1. Curve Fitting (6 Models)",
+        tabCurves: "📈 1. Curve Fitting & Share Models (8 Models)",
         tabCohort: "👥 2. Cohort-Component & Pyramid",
         tabEconomic: "💼 4. Economic Base Multiplier",
         tabShocks: "⚡ 5. Demographic Shocks",
         tabHansen: "🗺️ 3. Hansen Spatial & Map",
         tabMpyy: "📐 4. MPYY Standards",
         tabCitations: "📚 Methodology & References",
-        tuikTitle: "TÜİK OFFICIAL ADNKS PROVINCE & DISTRICT POPULATION & SEX DATABASE (2024)",
-        tuikSub: "81 Provinces & 923+ Districts • Sex-Disaggregated Population • 2015–2024 Historical Trend Series",
+        tuikTitle: "TÜİK OFFICIAL ADNKS PROVINCE & DISTRICT POPULATION & SEX DATABASE (2025)",
+        tuikSub: "81 Provinces & 923+ Districts • Sex-Disaggregated Population • 2015–2025 Historical Trend Series",
         tuikUpload: "Upload Official TÜİK Table (.csv / .xlsx)",
         tuikProvLabel: "1. Select Province (81 Provinces):",
         tuikDistLabel: "2. Select District:",
@@ -2730,8 +2742,8 @@
         thDist: "DISTANCE (MIN)",
         thCap: "CAPACITY (PERSONS)",
         thAction: "ACTION",
-        curvesTitle: "MATHEMATICAL CURVE FITTING (6 MODELS)",
-        curvesSub: "6 Analytical Projection Models via Ordinary Least Squares (OLS)",
+        curvesTitle: "MATHEMATICAL CURVE FITTING & SHARE MODELS (8 MODELS)",
+        curvesSub: "8 Analytical Projection Models via OLS & Çubukçu Share Techniques",
         thModel: "MODEL TYPE",
         thFormula: "MATHEMATICAL FORMULA",
         thR2: "COEFFICIENT OF DETERMINATION (R²)",
@@ -2803,10 +2815,10 @@
       ["Plan Kabulü", "Master Plan Policy"],
       ["Ek-2 Yasal Standart", "Annex-2 Legal Standard"],
       ["3. Canlı Demografik Göstergeler:", "3. Live Demographic Indicators:"],
-      ["👥 2024 Toplam:", "👥 2024 Total:"],
+      ["👥 2025 Toplam:", "👥 2025 Total:"],
       ["👨 Erkek:", "👨 Male:"],
       ["👩 Kadın:", "👩 Female:"],
-      ["Kaynak: TÜİK Adrese Dayalı Nüfus Kayıt Sistemi (ADNKS) 2024", "Source: TÜİK Address Based Population Registration System (ADNKS) 2024"],
+      ["Kaynak: TÜİK Adrese Dayalı Nüfus Kayıt Sistemi (ADNKS) 2025", "Source: TÜİK Address Based Population Registration System (ADNKS) 2025"],
       ["📌 Çalışma Alanı Seçimi ve Dış Veri Yükleme", "📌 Study Area Selection & External Data Upload"],
       ["Hazır Kent / Plan Şablonu:", "Pre-Loaded City / Plan Template:"],
       ["Excel (.xlsx) veya TÜİK CSV Yükle:", "Upload Excel (.xlsx) or TÜİK CSV:"],
@@ -2819,7 +2831,7 @@
       ["Mesafe (Dk)", "Distance (Min)"],
       ["Kapasite (Kişi)", "Capacity (Persons)"],
       ["İşlem", "Action"],
-      ["6 Matematiksel Regresyon Modeli Karşılaştırması", "Comparison of 6 Mathematical Regression Models"],
+      ["8 Matematiksel Regresyon ve Pay Modeli Karşılaştırması", "Comparison of 8 Mathematical Regression & Share Models"],
       ["Projeksiyonu", "Projection"],
       ["⭐ En İyi Uyumlu Model", "⭐ Best Fitting Model"],
       ["Matematiksel Modellerin Formülleri ve Hata Parametreleri", "Formulas and Error Parameters of Mathematical Models"],
