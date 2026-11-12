@@ -489,13 +489,12 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
 
             # 3. Demographic Shocks Engine
             shock_engine = ShockEngine()
-            raw_shocks = req.get("shocks", [])
-            if not raw_shocks and "preset_shocks" not in req:
-                # Add sample shocks
-                for s in ShockEngine.PRESET_SHOCKS[:2]:
-                    shock_engine.add_shock(DemographicShock.from_dict(s))
-            else:
+            raw_shocks = req.get("shocks")
+            if raw_shocks is not None:
                 for s in raw_shocks:
+                    shock_engine.add_shock(DemographicShock.from_dict(s))
+            elif "preset_shocks" in req:
+                for s in ShockEngine.PRESET_SHOCKS[:2]:
                     shock_engine.add_shock(DemographicShock.from_dict(s))
 
             shock_dict_list = [s.to_dict() for s in shock_engine.shocks]
@@ -530,25 +529,27 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
             step_set.update({target_1, target_2})
             steps = sorted(y for y in step_set if y > base_year)
 
-            def run_scenario(annual_mig):
+            def run_scenario(annual_mig, apply_shocks=False):
                 cur_m, cur_f = list(m_init), list(f_init)
                 prev_year = base_year
                 out = {}
                 for yr in steps:
                     cur_m, cur_f = cohort_engine.project_period(
                         cur_m, cur_f, years=yr - prev_year,
-                        annual_migration=annual_mig, start_year=prev_year
+                        annual_migration=annual_mig,
+                        shock_engine=shock_engine if apply_shocks else None,
+                        start_year=prev_year
                     )
                     prev_year = yr
                     out[yr] = {"total": sum(cur_m) + sum(cur_f), "male": list(cur_m), "female": list(cur_f)}
                 return out
 
             # Low scenario
-            low_steps = run_scenario(0.0)
+            low_steps = run_scenario(0.0, apply_shocks=False)
 
-            # High scenario (distributing migration)
+            # High scenario (distributing migration + plan shocks)
             annual_mig_high = econ_mig["plan_migrant_pop"] / max(1, (target_1 - base_year))
-            high_steps = run_scenario(annual_mig_high)
+            high_steps = run_scenario(annual_mig_high, apply_shocks=True)
 
             # Mid scenario (trend: average of linear model & natural growth)
             lin_pred_t1 = curve_results["models"]["linear"]["predictions"].get(target_1, base_pop * 1.1)
