@@ -2919,26 +2919,6 @@
       clearTimeout(cohortParamDebounce);
       cohortParamDebounce = setTimeout(() => recalculate(), 600);
     }
-        const annualMig = parseInt(inpAnnual.value) || 0;
-        const totalMig = annualMig * yearsDiff;
-        const rateVal = ((annualMig / basePop) * 100.0);
-        if (inpTotal) inpTotal.value = totalMig;
-        if (inpRate) inpRate.value = rateVal.toFixed(2);
-      } else if (which === 'total' && inpTotal) {
-        const totalMig = parseInt(inpTotal.value) || 0;
-        const annualMig = Math.round(totalMig / yearsDiff);
-        const rateVal = (((totalMig / yearsDiff) / basePop) * 100.0);
-        if (inpAnnual) inpAnnual.value = annualMig;
-        if (inpRate) inpRate.value = rateVal.toFixed(2);
-      }
-
-      clearTimeout(migRateDebounce);
-      if (immediate) {
-        recalculate();
-      } else {
-        migRateDebounce = setTimeout(() => recalculate(), 600);
-      }
-    }
 
     function applyMigRatePreset(rate) {
       const chk = document.getElementById("chkEnableEconMigration");
@@ -2946,10 +2926,9 @@
         chk.checked = true;
         onToggleEconMigration();
       }
-      switchMigrationSubtab('rate');
       const inpRate = document.getElementById("inpCohortMigRate");
       if (inpRate) inpRate.value = Number(rate).toFixed(2);
-      onMigRateInputChanged('rate', true);
+      onMigRateOnlyChanged();
     }
 
     function applyMertHocaTirePreset() {
@@ -2958,7 +2937,6 @@
         chk.checked = true;
         onToggleEconMigration();
       }
-      switchMigrationSubtab('emp');
       if (document.getElementById("inpCohortK")) document.getElementById("inpCohortK").value = "4.90";
       if (document.getElementById("inpCohortB")) document.getElementById("inpCohortB").value = "1.96";
       if (document.getElementById("inpCohortCurEmp")) document.getElementById("inpCohortCurEmp").value = "32000";
