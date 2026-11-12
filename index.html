@@ -108,19 +108,19 @@
           <span class="text-blue-600">🔥</span> <span data-i18n="quickQuestionsTitle">Popüler Sorular:</span>
         </span>
         <div class="flex items-center gap-1.5 flex-wrap text-xs">
-          <button type="button" onclick="quickAsk('İSTANBUL', 'TÜM İLÇELER', 2030)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
+          <button type="button" onclick="quickAsk('İSTANBUL', 'IL_GENELI', 2030)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
             2030'da İstanbul kaç olur?
           </button>
-          <button type="button" onclick="quickAsk('ANKARA', 'TÜM İLÇELER', 2035)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
+          <button type="button" onclick="quickAsk('ANKARA', 'IL_GENELI', 2035)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
             2035'te Ankara kaç olur?
           </button>
-          <button type="button" onclick="quickAsk('İZMİR', 'TÜM İLÇELER', 2040)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
+          <button type="button" onclick="quickAsk('İZMİR', 'IL_GENELI', 2040)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
             2040'ta İzmir kaç olur?
           </button>
-          <button type="button" onclick="quickAsk('ANTALYA', 'TÜM İLÇELER', 2030)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
+          <button type="button" onclick="quickAsk('ANTALYA', 'IL_GENELI', 2030)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
             2030'da Antalya kaç olur?
           </button>
-          <button type="button" onclick="quickAsk('BURSA', 'TÜM İLÇELER', 2050)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
+          <button type="button" onclick="quickAsk('BURSA', 'IL_GENELI', 2050)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
             2050'de Bursa kaç olur?
           </button>
         </div>
@@ -1067,7 +1067,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v20') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v21') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -1157,7 +1157,7 @@
           const selZ = document.getElementById("selAdnksZone");
           if (selZ) selZ.innerHTML = '<option value="">-- Önce İl ve İlçe Seçiniz --</option>';
 
-          // URL Parametreleri Kontrolü veya Varsayılan Şehir (İzmir / Tire) ile Canlı Başlatma
+          // URL Parametreleri Kontrolü (SEO / Paylaşılabilir Link) veya Nötr Başlangıç
           try {
             const urlParams = new URLSearchParams(window.location.search);
             const qIl = urlParams.get("il");
@@ -1165,16 +1165,19 @@
             const qYil = urlParams.get("yil");
             if (qIl) {
               setTimeout(() => {
-                quickAsk(qIl, qIlce || "TÜM İLÇELER", parseInt(qYil) || 2030, false);
+                quickAsk(qIl, qIlce || "IL_GENELI", parseInt(qYil) || 2030, false);
               }, 150);
             } else {
-              // Sayfa ilk açılışta boş '-' kalmasın, canlı TÜİK verisiyle hazır başlasın
+              // Sayfa ilk açılışta temiz nötr karşılama ile başlasın (İzmir/Tire dayatılmasın)
+              selP.value = "";
+              if (selD) selD.innerHTML = '<option value="">-- Önce İl Seçiniz --</option>';
+              if (selZ) selZ.innerHTML = '<option value="">-- Önce İl ve İlçe Seçiniz --</option>';
               setTimeout(() => {
-                quickAsk("İZMİR", "TİRE", 2030, false);
-              }, 150);
+                recalculate();
+              }, 100);
             }
           } catch (e) {
-            setTimeout(() => recalculate(), 200);
+            setTimeout(() => recalculate(), 100);
           }
         }
       } catch (err) {
@@ -1219,15 +1222,20 @@
         onAdnksProvChanged(false);
       }
 
-      if (distName && distName !== "TÜM İLÇELER") {
-        const normDist = trNorm(distName);
-        for (let j = 0; j < selD.options.length; j++) {
-          if (trNorm(selD.options[j].value) === normDist) {
-            selD.selectedIndex = j;
-            break;
+      if (distName) {
+        if (distName === "IL_GENELI" || distName === "TÜM İLÇELER") {
+          selD.value = "IL_GENELI";
+          onAdnksDistChanged(false);
+        } else {
+          const normDist = trNorm(distName);
+          for (let j = 0; j < selD.options.length; j++) {
+            if (trNorm(selD.options[j].value) === normDist) {
+              selD.selectedIndex = j;
+              break;
+            }
           }
+          onAdnksDistChanged(false);
         }
-        onAdnksDistChanged(false);
       }
 
       if (targetYear) {
@@ -1240,7 +1248,7 @@
       try {
         const newUrl = new URL(window.location);
         newUrl.searchParams.set("il", selP.value);
-        if (selD.value && distName && distName !== "TÜM İLÇELER") {
+        if (selD.value && selD.value !== "IL_GENELI") {
           newUrl.searchParams.set("ilce", selD.value);
         } else {
           newUrl.searchParams.delete("ilce");
@@ -1256,6 +1264,77 @@
           kpiEl.scrollIntoView({ behavior: "smooth", block: "center" });
         }
       }
+    }
+
+    function getProvinceTotalData(prov) {
+      const dists = state.adnksData[prov] || {};
+      const distKeys = Object.keys(dists);
+      if (distKeys.length === 0) return null;
+
+      let pop2025 = 0;
+      let pop2024 = 0;
+      let male = 0;
+      let female = 0;
+      let tfr = 1.51;
+      let histLen = 10;
+      let years = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
+      let popHistory = new Array(histLen).fill(0);
+
+      const sortedByPop = [...distKeys].sort((a, b) => (dists[b].pop_2025 || dists[b].pop_2024 || 0) - (dists[a].pop_2025 || dists[a].pop_2024 || 0));
+
+      distKeys.forEach(dk => {
+        const d = dists[dk];
+        pop2025 += (d.pop_2025 || d.pop_2024 || 0);
+        pop2024 += (d.pop_2024 || 0);
+        male += (d.male || 0);
+        female += (d.female || 0);
+        if (d.tfr) tfr = d.tfr;
+        if (d.years && d.years.length > 0) years = d.years;
+        const dh = d.pop_history || [];
+        for (let i = 0; i < Math.min(dh.length, histLen); i++) {
+          popHistory[i] += dh[i];
+        }
+      });
+
+      const subzones = sortedByPop.slice(0, 10).map((dk, idx) => {
+        const d = dists[dk];
+        const sp = d.pop_2025 || d.pop_2024 || 0;
+        const dName = d.display_name || dk;
+        const vac = Math.max(15.0, Math.round((sp / 250.0) * 10) / 10);
+        const distMin = Math.round(Math.min(45.0, 5.0 + idx * 4.0) * 10) / 10;
+        return {
+          id: idx + 1,
+          name: `${dName} İlçesi`,
+          base_pop: sp,
+          current_pop: sp,
+          jobs: Math.round(sp * 0.45),
+          employment: Math.round(sp * 0.45),
+          capacity_ha: vac,
+          vacant_area_ha: vac,
+          distance_to_center_min: distMin,
+          dist_to_center_min: distMin,
+          plan_pop_capacity: Math.round(sp * 1.25),
+          plan_capacity_pop: Math.round(sp * 1.25)
+        };
+      });
+
+      return {
+        province: prov,
+        district: "IL_GENELI",
+        display_name: `${prov} İL GENELİ (Tüm İl Toplamı)`,
+        pop_2024: pop2024,
+        pop_2025: pop2025,
+        male: male,
+        female: female,
+        male_pct: (male + female > 0) ? +(male / (male + female) * 100).toFixed(2) : 50.0,
+        female_pct: (male + female > 0) ? +(female / (male + female) * 100).toFixed(2) : 50.0,
+        years: years,
+        pop_history: popHistory,
+        tfr: tfr,
+        subzones: subzones,
+        bm_lq: 2.85,
+        bm_mg: 2.15
+      };
     }
 
     function onAdnksProvChanged(isInitial = false) {
@@ -1277,22 +1356,29 @@
         return;
       }
 
-      if (selZ) selZ.innerHTML = '<option value="">-- Önce İlçe Seçiniz --</option>';
-
       const dists = state.adnksData[prov] || {};
-      selD.innerHTML = '<option value="">-- İlçe Seçiniz --</option>';
+      const provTotal = getProvinceTotalData(prov);
+      const totalPopStr = provTotal ? provTotal.pop_2025.toLocaleString('tr-TR') : '';
+
+      selD.innerHTML = '';
+      // 1. Seçenek: İl Geneli (Varsayılan)
+      const optAll = document.createElement("option");
+      optAll.value = "IL_GENELI";
+      optAll.innerText = `🏛️ ${prov} İL GENELİ (Tüm İl: ${totalPopStr} Kişi)`;
+      selD.appendChild(optAll);
+
+      // İlin ilçeleri
       const sortedDists = Object.keys(dists).sort();
-      sortedDists.forEach((d, idx) => {
+      sortedDists.forEach((d) => {
         const opt = document.createElement("option");
         opt.value = d;
         opt.innerText = dists[d].display_name || d;
         selD.appendChild(opt);
       });
 
-      if (sortedDists.length > 0 && !isInitial) {
-        selD.selectedIndex = 1; // İlk ilçeyi seç
-        onAdnksDistChanged(!isInitial);
-      }
+      // İl seçildiğinde varsayılan olarak İL GENELİ seçilsin!
+      selD.value = "IL_GENELI";
+      onAdnksDistChanged(!isInitial);
     }
 
     function ensureDistrictSubzones(dData) {
@@ -1330,7 +1416,7 @@
 
       if (!prov || !dist) return;
 
-      const dData = (state.adnksData[prov] && state.adnksData[prov][dist]) || null;
+      const dData = (dist === "IL_GENELI" ? getProvinceTotalData(prov) : (state.adnksData[prov] && state.adnksData[prov][dist])) || null;
       if (!dData) return;
       ensureDistrictSubzones(dData);
 
@@ -1364,7 +1450,15 @@
 
       // Mahalle / Alt Bölge Dropdown'ını Doldur
       if (selZ) {
-        if (dData.subzones && dData.subzones.length > 0) {
+        if (dist === "IL_GENELI") {
+          let opts = `<option value="all">-- Tüm İlçeler (İl Bütünü: ${curPop.toLocaleString('tr-TR')} Kişi) --</option>`;
+          dData.subzones.forEach((sz, idx) => {
+            const szPop = sz.base_pop || sz.current_pop || 0;
+            opts += `<option value="${idx + 1}">${idx + 1}. ${sz.name} (${szPop.toLocaleString('tr-TR')} Kişi)</option>`;
+          });
+          opts += `<option value="upload">📂 Özel İlçe/Mahalle Tablosu Yükle...</option>`;
+          selZ.innerHTML = opts;
+        } else if (dData.subzones && dData.subzones.length > 0) {
           let opts = `<option value="all">-- Tüm Mahalleler (${dData.subzones.length} Gerçek Mahalle: ${curPop.toLocaleString('tr-TR')} Kişi) --</option>`;
           dData.subzones.forEach((sz, idx) => {
             const szPop = sz.base_pop || sz.current_pop || 0;
@@ -1388,7 +1482,7 @@
       // Haritayı bu ilçeye hazırla (önbellekte yoksa arka planda konum çöz)
       try {
         const gk = `${trNorm(prov)}/${trNorm(dist)}`;
-        if (!getGeoCache()[gk]) geocodeDistrictCenter(prov, dist, gk);
+        if (!getGeoCache()[gk]) geocodeDistrictCenter(prov, dist === "IL_GENELI" ? "Merkez" : dist, gk);
       } catch (e) {}
 
       // İlçe seçildiği anda alttaki mahalle tablosunu, KPI kartlarını ve modelleri otomatik güncelle
@@ -1422,7 +1516,7 @@
         return;
       }
 
-      const dData = state.adnksData[prov] && state.adnksData[prov][dist];
+      const dData = (dist === "IL_GENELI" ? getProvinceTotalData(prov) : (state.adnksData[prov] && state.adnksData[prov][dist])) || null;
       if (!dData) return;
       ensureDistrictSubzones(dData);
 
@@ -1921,9 +2015,9 @@
       if (!prov || geoPending[key]) return;
       geoPending[key] = true;
       try {
-        const dData = (state.adnksData[prov] && state.adnksData[prov][dist]) || null;
+        const dData = (dist === "IL_GENELI" ? getProvinceTotalData(prov) : (state.adnksData[prov] && state.adnksData[prov][dist])) || null;
         const display = (dData && dData.display_name) || titleTr(dist);
-        const isCenter = trNorm(dist) === "MERKEZ";
+        const isCenter = trNorm(dist) === "MERKEZ" || dist === "IL_GENELI";
         const q = isCenter ? `${titleTr(prov)}, Türkiye` : `${display}, ${titleTr(prov)}, Türkiye`;
         const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=tr&accept-language=tr&q=${encodeURIComponent(q)}`;
         const res = await fetch(url, { headers: { "Accept": "application/json" } });

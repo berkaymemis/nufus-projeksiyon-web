@@ -407,9 +407,23 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
 
             # Üst Bölge (İl veya Türkiye Geneli) Popülasyon Serisi (Prof. Dr. K. Mert Çubukçu Pay Modelleri)
             prov_input = str(req.get("province", "")).strip()
+            dist_input = str(req.get("district", "")).strip()
             upper_pop_hist = None
             upper_name = "Türkiye Geneli"
-            if prov_input:
+
+            if dist_input == "IL_GENELI" or dist_input == "TÜM İLÇELER" or (not dist_input and prov_input):
+                # İl Geneli modellendiğinde üst bölge Türkiye Geneli'dir (85 Milyon)
+                upper_name = "Türkiye Geneli"
+                hist_len = len(t_hist)
+                turkey_hist_sum = [0.0] * hist_len
+                for pk, prov_dict in TUIK_ADNKS_DATA.items():
+                    for dk, d_info in prov_dict.items():
+                        dh = d_info.get("pop_history", [])
+                        for i in range(min(len(dh), hist_len)):
+                            turkey_hist_sum[i] += float(dh[i])
+                if any(v > 0 for v in turkey_hist_sum):
+                    upper_pop_hist = turkey_hist_sum
+            elif prov_input:
                 prov_norm = _normalize_str(prov_input)
                 matched_prov = None
                 for pk in TUIK_ADNKS_DATA.keys():
