@@ -322,25 +322,32 @@ class CurveFittingEngine:
         pred_const_fut = {yr: max(0, round(cur_pop * ((1.0 + R_1) ** k))) for yr, k in zip(target_years, k_future)}
         pred_var_fut = {yr: max(0, round(cur_pop * ((1.0 + max(-0.99, R_1_v + s_1)) ** k))) for yr, k in zip(target_years, k_future)}
 
-        models["constant_share"] = {
-            "name": "Sabit Pay (Constant Share)",
-            "formula_str": f"e^(t+k) = e^t × (1 + {R_1:.4f})^k",
-            "metrics": cls.calculate_metrics(pop_hist, pred_const_h),
-            "predictions": pred_const_fut,
-            "academic_review": f"Prof. Dr. K. Mert Çubukçu Formül (4.30): Sabit pay tekniği. Yerleşimin {eff_upper_name} içindeki payının sabit kalacağı kabulüyle {eff_upper_name} yıllık artış oranında (%{R_1*100:.2f}/yıl) büyümesi."
-        }
-
-        models["variable_share"] = {
-            "name": "Değişken Pay (Shift-Share)",
-            "formula_str": f"e^(t+k) = e^t × (1 + {R_1_v:.4f} + {s_1:.4f})^k",
-            "metrics": cls.calculate_metrics(pop_hist, pred_var_h),
-            "predictions": pred_var_fut,
-            "academic_review": f"Prof. Dr. K. Mert Çubukçu Formül (4.39): Değişken pay (shift-share) tekniği. {eff_upper_name} artış hızına (%{R_1_v*100:.2f}/yıl) yerel değişim dinamizmi (s₁=%{s_1*100:.2f}/yıl) eklenerek projeksiyon yapılır."
+        share_models = {
+            "constant_share": {
+                "name": "Sabit Pay (Constant Share)",
+                "formula_str": f"e^(t+k) = e^t × (1 + {R_1:.4f})^k",
+                "upper_name": eff_upper_name,
+                "upper_rate_pct": round(R_1 * 100, 2),
+                "local_share_pct": round((pop_hist[-1] / max(1.0, E_series[-1])) * 100, 2),
+                "predictions": pred_const_fut,
+                "academic_review": f"Prof. Dr. K. Mert Çubukçu Formül (4.30): Sabit pay tekniği. Yerleşimin {eff_upper_name} içindeki payının sabit kalacağı kabulüyle {eff_upper_name} yıllık artış oranında (%{R_1*100:.2f}/yıl) büyümesi."
+            },
+            "variable_share": {
+                "name": "Değişken Pay (Shift-Share)",
+                "formula_str": f"e^(t+k) = e^t × (1 + {R_1_v:.4f} {'+' if s_1 >= 0 else '-'} {abs(s_1):.4f})^k",
+                "upper_name": eff_upper_name,
+                "upper_rate_pct": round(R_1_v * 100, 2),
+                "shift_term_pct": round(s_1 * 100, 2),
+                "net_rate_pct": round((R_1_v + s_1) * 100, 2),
+                "predictions": pred_var_fut,
+                "academic_review": f"Prof. Dr. K. Mert Çubukçu Formül (4.39): Değişken pay (shift-share) tekniği. {eff_upper_name} artış hızına (%{R_1_v*100:.2f}/yıl) yerel değişim dinamizmi (s₁=%{s_1*100:.2f}/yıl) eklenerek projeksiyon yapılır."
+            }
         }
 
         return {
             "years_hist": years_hist,
             "pop_hist": pop_hist,
             "target_years": target_years,
-            "models": models
+            "models": models,
+            "share_models": share_models
         }

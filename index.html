@@ -274,7 +274,7 @@
       <!-- Tab Navigation -->
       <div class="bg-slate-50/80 border-b border-slate-200 px-4 flex overflow-x-auto text-xs sm:text-sm font-semibold">
         <button onclick="switchTab('curves')" id="tabBtn-curves" class="tab-active py-3.5 px-4 whitespace-nowrap flex items-center gap-2 transition">
-          <span data-i18n="tabCurves">📈 1. Curve Fitting & Pay Modelleri (8 Model)</span>
+          <span data-i18n="tabCurves">📈 1. Curve Fitting (6 Regresyon Modeli)</span>
         </button>
         <button onclick="switchTab('cohort')" id="tabBtn-cohort" class="tab-inactive py-3.5 px-4 whitespace-nowrap flex items-center gap-2 transition">
           <span data-i18n="tabCohort">👥 2. Kuşak-Bileşen & Piramit</span>
@@ -290,12 +290,12 @@
       <!-- TAB CONTENT AREA -->
       <div class="p-5 sm:p-6">
 
-        <!-- ===== TAB 1: CURVE FITTING & PAY MODELLERİ (8 MODELLİ PROJEKSİYON) ===== -->
+        <!-- ===== TAB 1: CURVE FITTING (6 REGRESYON MODELİ) & ÇUBUKÇU PAY MODELLERİ ===== -->
         <div id="tabContent-curves" class="space-y-5">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h3 class="text-sm sm:text-base font-extrabold text-slate-800" data-i18n="curvesTitle">Matematiksel Eğri Uydurma ve Pay Modelleri (8 Model)</h3>
-              <p class="text-xs text-slate-500" data-i18n="curvesSub">En küçük kareler ve Prof. Dr. K. Mert Çubukçu pay teknikleriyle hesaplanan 8 projeksiyon modeli</p>
+              <h3 class="text-sm sm:text-base font-extrabold text-slate-800" data-i18n="curvesTitle">Matematiksel Eğri Uydurma ve Regresyon Modelleri (6 Model)</h3>
+              <p class="text-xs text-slate-500" data-i18n="curvesSub">En küçük kareler yöntemi (OLS) ile yerleşimin geçmiş trendine analitik eğri uyumu</p>
             </div>
             <span class="text-xs bg-blue-50 text-blue-800 font-bold px-3 py-1 rounded-full border border-blue-200">
               <span id="curveRangeLabel">2015 - 2050</span> Projeksiyon Aralığı
@@ -342,6 +342,102 @@
               </thead>
               <tbody id="curveModelsTableBody" class="divide-y divide-slate-200 bg-white"></tbody>
             </table>
+          </div>
+
+          <!-- ===== PROF. DR. K. MERT ÇUBUKÇU BÖLGESEL PAY MODELLERİ (SHARE APPROACH) ===== -->
+          <div class="mt-6 bg-gradient-to-br from-slate-50 to-blue-50/50 rounded-2xl p-5 border border-blue-200/80 shadow-sm">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">🏛️</span>
+                <div>
+                  <h4 class="text-xs sm:text-sm font-black text-slate-900 tracking-tight">Prof. Dr. K. Mert Çubukçu — Bölgesel Pay ve Makro Dağıtım Modelleri (Bölüm 4.3)</h4>
+                  <p class="text-[11px] text-slate-600">Üst bölge (İl / Ülke) nüfus hareketlerinin yerel ölçekle ilişkilendirilmesi (Pay Yaklaşımı / Share Approach)</p>
+                </div>
+              </div>
+              <span class="bg-blue-100 text-blue-800 font-extrabold text-[10px] px-2.5 py-1 rounded-full border border-blue-300">
+                Makro-Bölgesel Yaklaşım
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- 1. Sabit Pay -->
+              <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-sky-500 inline-block"></span>
+                      4.3.1. Sabit Pay Tekniği (Constant Share)
+                    </span>
+                    <span class="text-[10px] font-mono bg-sky-50 text-sky-700 px-2 py-0.5 rounded font-bold border border-sky-200">Formül (4.30)</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 mb-3" id="shareConstReview">
+                    Yerleşimin üst bölgedeki payının sabit kalacağı kabulüyle üst kademe yıllık bileşik artış oranında büyümesi.
+                  </p>
+                  <div class="bg-slate-50 rounded-lg p-2.5 font-mono text-[11px] text-slate-700 mb-3 border border-slate-100" id="shareConstFormula">
+                    e^(t+k) = e^t × (1 + R₁)^k
+                  </div>
+                  <div class="grid grid-cols-2 gap-2 text-xs mb-3">
+                    <div class="bg-sky-50/50 p-2.5 rounded-lg border border-sky-100">
+                      <span class="text-[10px] text-slate-500 block">Üst Kademe Artışı (R₁)</span>
+                      <span class="font-black text-sky-800" id="shareConstUpperRate">%1.64 / yıl</span>
+                    </div>
+                    <div class="bg-sky-50/50 p-2.5 rounded-lg border border-sky-100">
+                      <span class="text-[10px] text-slate-500 block">İlçe / Yerel Pay (c)</span>
+                      <span class="font-black text-sky-800" id="shareConstLocalShare">%2.46</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <div>
+                    <span class="text-[10px] text-slate-400 uppercase font-bold block" id="shareConstTarget1Year">Hedef Yıl 1</span>
+                    <span class="text-base sm:text-lg font-black text-slate-900" id="shareConstTarget1Val">-</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] text-slate-400 uppercase font-bold block" id="shareConstTarget2Year">Hedef Yıl 2</span>
+                    <span class="text-sm sm:text-base font-extrabold text-slate-700" id="shareConstTarget2Val">-</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. Değişken Pay -->
+              <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+                      4.3.2. Değişken Pay Tekniği (Shift-Share)
+                    </span>
+                    <span class="text-[10px] font-mono bg-amber-50 text-amber-700 px-2 py-0.5 rounded font-bold border border-amber-200">Formül (4.39)</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 mb-3" id="shareVarReview">
+                    Üst kademe büyüme hızına, yerleşimin geçmiş 10 yıllık ayrışma dinamizmi (shift terimi s₁) eklenerek hesaplanan diferansiyel senaryo.
+                  </p>
+                  <div class="bg-slate-50 rounded-lg p-2.5 font-mono text-[11px] text-slate-700 mb-3 border border-slate-100" id="shareVarFormula">
+                    e^(t+k) = e^t × (1 + R₁ + s₁)^k
+                  </div>
+                  <div class="grid grid-cols-2 gap-2 text-xs mb-3">
+                    <div class="bg-amber-50/50 p-2.5 rounded-lg border border-amber-100">
+                      <span class="text-[10px] text-slate-500 block">Değişim Terimi (s₁)</span>
+                      <span class="font-black text-amber-800" id="shareVarShiftRate">+%2.85 / yıl</span>
+                    </div>
+                    <div class="bg-amber-50/50 p-2.5 rounded-lg border border-amber-100">
+                      <span class="text-[10px] text-slate-500 block">Net Bileşik Büyüme</span>
+                      <span class="font-black text-amber-800" id="shareVarNetRate">%4.49 / yıl</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <div>
+                    <span class="text-[10px] text-slate-400 uppercase font-bold block" id="shareVarTarget1Year">Hedef Yıl 1</span>
+                    <span class="text-base sm:text-lg font-black text-slate-900" id="shareVarTarget1Val">-</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] text-slate-400 uppercase font-bold block" id="shareVarTarget2Year">Hedef Yıl 2</span>
+                    <span class="text-sm sm:text-base font-extrabold text-slate-700" id="shareVarTarget2Val">-</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -2127,6 +2223,51 @@
       } catch (err) {
         console.error("Curve chart error:", err);
       }
+
+      // Render Prof. Dr. K. Mert Çubukçu Bölgesel Pay Modelleri (Share Approach)
+      if (curve.share_models) {
+        const sm = curve.share_models;
+        const cM = sm.constant_share;
+        const vM = sm.variable_share;
+
+        if (cM) {
+          const cF = document.getElementById("shareConstFormula");
+          if (cF) cF.innerText = cM.formula_str || "e^(t+k) = e^t × (1 + R₁)^k";
+          const cReview = document.getElementById("shareConstReview");
+          if (cReview && cM.academic_review) cReview.innerText = cM.academic_review;
+          const cRate = document.getElementById("shareConstUpperRate");
+          if (cRate) cRate.innerText = `${cM.upper_name || 'Üst Bölge'}: %${cM.upper_rate_pct || 0} / yıl`;
+          const cShare = document.getElementById("shareConstLocalShare");
+          if (cShare) cShare.innerText = `%${cM.local_share_pct || 0}`;
+          const cT1 = document.getElementById("shareConstTarget1Val");
+          if (cT1) cT1.innerText = `${getPred(cM, tY[0]).toLocaleString('tr-TR')} Kişi`;
+          const cT2 = document.getElementById("shareConstTarget2Val");
+          if (cT2) cT2.innerText = `${getPred(cM, tY[1]).toLocaleString('tr-TR')} Kişi`;
+          const cT1Lbl = document.getElementById("shareConstTarget1Year");
+          if (cT1Lbl) cT1Lbl.innerText = `${tY[0]} Hedef Nüfusu`;
+          const cT2Lbl = document.getElementById("shareConstTarget2Year");
+          if (cT2Lbl) cT2Lbl.innerText = `${tY[1]} Hedef Nüfusu`;
+        }
+
+        if (vM) {
+          const vF = document.getElementById("shareVarFormula");
+          if (vF) vF.innerText = vM.formula_str || "e^(t+k) = e^t × (1 + R₁ + s₁)^k";
+          const vReview = document.getElementById("shareVarReview");
+          if (vReview && vM.academic_review) vReview.innerText = vM.academic_review;
+          const vShift = document.getElementById("shareVarShiftRate");
+          if (vShift) vShift.innerText = `${vM.shift_term_pct >= 0 ? '+' : ''}%${vM.shift_term_pct || 0} / yıl`;
+          const vNet = document.getElementById("shareVarNetRate");
+          if (vNet) vNet.innerText = `%${vM.net_rate_pct || 0} / yıl`;
+          const vT1 = document.getElementById("shareVarTarget1Val");
+          if (vT1) vT1.innerText = `${getPred(vM, tY[0]).toLocaleString('tr-TR')} Kişi`;
+          const vT2 = document.getElementById("shareVarTarget2Val");
+          if (vT2) vT2.innerText = `${getPred(vM, tY[1]).toLocaleString('tr-TR')} Kişi`;
+          const vT1Lbl = document.getElementById("shareVarTarget1Year");
+          if (vT1Lbl) vT1Lbl.innerText = `${tY[0]} Hedef Nüfusu`;
+          const vT2Lbl = document.getElementById("shareVarTarget2Year");
+          if (vT2Lbl) vT2Lbl.innerText = `${tY[1]} Hedef Nüfusu`;
+        }
+      }
     }
 
     function onPyramidYearChanged() {
@@ -2589,7 +2730,7 @@
         kpi6Title: "4. MPYY DONATI",
         kpi6Sub: "Ek-2 Yasal Standart",
         tabData: "📂 1. Çalışma Alanı & Veri",
-        tabCurves: "📈 1. Curve Fitting & Pay Modelleri (8 Model)",
+        tabCurves: "📈 1. Curve Fitting (6 Regresyon Modeli)",
         tabCohort: "👥 2. Kuşak-Bileşen & Piramit",
         tabEconomic: "💼 4. İktisadi Taban Çarpanı",
         tabShocks: "⚡ 5. Demografik Şoklar",
@@ -2625,8 +2766,8 @@
         thDist: "MESAFE (DK)",
         thCap: "KAPASİTE (KİŞİ)",
         thAction: "İŞLEM",
-        curvesTitle: "MATEMATİKSEL EĞRİ VE PAY MODELLERİ (8 MODEL)",
-        curvesSub: "En Küçük Kareler ve Çubukçu Pay Teknikleri ile 8 Analitik Projeksiyon Modeli",
+        curvesTitle: "MATEMATİKSEL EĞRİ UYDURMA (6 REGRESYON MODELİ)",
+        curvesSub: "En Küçük Kareler Yöntemi ile 6 Analitik Regresyon Modeli",
         thModel: "MODEL TÜRÜ",
         thFormula: "MATEMATİKSEL FORMÜL",
         thR2: "BELİRLEME KATSAYISI (R²)",
@@ -2706,7 +2847,7 @@
         kpi6Title: "4. MPYY AMENITIES",
         kpi6Sub: "Annex-2 Legal Std",
         tabData: "📂 1. Study Area & Data",
-        tabCurves: "📈 1. Curve Fitting & Share Models (8 Models)",
+        tabCurves: "📈 1. Curve Fitting (6 Regression Models)",
         tabCohort: "👥 2. Cohort-Component & Pyramid",
         tabEconomic: "💼 4. Economic Base Multiplier",
         tabShocks: "⚡ 5. Demographic Shocks",
@@ -2742,8 +2883,8 @@
         thDist: "DISTANCE (MIN)",
         thCap: "CAPACITY (PERSONS)",
         thAction: "ACTION",
-        curvesTitle: "MATHEMATICAL CURVE FITTING & SHARE MODELS (8 MODELS)",
-        curvesSub: "8 Analytical Projection Models via OLS & Çubukçu Share Techniques",
+        curvesTitle: "MATHEMATICAL CURVE FITTING (6 REGRESSION MODELS)",
+        curvesSub: "6 Analytical Regression Models via Ordinary Least Squares (OLS)",
         thModel: "MODEL TYPE",
         thFormula: "MATHEMATICAL FORMULA",
         thR2: "COEFFICIENT OF DETERMINATION (R²)",
