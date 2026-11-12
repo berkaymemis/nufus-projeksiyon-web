@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Kentsel Demografi & Nüfus Projeksiyonu Pro</title>
+  <title>NüfusKaç? — Klasik Detaylı Laboratuvar Modu (BM-GEO)</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#1E3A8A">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -67,11 +67,15 @@
   <header class="bg-gradient-to-r from-blue-900 via-teal-800 to-emerald-800 text-white shadow-md sticky top-0 z-30">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center space-x-3">
-        <img src="/icon.svg" alt="Logo" class="w-10 h-10 rounded-lg shadow bg-white/10 p-1">
+        <a href="/" class="flex items-center gap-2 group">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 flex items-center justify-center text-white font-black text-xl shadow-lg ring-2 ring-white/20 group-hover:scale-105 transition">
+            ?
+          </div>
+        </a>
         <div>
           <h1 class="text-base sm:text-lg font-bold tracking-tight flex items-center gap-2">
-            <span data-i18n="appTitle">KENTSEL DEMOGRAFİ & NÜFUS PROJEKSİYONU PRO</span>
-            <span class="hidden sm:inline-block bg-amber-400 text-slate-900 text-xs px-2 py-0.5 rounded font-extrabold">v1.0</span>
+            <span data-i18n="appTitle">NÜFUS KAÇ?</span>
+            <span class="bg-amber-400 text-slate-900 text-xs px-2 py-0.5 rounded font-extrabold uppercase">BM-GEO Klasik</span>
           </h1>
           <p data-i18n="appSubtitle" class="text-xs text-slate-200">Açık Kaynak Kentsel Planlama | Mert Çubukçu Metodolojisi & TÜİK Standartları</p>
         </div>
@@ -2411,7 +2415,7 @@
 
     const I18N = {
       tr: {
-        appTitle: "KENTSEL DEMOGRAFİ & NÜFUS PROJEKSİYONU PRO",
+        appTitle: "NÜFUS KAÇ? (KLASİK LABORATUVAR)",
         appSubtitle: "Açık Kaynak Kentsel Planlama | Mert Çubukçu Metodolojisi & TÜİK Standartları",
         btnQR: "📱 Telefondan Bağlan",
         btnExcel: "Excel İndir (.xlsx)",
@@ -2524,7 +2528,7 @@
         qrModalDesc: "Bilgisayarınız ve cep telefonunuz aynı Wi-Fi ağına bağlıyken kameranızla QR kodu okutun veya tarayıcınıza aşağıdaki adresi yazın:"
       },
       en: {
-        appTitle: "URBAN DEMOGRAPHICS & POPULATION PROJECTION PRO",
+        appTitle: "HOW MANY PEOPLE? (CLASSIC LAB)",
         appSubtitle: "Open Source Urban Planning | Mert Cubukcu Methodology & TUIK Standards",
         btnQR: "📱 Mobile Connect",
         btnExcel: "Export Excel (.xlsx)",

@@ -1,7 +1,7 @@
 {
-  "name": "Kentsel Demografi & Nüfus Projeksiyonu Pro",
-  "short_name": "Nüfus Pro",
-  "description": "Kentsel ve Bölgesel Demografik Projeksiyon Modeli (Mert Çubukçu Metodolojisi & TÜİK)",
+  "name": "NüfusKaç? — İl ve İlçe Nüfus Tahmin Platformu",
+  "short_name": "NüfusKaç?",
+  "description": "2025-2050 Türkiye, 81 il ve 973 ilçe için canlı nüfus tahminleri (TÜİK ADNKS verileriyle)",
   "start_url": "/",
   "display": "standalone",
   "orientation": "any",
