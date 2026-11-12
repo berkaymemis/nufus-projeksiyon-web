@@ -470,18 +470,44 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
 
             # 2. Economic Base Engine
             tot_jobs = int(req.get("total_jobs", tmpl.get("total_employment", int(base_pop * 0.51))))
+            target_jobs = int(req.get("target_jobs", 0))
             basic_jobs = int(req.get("basic_jobs", tmpl.get("basic_employment", int(tot_jobs * 0.20))))
             new_basic = int(req.get("new_basic_jobs", 2650))
+            raw_enable_mig = req.get("enable_econ_migration")
+            enable_econ_mig = True if raw_enable_mig is None else bool(raw_enable_mig)
 
             econ_ratios = EconomicBaseEngine.calculate_ratios(base_pop, tot_jobs, basic_jobs)
             k_mult = float(req.get("base_multiplier_k", econ_ratios["base_multiplier_k"]))
             b_ratio = float(req.get("dependency_ratio_b", econ_ratios["dependency_ratio_b"]))
 
-            econ_mig = EconomicBaseEngine.project_employment_migration(
-                new_basic_jobs=new_basic,
-                base_multiplier_k=k_mult,
-                dependency_ratio_b=b_ratio
-            )
+            if target_jobs > tot_jobs:
+                net_new_emp = target_jobs - tot_jobs
+                new_basic = max(1, int(net_new_emp / max(1.0, k_mult)))
+            else:
+                net_new_emp = int(new_basic * k_mult)
+
+            if enable_econ_mig:
+                econ_mig = EconomicBaseEngine.project_employment_migration(
+                    new_basic_jobs=new_basic,
+                    base_multiplier_k=k_mult,
+                    dependency_ratio_b=b_ratio
+                )
+                if target_jobs > tot_jobs:
+                    econ_mig["total_new_jobs"] = net_new_emp
+                    econ_mig["total_migrant_pop"] = round(net_new_emp * b_ratio)
+                    econ_mig["plan_migrant_pop"] = round(net_new_emp * b_ratio)
+            else:
+                econ_mig = {
+                    "new_basic_jobs": 0,
+                    "base_multiplier_k": round(k_mult, 3),
+                    "dependency_ratio_b": round(b_ratio, 3),
+                    "total_new_jobs": 0,
+                    "non_basic_new_jobs": 0,
+                    "total_migrant_pop": 0,
+                    "plan_share_pct": 100.0,
+                    "plan_migrant_pop": 0,
+                    "formula_summary": "Doğal Senaryo (İktisadi göç etkinleştirilmedi)"
+                }
 
             # High scenario targets
             plan_high_2045 = base_pop + econ_mig["plan_migrant_pop"]
@@ -516,11 +542,7 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
 
             indicators = CohortComponentEngine.calculate_indicators(m_init, f_init)
 
-            # Simulate scenarios — takvim yılları kullanıcının girdiği Başlangıç / Hedef Yıl 1 / Hedef Yıl 2'ye göre
-            # dinamik üretilir (5'er yıllık adımlar + hedef yıllar; 5'in katı olmayan aralıklar kısmi adımla).
-            # Low: 0 net migration
-            # Mid: trend migration
-            # High: economic migration (plan kabul)
+            # Simulate scenarios
             step_set = set()
             yy = base_year + 5
             while yy < end_year:
@@ -541,10 +563,16 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
                         start_year=prev_year
                     )
                     prev_year = yr
-                    out[yr] = {"total": sum(cur_m) + sum(cur_f), "male": list(cur_m), "female": list(cur_f)}
+                    ind_yr = CohortComponentEngine.calculate_indicators(cur_m, cur_f)
+                    out[yr] = {
+                        "total": sum(cur_m) + sum(cur_f),
+                        "male": list(cur_m),
+                        "female": list(cur_f),
+                        "indicators": ind_yr
+                    }
                 return out
 
-            # Low scenario
+            # Low scenario (0 net migration)
             low_steps = run_scenario(0.0, apply_shocks=False)
 
             # High scenario (distributing migration + plan shocks)
@@ -555,6 +583,52 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
             lin_pred_t1 = curve_results["models"]["linear"]["predictions"].get(target_1, base_pop * 1.1)
             annual_mig_mid = max(0, (lin_pred_t1 - low_steps[target_1]["total"]) / max(1, (target_1 - base_year)))
             mid_steps = run_scenario(annual_mig_mid)
+
+            # Summary Table and Alternative Scenarios for Planning Studio
+            natural_t1 = low_steps[target_1]["total"]
+            migrant_t1 = round(econ_mig["plan_migrant_pop"])
+            total_plan_t1 = natural_t1 + migrant_t1
+
+            summary_table = {
+                "base_year": base_year,
+                "base_pop": base_pop,
+                "target_year": target_1,
+                "natural_pop": natural_t1,
+                "current_jobs": tot_jobs,
+                "target_jobs": target_jobs if target_jobs > 0 else tot_jobs + round(econ_mig["total_new_jobs"]),
+                "net_jobs": net_new_emp if enable_econ_mig else 0,
+                "multiplier_k": round(k_mult, 2),
+                "dependency_b": round(b_ratio, 2),
+                "migrant_pop": migrant_t1,
+                "total_plan_pop": total_plan_t1
+            }
+
+            best_model_name = curve_results.get("best_model", "linear")
+            mid_curve_pop = curve_results["models"].get(best_model_name, {}).get("predictions", {}).get(target_1, mid_steps[target_1]["total"])
+
+            alternative_scenarios = {
+                "low": {
+                    "title": "DÜŞÜK (DURGUNLUK)",
+                    "population": natural_t1,
+                    "diff_pct": round(((natural_t1 - base_pop) / base_pop) * 100.0, 2),
+                    "assumption": "Sıfır göç, sadece demografik doğal yaşlanma (Kuşak-Bileşen kapalı model)",
+                    "role": "En Düşük Altyapı Risk Eşiği"
+                },
+                "mid": {
+                    "title": "ORTA (TREND / REGRESYON)",
+                    "population": mid_curve_pop,
+                    "diff_pct": round(((mid_curve_pop - base_pop) / base_pop) * 100.0, 2),
+                    "assumption": f"Geçmiş eğilimin analitik devamı ({best_model_name})",
+                    "role": "Mevcut Eğilim Devamı (Trend)"
+                },
+                "high": {
+                    "title": "YÜKSEK (SANAYİ / VİZYON)",
+                    "population": total_plan_t1,
+                    "diff_pct": round(((total_plan_t1 - base_pop) / base_pop) * 100.0, 2),
+                    "assumption": f"TOSBİ vb. Sanayi Genişlemesi + Baz Çarpanı ({k_mult:.2f}) + Bağımlılık ({b_ratio:.2f}) Göçü" if enable_econ_mig else "Plan kabulü / Dinamik Şoklar",
+                    "role": "Nazım İmar Planı Kabulü & Donatı Eşiği (Önerilen)"
+                }
+            }
 
             # Shock integrated timeline
             base_timeline = {base_year: base_pop}
@@ -660,7 +734,9 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
                 "economic_base": {
                     "ratios": econ_ratios,
                     "migration": econ_mig,
-                    "new_basic_jobs": new_basic
+                    "new_basic_jobs": new_basic,
+                    "summary_table": summary_table,
+                    "alternative_scenarios": alternative_scenarios
                 },
                 "demographic_shocks": {
                     "shocks": shock_dict_list,

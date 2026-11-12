@@ -443,6 +443,60 @@
 
         <!-- ===== TAB 2: COHORT & PYRAMID (KUŞAK-BİLEŞEN) ===== -->
         <div id="tabContent-cohort" class="hidden space-y-5">
+
+          <!-- İktisadi Temel & Göç Senaryosu İşaretleme Kutucuğu (Açılır Kontrol Çubuğu) -->
+          <div class="bg-gradient-to-r from-blue-50/90 via-indigo-50/50 to-slate-50 border border-blue-200 rounded-2xl p-4 shadow-sm transition">
+            <div class="flex items-center justify-between flex-wrap gap-3">
+              <label class="flex items-center gap-3 cursor-pointer select-none">
+                <input type="checkbox" id="chkEnableEconMigration" onchange="onToggleEconMigration()" class="w-5 h-5 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer">
+                <div class="flex flex-col">
+                  <span class="text-xs sm:text-sm font-extrabold text-slate-800 flex items-center gap-2">
+                    <span>🏭</span>
+                    <span>İktisadi Temel, Sanayi İstihdamı & Göç Senaryosu Ekle (TOSBİ & Çarpan Modeli)</span>
+                  </span>
+                  <span class="text-[11px] text-slate-500 font-medium">İşaretlendiğinde baz çarpanı, bağımlılık oranı ve istihdam hedefleri açılır; piramit, yaş göstergeleri ve senaryolar canlı güncellenir.</span>
+                </div>
+              </label>
+              <span id="badgeEconStatus" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-700">🌱 Doğal Yaşlanma (Sıfır Göç)</span>
+            </div>
+
+            <!-- Açılır Kontrol Paneli (Varsayılan Kapalı) -->
+            <div id="econControlPanel" class="hidden mt-4 pt-4 border-t border-blue-200/80 space-y-3">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Baz Çarpanı (Multiplier k):</label>
+                  <input type="number" id="inpCohortK" step="0.01" min="1.0" max="15.0" value="4.90" onchange="onCohortParamChanged()" class="w-full font-black text-slate-900 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                  <span class="block text-[10px] text-slate-400 mt-1">1 temel çalışan başına toplam iş</span>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Bağımlılık Oranı (b):</label>
+                  <input type="number" id="inpCohortB" step="0.01" min="0.5" max="10.0" value="1.96" onchange="onCohortParamChanged()" class="w-full font-black text-slate-900 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                  <span class="block text-[10px] text-slate-400 mt-1">1 çalışan başına kentsel nüfus yükü</span>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                  <label class="block text-[11px] font-bold text-slate-700 mb-1">2025 Mevcut İstihdam:</label>
+                  <input type="number" id="inpCohortCurEmp" step="500" min="1000" value="32000" onchange="onCohortParamChanged()" class="w-full font-black text-slate-900 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                  <span class="block text-[10px] text-slate-400 mt-1">Başlangıç yılı mevcut istihdamı</span>
+                </div>
+                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Hedef Yıl İstihdamı (TOSBİ vb.):</label>
+                  <input type="number" id="inpCohortTargetEmp" step="500" min="1000" value="45000" onchange="onCohortParamChanged()" class="w-full font-black text-blue-700 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                  <span class="block text-[10px] text-blue-600 font-bold mt-1">Net Yeni İş: <strong id="lblCohortNetJobs">+13.000</strong></span>
+                </div>
+              </div>
+
+              <!-- Hızlı Butonlar -->
+              <div class="flex items-center justify-between flex-wrap gap-2 pt-1">
+                <button type="button" onclick="applyMertHocaTirePreset()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold py-2 px-3.5 rounded-xl shadow-sm transition flex items-center gap-1.5">
+                  <span>🎯</span> <span>Mert Hoca 1/5000 Standart Değerleri (Baz: 4.90 | Bağımlılık: 1.96 | İstihdam: 32k → 45k | Göç: +25.480)</span>
+                </button>
+                <button type="button" onclick="onCohortParamChanged(true)" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold py-2 px-3 rounded-xl shadow-sm transition flex items-center gap-1.5">
+                  <span>🚀</span> <span>İstihdam ve Göç Projeksiyonunu Güncelle</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- 4 Dependency Badges -->
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
@@ -502,6 +556,112 @@
               </div>
             </div>
           </div>
+
+          <!-- İktisadi Temel ve Göç Projeksiyon Özeti Tablosu -->
+          <div id="cohortSummaryCard" class="hidden bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+            <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between flex-wrap gap-2">
+              <h4 class="text-xs sm:text-sm font-extrabold text-slate-800 flex items-center gap-2">
+                <span>📊</span> <span>İktisadi Temel ve Göç Projeksiyon Özeti (<span id="lblSummaryYear">2040</span>)</span>
+              </h4>
+              <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">Planlama Eşiği Nüfusu = Doğal Nüfus + Göç</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                  <tr>
+                    <th class="py-2.5 px-4 w-1/4">Gösterge</th>
+                    <th class="py-2.5 px-4 text-right w-1/4">Değer</th>
+                    <th class="py-2.5 px-4 w-1/2">Açıklama</th>
+                  </tr>
+                </thead>
+                <tbody id="cohortSummaryTableBody" class="divide-y divide-slate-100 font-medium"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 3 Alternatif Planlama Senaryosu -->
+          <div id="cohortScenariosCard" class="hidden space-y-3">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <h4 class="text-xs sm:text-sm font-extrabold text-slate-800 flex items-center gap-2">
+                <span>🛡️</span> <span>3 Alternatif Planlama Senaryosu (What-If Analizi)</span>
+              </h4>
+              <span class="text-[11px] text-slate-500">Jüride hocaya farklı büyüme koşullarını sunmak için tasarlanmıştır.</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- DÜŞÜK -->
+              <div id="cardScenLow" class="p-4 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col justify-between transition">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-slate-500"></span>
+                    <span class="text-xs font-bold text-slate-700 uppercase">DÜŞÜK (DURGUNLUK)</span>
+                  </div>
+                  <p id="scenLowPop" class="text-2xl font-black text-slate-800 mt-2">-</p>
+                  <p id="scenLowDiff" class="text-xs font-bold text-slate-500 mt-1">Değişim: -</p>
+                  <p class="text-[11px] text-slate-500 mt-2 bg-slate-50 p-2 rounded border border-slate-100">Sıfır göç, sadece demografik doğal yaşlanma (Kuşak-Bileşen kapalı model)</p>
+                </div>
+                <button type="button" onclick="selectPlanningScenario('low')" id="btnScenLow" class="mt-3 w-full py-1.5 px-3 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+                  ✓ Bu Senaryoyu Seç (DÜŞÜK)
+                </button>
+              </div>
+
+              <!-- ORTA -->
+              <div id="cardScenMid" class="p-4 rounded-xl border border-blue-200 bg-white shadow-sm flex flex-col justify-between transition">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+                    <span class="text-xs font-bold text-blue-700 uppercase">ORTA (TREND / REGRESYON)</span>
+                  </div>
+                  <p id="scenMidPop" class="text-2xl font-black text-blue-700 mt-2">-</p>
+                  <p id="scenMidDiff" class="text-xs font-bold text-blue-600 mt-1">Değişim: -</p>
+                  <p id="scenMidDesc" class="text-[11px] text-slate-500 mt-2 bg-blue-50/50 p-2 rounded border border-blue-100">Geçmiş eğilimin analitik devamı (En yüksek uyumlu regresyon modeli)</p>
+                </div>
+                <button type="button" onclick="selectPlanningScenario('mid')" id="btnScenMid" class="mt-3 w-full py-1.5 px-3 rounded-lg text-xs font-bold bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 transition">
+                  ✓ Bu Senaryoyu Seç (ORTA)
+                </button>
+              </div>
+
+              <!-- YÜKSEK -->
+              <div id="cardScenHigh" class="p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50/20 shadow-sm flex flex-col justify-between transition">
+                <div>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="w-3 h-3 rounded-full bg-emerald-600"></span>
+                      <span class="text-xs font-extrabold text-emerald-800 uppercase">YÜKSEK (SANAYİ / VİZYON)</span>
+                    </div>
+                    <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Önerilen</span>
+                  </div>
+                  <p id="scenHighPop" class="text-2xl font-black text-emerald-600 mt-2">-</p>
+                  <p id="scenHighDiff" class="text-xs font-bold text-emerald-600 mt-1">Değişim: -</p>
+                  <p id="scenHighDesc" class="text-[11px] text-slate-600 mt-2 bg-emerald-50 p-2 rounded border border-emerald-100">TOSBİ vb. + İstihdam Çarpanı ile gelen işgücü göçü</p>
+                </div>
+                <button type="button" onclick="selectPlanningScenario('high')" id="btnScenHigh" class="mt-3 w-full py-1.5 px-3 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition shadow-sm">
+                  ✓ Bu Senaryoyu Seç (YÜKSEK)
+                </button>
+              </div>
+            </div>
+
+            <!-- Karşılaştırmalı Analiz Tablosu -->
+            <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm mt-3">
+              <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex items-center justify-between">
+                <h5 class="text-xs font-bold text-slate-700">📑 Planlama Senaryolarının Karşılaştırmalı Analizi (<span id="lblAnalysisYear">2045</span>)</h5>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                    <tr>
+                      <th class="py-2.5 px-3">Senaryo Adı</th>
+                      <th class="py-2.5 px-3 text-right">Öngörülen Nüfus</th>
+                      <th class="py-2.5 px-3 text-right">Artış Oranı (%)</th>
+                      <th class="py-2.5 px-3">Kullanılan Metot & Temel Varsayım</th>
+                      <th class="py-2.5 px-3">Stüdyodaki Rolü</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cohortComparisonTableBody" class="divide-y divide-slate-100"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <!-- ===== TAB 3: HANSEN & MAP (MEKÂNSAL DAĞITIM VE HARİTA) ===== -->
@@ -2335,6 +2495,12 @@
       const multData = state.currentMultiplierData || { bm_lq: 2.850, bm_mg: 2.150 };
       const activeK = state.activeMultiplierMethod === 'MG' ? multData.bm_mg : multData.bm_lq;
 
+      const isEconOn = document.getElementById("chkEnableEconMigration") ? document.getElementById("chkEnableEconMigration").checked : false;
+      const cohortK = (document.getElementById("inpCohortK") ? parseFloat(document.getElementById("inpCohortK").value) : null) || activeK;
+      const cohortB = document.getElementById("inpCohortB") ? parseFloat(document.getElementById("inpCohortB").value) : 1.96;
+      const cohortCurEmp = (document.getElementById("inpCohortCurEmp") ? parseInt(document.getElementById("inpCohortCurEmp").value) : null) || (parseInt(document.getElementById("inpTotalJobs").value) || 33365);
+      const cohortTargetEmp = document.getElementById("inpCohortTargetEmp") ? parseInt(document.getElementById("inpCohortTargetEmp").value) : 0;
+
       const payload = {
         template_key: state.currentTemplateKey,
         province: (topP && topP.value) || undefined,
@@ -2343,9 +2509,12 @@
         base_year: parseInt(document.getElementById("inpBaseYear").value) || 2025,
         target_year_1: parseInt(document.getElementById("inpTargetYear1").value) || 2045,
         target_year_2: parseInt(document.getElementById("inpTargetYear2").value) || 2050,
-        total_jobs: parseInt(document.getElementById("inpTotalJobs").value) || 33365,
+        total_jobs: cohortCurEmp,
+        target_jobs: cohortTargetEmp,
         basic_jobs: parseInt(document.getElementById("inpBasicJobs").value) || 6800,
-        base_multiplier_k: activeK,
+        base_multiplier_k: cohortK,
+        dependency_ratio_b: cohortB,
+        enable_econ_migration: isEconOn,
         new_basic_jobs: parseInt(document.getElementById("inpNewBasicJobs").value) || 2650,
         household_size: parseFloat(document.getElementById("inpHouseholdSize").value) || 2.85,
         alpha: parseFloat(document.getElementById("inpHansenAlpha").value) || 2.0,
@@ -2627,6 +2796,106 @@
       }
     }
 
+    let cohortParamDebounce = null;
+
+    function onToggleEconMigration() {
+      const chk = document.getElementById("chkEnableEconMigration");
+      const isChecked = chk && chk.checked;
+      const pnl = document.getElementById("econControlPanel");
+      const badge = document.getElementById("badgeEconStatus");
+      const summaryCard = document.getElementById("cohortSummaryCard");
+      const scenariosCard = document.getElementById("cohortScenariosCard");
+
+      if (pnl) pnl.classList.toggle("hidden", !isChecked);
+      if (summaryCard) summaryCard.classList.toggle("hidden", !isChecked);
+      if (scenariosCard) scenariosCard.classList.toggle("hidden", !isChecked);
+
+      if (badge) {
+        if (isChecked) {
+          badge.className = "text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+          badge.innerText = "🚀 İktisadi Göç Senaryosu Aktif";
+        } else {
+          badge.className = "text-xs font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-700";
+          badge.innerText = "🌱 Doğal Yaşlanma (Sıfır Göç)";
+        }
+      }
+      recalculate();
+    }
+
+    function onCohortParamChanged(immediate = false) {
+      const curEmp = parseInt(document.getElementById("inpCohortCurEmp").value) || 0;
+      const targetEmp = parseInt(document.getElementById("inpCohortTargetEmp").value) || 0;
+      const net = Math.max(0, targetEmp - curEmp);
+      const lbl = document.getElementById("lblCohortNetJobs");
+      if (lbl) lbl.innerText = `+${net.toLocaleString('tr-TR')}`;
+
+      clearTimeout(cohortParamDebounce);
+      if (immediate) {
+        recalculate();
+      } else {
+        cohortParamDebounce = setTimeout(() => recalculate(), 600);
+      }
+    }
+
+    function applyMertHocaTirePreset() {
+      const chk = document.getElementById("chkEnableEconMigration");
+      if (chk && !chk.checked) {
+        chk.checked = true;
+        onToggleEconMigration();
+      }
+      if (document.getElementById("inpCohortK")) document.getElementById("inpCohortK").value = "4.90";
+      if (document.getElementById("inpCohortB")) document.getElementById("inpCohortB").value = "1.96";
+      if (document.getElementById("inpCohortCurEmp")) document.getElementById("inpCohortCurEmp").value = "32000";
+      if (document.getElementById("inpCohortTargetEmp")) document.getElementById("inpCohortTargetEmp").value = "45000";
+      onCohortParamChanged(true);
+    }
+
+    function selectPlanningScenario(which) {
+      state.selectedPlanningScenario = which;
+      ["low", "mid", "high"].forEach(k => {
+        const card = document.getElementById(`cardScen${k.charAt(0).toUpperCase() + k.slice(1)}`);
+        if (card) {
+          if (k === which) {
+            card.classList.add("ring-2", "ring-offset-2", k === 'high' ? "ring-emerald-500" : (k === 'mid' ? "ring-blue-500" : "ring-slate-500"));
+          } else {
+            card.classList.remove("ring-2", "ring-offset-2", "ring-emerald-500", "ring-blue-500", "ring-slate-500");
+          }
+        }
+      });
+
+      if (state.calculationResult) {
+        const econ = state.calculationResult.economic_base || {};
+        const alts = econ.alternative_scenarios || {};
+        const chosen = alts[which];
+        if (chosen && chosen.population) {
+          const pSuf = (I18N[currentLang] && I18N[currentLang].peopleSuffix) || "Kişi";
+          const numLoc = currentLang === "en" ? "en-US" : "tr-TR";
+          const kpiTarget = document.getElementById("kpiHighPop");
+          if (kpiTarget) {
+            kpiTarget.innerText = `${chosen.population.toLocaleString(numLoc)} ${pSuf}`;
+          }
+        }
+      }
+    }
+
+    function calcDynamicIndicators(mArr, fArr) {
+      if (!mArr || !fArr || mArr.length < 17 || fArr.length < 17) return null;
+      const tot = mArr.map((v, i) => v + (fArr[i] || 0));
+      const child = tot.slice(0, 3).reduce((a, b) => a + b, 0);
+      const working = tot.slice(3, 13).reduce((a, b) => a + b, 0);
+      const elderly = tot.slice(13, 17).reduce((a, b) => a + b, 0);
+      const totDep = working > 0 ? ((child + elderly) / working * 100) : 0;
+      const childDep = working > 0 ? (child / working * 100) : 0;
+      const oldDep = working > 0 ? (elderly / working * 100) : 0;
+      const agingIdx = child > 0 ? (elderly / child * 100) : 0;
+      return {
+        child_dependency_ratio: childDep,
+        elderly_dependency_ratio: oldDep,
+        total_dependency_ratio: totDep,
+        aging_index: agingIdx
+      };
+    }
+
     function onPyramidYearChanged() {
       if (state.calculationResult && state.calculationResult.cohort_results) {
         try { renderCohortTab(state.calculationResult.cohort_results); } catch (e) { console.error(e); }
@@ -2635,19 +2904,13 @@
 
     function renderCohortTab(cohort) {
       if (!cohort) return;
-      const ind = cohort.indicators || {};
-      const childDep = ind.child_dependency_ratio !== undefined ? ind.child_dependency_ratio : 0;
-      const oldDep = ind.elderly_dependency_ratio !== undefined ? ind.elderly_dependency_ratio : (ind.old_age_dependency_ratio !== undefined ? ind.old_age_dependency_ratio : 0);
-      const totDep = ind.total_dependency_ratio !== undefined ? ind.total_dependency_ratio : 0;
-      const agingIdx = ind.aging_index !== undefined ? ind.aging_index : 0;
+      const isEconOn = document.getElementById("chkEnableEconMigration") && document.getElementById("chkEnableEconMigration").checked;
+      const stepsHigh = (cohort.scenarios && cohort.scenarios.high && cohort.scenarios.high.steps) || {};
+      const stepsLow = (cohort.scenarios && cohort.scenarios.low && cohort.scenarios.low.steps) || {};
+      const t1C = (cohort.years && cohort.years.t1) || 2045;
+      const high45 = stepsHigh[t1C] || stepsHigh[String(t1C)] || null;
+      const low45 = stepsLow[t1C] || stepsLow[String(t1C)] || null;
 
-      if (document.getElementById("indChildDep")) document.getElementById("indChildDep").innerText = `%${Number(childDep).toFixed(2)}`;
-      if (document.getElementById("indOldDep")) document.getElementById("indOldDep").innerText = `%${Number(oldDep).toFixed(2)}`;
-      if (document.getElementById("indTotalDep")) document.getElementById("indTotalDep").innerText = `%${Number(totDep).toFixed(2)}`;
-      if (document.getElementById("indAgingIdx")) document.getElementById("indAgingIdx").innerText = `${Number(agingIdx).toFixed(2)}`;
-
-      // Table
-      const tbody = document.getElementById("cohortTableBody");
       const ageGroups = cohort.age_groups || [];
       const mInit = (cohort.initial_pyramid && cohort.initial_pyramid.male) || [];
       const fInit = (cohort.initial_pyramid && cohort.initial_pyramid.female) || [];
@@ -2659,17 +2922,49 @@
         0.9948, 0.9988, 0.9985, 0.9978, 0.9970, 0.9962, 0.9950, 0.9930,
         0.9895, 0.9835, 0.9730, 0.9560, 0.9280, 0.8850, 0.8150, 0.7100, 0.5200
       ];
-      const stepsHigh = (cohort.scenarios && cohort.scenarios.high && cohort.scenarios.high.steps) || {};
-      const t1C = (cohort.years && cohort.years.t1) || 2045;
-      const high45 = stepsHigh[t1C] || stepsHigh[String(t1C)] || null;
 
+      // Pyramid Setup & Year selection
+      const baseC = (cohort.years && cohort.years.base) || cohort.base_year || 2025;
+      const selPy = document.getElementById("selPyramidYear");
+      let chosenY = baseC;
+      if (selPy) {
+        const prevVal = parseInt(selPy.value);
+        const optYears = [baseC].concat((cohort.step_years || []).filter(y => y !== baseC));
+        selPy.innerHTML = optYears.map(y => `<option value="${y}">${y}${y === baseC ? (currentLang === 'en' ? " (Base)" : " (Başlangıç)") : ""}</option>`).join("");
+        chosenY = optYears.indexOf(prevVal) >= 0 ? prevVal : baseC;
+        selPy.value = String(chosenY);
+      }
+      let mP = mInit, fP = fInit;
+      if (chosenY !== baseC) {
+        const activeSteps = isEconOn ? stepsHigh : stepsLow;
+        const st = activeSteps[chosenY] || activeSteps[String(chosenY)] || stepsHigh[chosenY] || stepsHigh[String(chosenY)];
+        if (st) { mP = st.male; fP = st.female; }
+      }
+      const pyLbl = document.getElementById("pyramidYearLabel");
+      if (pyLbl) pyLbl.innerText = chosenY;
+
+      // Dynamic Indicators
+      const curInd = calcDynamicIndicators(mP, fP) || cohort.indicators || {};
+      const childDep = curInd.child_dependency_ratio !== undefined ? curInd.child_dependency_ratio : 0;
+      const oldDep = curInd.elderly_dependency_ratio !== undefined ? curInd.elderly_dependency_ratio : (curInd.old_age_dependency_ratio !== undefined ? curInd.old_age_dependency_ratio : 0);
+      const totDep = curInd.total_dependency_ratio !== undefined ? curInd.total_dependency_ratio : 0;
+      const agingIdx = curInd.aging_index !== undefined ? curInd.aging_index : 0;
+
+      if (document.getElementById("indChildDep")) document.getElementById("indChildDep").innerText = `%${Number(childDep).toFixed(2)}`;
+      if (document.getElementById("indOldDep")) document.getElementById("indOldDep").innerText = `%${Number(oldDep).toFixed(2)}`;
+      if (document.getElementById("indTotalDep")) document.getElementById("indTotalDep").innerText = `%${Number(totDep).toFixed(2)}`;
+      if (document.getElementById("indAgingIdx")) document.getElementById("indAgingIdx").innerText = `${Number(agingIdx).toFixed(2)}`;
+
+      // 5-Year Table
+      const tbody = document.getElementById("cohortTableBody");
+      const activeTargetStep = isEconOn ? high45 : (low45 || high45);
       if (tbody) {
         tbody.innerHTML = "";
         ageGroups.forEach((grp, idx) => {
           const m = mInit[idx] || 0;
           const f = fInit[idx] || 0;
           const tot = m + f;
-          const tot45 = (high45 && high45.male) ? ((high45.male[idx] || 0) + (high45.female[idx] || 0)) : Math.round(tot * 1.15);
+          const totTarget = (activeTargetStep && activeTargetStep.male) ? ((activeTargetStep.male[idx] || 0) + (activeTargetStep.female[idx] || 0)) : Math.round(tot * 1.15);
           const valSxM = (sxM[idx] !== undefined) ? Number(sxM[idx]).toFixed(4) : "0.9900";
           const valSxF = (sxF[idx] !== undefined) ? Number(sxF[idx]).toFixed(4) : "0.9900";
 
@@ -2679,7 +2974,7 @@
             <td class="py-1.5 px-3 text-right text-blue-700 font-medium">${m.toLocaleString('tr-TR')}</td>
             <td class="py-1.5 px-3 text-right text-pink-700 font-medium">${f.toLocaleString('tr-TR')}</td>
             <td class="py-1.5 px-3 text-right font-bold text-slate-800">${tot.toLocaleString('tr-TR')}</td>
-            <td class="py-1.5 px-3 text-right text-emerald-700 font-semibold">${tot45.toLocaleString('tr-TR')}</td>
+            <td class="py-1.5 px-3 text-right text-emerald-700 font-semibold">${totTarget.toLocaleString('tr-TR')}</td>
             <td class="py-1.5 px-3 text-right font-mono text-[11px] text-slate-600">${valSxM}</td>
             <td class="py-1.5 px-3 text-right font-mono text-[11px] text-slate-600">${valSxF}</td>
           `;
@@ -2694,26 +2989,6 @@
           const pCtx = pCanvas.getContext("2d");
           if (pyramidChartInstance) pyramidChartInstance.destroy();
 
-          // Piramit yılı seçici: Başlangıç yılı + her adım yılı (Yüksek Senaryo)
-          const baseC = (cohort.years && cohort.years.base) || cohort.base_year || 2025;
-          const selPy = document.getElementById("selPyramidYear");
-          let chosenY = baseC;
-          if (selPy) {
-            const prevVal = parseInt(selPy.value);
-            const optYears = [baseC].concat((cohort.step_years || []).filter(y => y !== baseC));
-            selPy.innerHTML = optYears.map(y => `<option value="${y}">${y}${y === baseC ? (currentLang === 'en' ? " (Base)" : " (Başlangıç)") : ""}</option>`).join("");
-            chosenY = optYears.indexOf(prevVal) >= 0 ? prevVal : baseC;
-            selPy.value = String(chosenY);
-          }
-          let mP = mInit, fP = fInit;
-          if (chosenY !== baseC) {
-            const st = stepsHigh[chosenY] || stepsHigh[String(chosenY)];
-            if (st) { mP = st.male; fP = st.female; }
-          }
-          const pyLbl = document.getElementById("pyramidYearLabel");
-          if (pyLbl) pyLbl.innerText = chosenY;
-
-          // Negative values for male so they render to the left
           const maleData = mP.map(v => -v);
           const femaleData = [...fP];
 
@@ -2763,6 +3038,91 @@
         }
       } catch (err) {
         console.error("Pyramid chart render error:", err);
+      }
+
+      // Summary Table & Alternative Scenarios
+      const econ = (state.calculationResult && state.calculationResult.economic_base) || {};
+      const sumTab = econ.summary_table || {};
+      const alts = econ.alternative_scenarios || {};
+      const tYear = sumTab.target_year || t1C;
+
+      const lblSumY = document.getElementById("lblSummaryYear");
+      if (lblSumY) lblSumY.innerText = tYear;
+      const lblAnaY = document.getElementById("lblAnalysisYear");
+      if (lblAnaY) lblAnaY.innerText = tYear;
+
+      const sumTbody = document.getElementById("cohortSummaryTableBody");
+      if (sumTbody && sumTab.base_pop) {
+        sumTbody.innerHTML = `
+          <tr>
+            <td class="py-2.5 px-4 font-bold text-slate-800">${sumTab.base_year || 2025} Gözlenen Nüfus</td>
+            <td class="py-2.5 px-4 text-right font-black text-slate-900">${(sumTab.base_pop || 0).toLocaleString('tr-TR')}</td>
+            <td class="py-2.5 px-4 text-slate-500">Mevcut demografik taban</td>
+          </tr>
+          <tr>
+            <td class="py-2.5 px-4 font-bold text-blue-800">${tYear} Doğal Nüfus (Kuşak-Bileşen)</td>
+            <td class="py-2.5 px-4 text-right font-black text-blue-700">${(sumTab.natural_pop || 0).toLocaleString('tr-TR')}</td>
+            <td class="py-2.5 px-4 text-slate-500">Doğum ve ölüm katsayılarına göre beklenen doğal nüfus</td>
+          </tr>
+          <tr>
+            <td class="py-2.5 px-4 font-bold text-slate-800">Mevcut İstihdam → Hedef İstihdam</td>
+            <td class="py-2.5 px-4 text-right font-bold text-slate-800">${(sumTab.current_jobs || 0).toLocaleString('tr-TR')} → ${(sumTab.target_jobs || 0).toLocaleString('tr-TR')}</td>
+            <td class="py-2.5 px-4 text-slate-600 font-semibold">Net Yeni İstihdam: <span class="text-blue-700 font-extrabold">+${(sumTab.net_jobs || 0).toLocaleString('tr-TR')}</span> çalışan</td>
+          </tr>
+          <tr>
+            <td class="py-2.5 px-4 font-bold text-slate-800">Baz Çarpanı & Bağımlılık Oranı</td>
+            <td class="py-2.5 px-4 text-right font-mono font-bold text-slate-700">${sumTab.multiplier_k} | ${sumTab.dependency_b}</td>
+            <td class="py-2.5 px-4 text-slate-500">İstihdam artışının kent nüfusuna yansıma katsayısı</td>
+          </tr>
+          <tr class="bg-amber-50/60">
+            <td class="py-2.5 px-4 font-bold text-amber-900">Göç ile Gelecek Nüfus</td>
+            <td class="py-2.5 px-4 text-right font-black text-amber-700">+${(sumTab.migrant_pop || 0).toLocaleString('tr-TR')}</td>
+            <td class="py-2.5 px-4 text-amber-800 font-medium">Yeni istihdam × Bağımlılık katsayısı</td>
+          </tr>
+          <tr class="bg-emerald-50 font-bold border-t-2 border-emerald-300">
+            <td class="py-3 px-4 font-black text-emerald-900">TOPLAM PROJEKTE NÜFUS (${tYear})</td>
+            <td class="py-3 px-4 text-right font-black text-emerald-700 text-sm">${(sumTab.total_plan_pop || 0).toLocaleString('tr-TR')}</td>
+            <td class="py-3 px-4 text-emerald-800 font-extrabold">Planlama Eşiği Nüfusu (Doğal + Göç)</td>
+          </tr>
+        `;
+      }
+
+      if (alts.low && alts.mid && alts.high) {
+        if (document.getElementById("scenLowPop")) document.getElementById("scenLowPop").innerText = (alts.low.population || 0).toLocaleString('tr-TR');
+        if (document.getElementById("scenLowDiff")) document.getElementById("scenLowDiff").innerText = `Değişim: %${alts.low.diff_pct}`;
+
+        if (document.getElementById("scenMidPop")) document.getElementById("scenMidPop").innerText = (alts.mid.population || 0).toLocaleString('tr-TR');
+        if (document.getElementById("scenMidDiff")) document.getElementById("scenMidDiff").innerText = `Değişim: %+${alts.mid.diff_pct}`;
+
+        if (document.getElementById("scenHighPop")) document.getElementById("scenHighPop").innerText = (alts.high.population || 0).toLocaleString('tr-TR');
+        if (document.getElementById("scenHighDiff")) document.getElementById("scenHighDiff").innerText = `Değişim: %+${alts.high.diff_pct}`;
+
+        const compTbody = document.getElementById("cohortComparisonTableBody");
+        if (compTbody) {
+          compTbody.innerHTML = `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="py-2.5 px-3 font-bold text-slate-700">${alts.low.title}</td>
+              <td class="py-2.5 px-3 text-right font-black text-slate-800">${(alts.low.population || 0).toLocaleString('tr-TR')}</td>
+              <td class="py-2.5 px-3 text-right font-bold text-slate-600">%${alts.low.diff_pct}</td>
+              <td class="py-2.5 px-3 text-slate-600">${alts.low.assumption}</td>
+              <td class="py-2.5 px-3 text-slate-500 font-medium">${alts.low.role}</td>
+            </tr>
+            <tr class="hover:bg-blue-50/40 text-blue-900 transition">
+              <td class="py-2.5 px-3 font-bold text-blue-800">${alts.mid.title}</td>
+              <td class="py-2.5 px-3 text-right font-black text-blue-700">${(alts.mid.population || 0).toLocaleString('tr-TR')}</td>
+              <td class="py-2.5 px-3 text-right font-bold text-blue-600">%+${alts.mid.diff_pct}</td>
+              <td class="py-2.5 px-3 text-slate-600">${alts.mid.assumption}</td>
+              <td class="py-2.5 px-3 text-slate-500 font-medium">${alts.mid.role}</td>
+            </tr>
+            <tr class="hover:bg-emerald-50/60 bg-emerald-50/30 text-emerald-950 font-bold border-t border-emerald-200 transition">
+              <td class="py-2.5 px-3 font-black text-emerald-800">${alts.high.title} (Önerilen)</td>
+              <td class="py-2.5 px-3 text-right font-black text-emerald-700 text-sm">${(alts.high.population || 0).toLocaleString('tr-TR')}</td>
+              <td class="py-2.5 px-3 text-right font-black text-emerald-700">%+${alts.high.diff_pct}</td>
+              <td class="py-2.5 px-3 text-emerald-900">${alts.high.assumption}</td>
+              <td class="py-2.5 px-3 text-emerald-800 font-extrabold">${alts.high.role}</td>
+            </tr>
+          `;
+        }
       }
     }
 
