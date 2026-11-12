@@ -460,33 +460,57 @@
               <span id="badgeEconStatus" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-700">🌱 Doğal Yaşlanma (Sıfır Göç)</span>
             </div>
 
-            <!-- Tek ve Sade Kontrol Paneli (Sekmesiz, Evrensel) -->
+            <!-- Tek ve Sade Kontrol Paneli (Evrensel, Granüler Tik Seçimli) -->
             <div id="econControlPanel" class="hidden mt-4 pt-4 border-t border-blue-200/80 space-y-3">
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
-                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Baz Çarpanı (Multiplier k):</label>
-                  <input type="number" id="inpCohortK" step="0.01" min="1.0" max="15.0" value="4.90" onchange="onCohortParamChanged()" class="w-full font-black text-slate-900 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
-                  <span class="block text-[10px] text-slate-400 mt-1">1 temel çalışan başına toplam iş</span>
+                <!-- 1. Baz Çarpanı k -->
+                <div id="cardCohortK" class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm transition">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <label for="inpCohortK" class="text-[11px] font-bold text-slate-700 cursor-pointer select-none">Baz Çarpanı (k):</label>
+                    <input type="checkbox" id="chkUseCohortK" checked onchange="onToggleParamCard('k')" title="Baz Çarpanını dahil et / çıkar" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer">
+                  </div>
+                  <input type="number" id="inpCohortK" step="0.01" min="1.0" max="15.0" value="4.90" onchange="onCohortParamChanged()" class="w-full font-black text-slate-900 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 transition">
+                  <span id="subCohortK" class="block text-[10px] text-slate-400 mt-1">1 temel çalışan başına toplam iş</span>
                 </div>
-                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Bağımlılık Oranı (b):</label>
-                  <input type="number" id="inpCohortB" step="0.01" min="0.5" max="10.0" value="1.96" onchange="onCohortParamChanged()" class="w-full font-black text-slate-900 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
-                  <span class="block text-[10px] text-slate-400 mt-1">1 çalışan başına kentsel nüfus yükü</span>
+
+                <!-- 2. Bağımlılık Oranı b -->
+                <div id="cardCohortB" class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm transition">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <label for="inpCohortB" class="text-[11px] font-bold text-slate-700 cursor-pointer select-none">Bağımlılık Oranı (b):</label>
+                    <input type="checkbox" id="chkUseCohortB" checked onchange="onToggleParamCard('b')" title="Bağımlılık Oranını dahil et / çıkar" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer">
+                  </div>
+                  <input type="number" id="inpCohortB" step="0.01" min="0.5" max="10.0" value="1.96" onchange="onCohortParamChanged()" class="w-full font-black text-slate-900 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 transition">
+                  <span id="subCohortB" class="block text-[10px] text-slate-400 mt-1">1 çalışan başına nüfus yükü</span>
                 </div>
-                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Mevcut İstihdam:</label>
-                  <input type="number" id="inpCohortCurEmp" step="500" min="1000" value="32000" onchange="onCohortParamChanged()" class="w-full font-black text-slate-900 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
-                  <span class="block text-[10px] text-slate-400 mt-1">Başlangıç yılı mevcut istihdamı</span>
+
+                <!-- 3. Mevcut İstihdam -->
+                <div id="cardCohortCurEmp" class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm transition">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <label for="inpCohortCurEmp" class="text-[11px] font-bold text-slate-700 cursor-pointer select-none">Mevcut İstihdam:</label>
+                    <input type="checkbox" id="chkUseCohortCurEmp" checked onchange="onToggleParamCard('curEmp')" title="Mevcut İstihdamı dahil et / çıkar" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer">
+                  </div>
+                  <input type="number" id="inpCohortCurEmp" step="500" min="1000" value="32000" onchange="onCohortParamChanged()" class="w-full font-black text-slate-900 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 transition">
+                  <span id="subCohortCurEmp" class="block text-[10px] text-slate-400 mt-1">Başlangıç yılı mevcut istihdamı</span>
                 </div>
-                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Hedef Yıl İstihdamı:</label>
-                  <input type="number" id="inpCohortTargetEmp" step="500" min="1000" value="45000" onchange="onCohortParamChanged()" class="w-full font-black text-blue-700 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
-                  <span class="block text-[10px] text-blue-600 font-bold mt-1">Net Yeni İş: <strong id="lblCohortNetJobs">+13.000</strong></span>
+
+                <!-- 4. Hedef Yıl İstihdamı -->
+                <div id="cardCohortTargetEmp" class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm transition">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <label for="inpCohortTargetEmp" class="text-[11px] font-bold text-slate-700 cursor-pointer select-none">Hedef Yıl İstihdamı:</label>
+                    <input type="checkbox" id="chkUseCohortTargetEmp" checked onchange="onToggleParamCard('targetEmp')" title="Hedef İstihdamı dahil et / çıkar" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer">
+                  </div>
+                  <input type="number" id="inpCohortTargetEmp" step="500" min="1000" value="45000" onchange="onCohortParamChanged()" class="w-full font-black text-blue-700 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 transition">
+                  <span id="subCohortTargetEmp" class="block text-[10px] text-blue-600 font-bold mt-1">Net Yeni İş: <strong id="lblCohortNetJobs">+13.000</strong></span>
                 </div>
-                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
-                  <label class="block text-[11px] font-bold text-slate-700 mb-1">Yıllık Net Göç Hızı (%):</label>
-                  <input type="number" id="inpCohortMigRate" step="0.05" min="-5.0" max="10.0" value="1.82" oninput="onMigRateOnlyChanged()" class="w-full font-black text-emerald-700 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
-                  <span class="block text-[10px] text-emerald-600 font-bold mt-1">Toplam Göç: <strong id="lblCohortTotalMig">+25.480</strong></span>
+
+                <!-- 5. Yıllık Net Göç Hızı (%) -->
+                <div id="cardCohortMigRate" class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm transition">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <label for="inpCohortMigRate" class="text-[11px] font-bold text-slate-700 cursor-pointer select-none">Yıllık Net Göç Hızı (%):</label>
+                    <input type="checkbox" id="chkUseCohortMigRate" checked onchange="onToggleParamCard('migRate')" title="Yıllık Net Göç Hızını dahil et / çıkar" class="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500 cursor-pointer">
+                  </div>
+                  <input type="number" id="inpCohortMigRate" step="0.05" min="-5.0" max="10.0" value="1.82" oninput="onMigRateOnlyChanged()" class="w-full font-black text-emerald-700 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 transition">
+                  <span id="subCohortMigRate" class="block text-[10px] text-emerald-600 font-bold mt-1">Toplam Göç: <strong id="lblCohortTotalMig">+25.480</strong></span>
                 </div>
               </div>
 
@@ -2502,6 +2526,12 @@
 
       const isEconOn = document.getElementById("chkEnableEconMigration") ? document.getElementById("chkEnableEconMigration").checked : false;
       const migMode = state.migrationSubtab || 'emp';
+      const useK = document.getElementById("chkUseCohortK") ? document.getElementById("chkUseCohortK").checked : true;
+      const useB = document.getElementById("chkUseCohortB") ? document.getElementById("chkUseCohortB").checked : true;
+      const useCurEmp = document.getElementById("chkUseCohortCurEmp") ? document.getElementById("chkUseCohortCurEmp").checked : true;
+      const useTargetEmp = document.getElementById("chkUseCohortTargetEmp") ? document.getElementById("chkUseCohortTargetEmp").checked : true;
+      const useMigRate = document.getElementById("chkUseCohortMigRate") ? document.getElementById("chkUseCohortMigRate").checked : true;
+
       const cohortK = (document.getElementById("inpCohortK") ? parseFloat(document.getElementById("inpCohortK").value) : null) || activeK;
       const cohortB = document.getElementById("inpCohortB") ? parseFloat(document.getElementById("inpCohortB").value) : 1.96;
       const cohortCurEmp = (document.getElementById("inpCohortCurEmp") ? parseInt(document.getElementById("inpCohortCurEmp").value) : null) || (parseInt(document.getElementById("inpTotalJobs").value) || 33365);
@@ -2523,6 +2553,11 @@
         base_multiplier_k: cohortK,
         dependency_ratio_b: cohortB,
         enable_econ_migration: isEconOn,
+        use_k: useK,
+        use_b: useB,
+        use_cur_emp: useCurEmp,
+        use_target_emp: useTargetEmp,
+        use_mig_rate: useMigRate,
         migration_mode: migMode,
         migration_rate_pct: migRatePct,
         direct_migrant_pop: migTotal,
@@ -2855,30 +2890,111 @@
       recalculate();
     }
 
-    function onCohortParamChanged(immediate = false) {
-      const curEmp = parseInt(document.getElementById("inpCohortCurEmp").value) || 0;
-      const targetEmp = parseInt(document.getElementById("inpCohortTargetEmp").value) || 0;
-      const net = Math.max(0, targetEmp - curEmp);
-      const lbl = document.getElementById("lblCohortNetJobs");
-      if (lbl) lbl.innerText = `+${net.toLocaleString('tr-TR')}`;
+    function onToggleParamCard(param) {
+      const map = {
+        'k': { chk: 'chkUseCohortK', inp: 'inpCohortK', card: 'cardCohortK', sub: 'subCohortK' },
+        'b': { chk: 'chkUseCohortB', inp: 'inpCohortB', card: 'cardCohortB', sub: 'subCohortB' },
+        'curEmp': { chk: 'chkUseCohortCurEmp', inp: 'inpCohortCurEmp', card: 'cardCohortCurEmp', sub: 'subCohortCurEmp' },
+        'targetEmp': { chk: 'chkUseCohortTargetEmp', inp: 'inpCohortTargetEmp', card: 'cardCohortTargetEmp', sub: 'subCohortTargetEmp' },
+        'migRate': { chk: 'chkUseCohortMigRate', inp: 'inpCohortMigRate', card: 'cardCohortMigRate', sub: 'subCohortMigRate' }
+      };
 
-      const bRatio = parseFloat(document.getElementById("inpCohortB").value) || 1.96;
-      const migPop = Math.round(net * bRatio);
+      const item = map[param];
+      if (item) {
+        const chk = document.getElementById(item.chk);
+        const inp = document.getElementById(item.inp);
+        const card = document.getElementById(item.card);
+        const isChecked = chk ? chk.checked : true;
+        if (inp) {
+          inp.disabled = !isChecked;
+          if (!isChecked) {
+            inp.classList.add("bg-slate-100", "text-slate-400", "opacity-60", "cursor-not-allowed");
+            inp.classList.remove("bg-slate-50", "text-slate-900", "text-blue-700", "text-emerald-700");
+          } else {
+            inp.classList.remove("bg-slate-100", "text-slate-400", "opacity-60", "cursor-not-allowed");
+            inp.classList.add("bg-slate-50");
+            if (param === 'targetEmp') inp.classList.add("text-blue-700");
+            else if (param === 'migRate') inp.classList.add("text-emerald-700");
+            else inp.classList.add("text-slate-900");
+          }
+        }
+        if (card) {
+          if (!isChecked) {
+            card.classList.add("opacity-60", "bg-slate-50/60");
+          } else {
+            card.classList.remove("opacity-60", "bg-slate-50/60");
+          }
+        }
+      }
+
+      onCohortParamChanged(true);
+    }
+
+    function onCohortParamChanged(immediate = false) {
+      const useK = document.getElementById("chkUseCohortK") ? document.getElementById("chkUseCohortK").checked : true;
+      const useB = document.getElementById("chkUseCohortB") ? document.getElementById("chkUseCohortB").checked : true;
+      const useCurEmp = document.getElementById("chkUseCohortCurEmp") ? document.getElementById("chkUseCohortCurEmp").checked : true;
+      const useTargetEmp = document.getElementById("chkUseCohortTargetEmp") ? document.getElementById("chkUseCohortTargetEmp").checked : true;
+      const useMigRate = document.getElementById("chkUseCohortMigRate") ? document.getElementById("chkUseCohortMigRate").checked : true;
+
       const basePop = parseInt(document.getElementById("inpBasePop").value) || 87528;
       const baseYear = parseInt(document.getElementById("inpBaseYear").value) || 2025;
       const targetYear = parseInt(document.getElementById("inpTargetYear1").value) || 2040;
       const yearsDiff = Math.max(1, targetYear - baseYear);
-      const annRate = (((migPop / yearsDiff) / basePop) * 100.0).toFixed(2);
+      const bRatio = useB ? (parseFloat(document.getElementById("inpCohortB").value) || 1.96) : 1.0;
 
-      const inpRate = document.getElementById("inpCohortMigRate");
-      if (inpRate) inpRate.value = annRate;
+      const curEmp = useCurEmp ? (parseInt(document.getElementById("inpCohortCurEmp").value) || 0) : 0;
+      const targetEmp = parseInt(document.getElementById("inpCohortTargetEmp").value) || 0;
+      const net = useTargetEmp ? Math.max(0, targetEmp - curEmp) : 0;
 
-      const lblTot = document.getElementById("lblCohortTotalMig");
-      if (lblTot) lblTot.innerText = `+${migPop.toLocaleString('tr-TR')}`;
+      const lblJobs = document.getElementById("lblCohortNetJobs");
+      if (lblJobs) {
+        lblJobs.innerText = useTargetEmp ? `+${net.toLocaleString('tr-TR')}` : `(Devre Dışı)`;
+      }
 
-      const eqBadge = document.getElementById("lblEmpEquivBadge");
-      if (eqBadge) {
-        eqBadge.innerText = `📊 Net Yeni İstihdam: +${net.toLocaleString('tr-TR')} | Göç ile Gelecek Nüfus: +${migPop.toLocaleString('tr-TR')} Kişi`;
+      let migPop = 0;
+      let annRate = "0.00";
+
+      if (!useTargetEmp && !useMigRate) {
+        migPop = 0;
+        annRate = "0.00";
+        const lblTot = document.getElementById("lblCohortTotalMig");
+        if (lblTot) lblTot.innerText = "(Devre Dışı)";
+        const eqBadge = document.getElementById("lblEmpEquivBadge");
+        if (eqBadge) {
+          eqBadge.innerText = `ℹ️ Göç ve İstihdam parametreleri devre dışı — Doğal Projeksiyon hesaplanıyor.`;
+        }
+      } else if (useMigRate && !useTargetEmp) {
+        const inpRate = document.getElementById("inpCohortMigRate");
+        const rateVal = parseFloat(inpRate ? inpRate.value : 0) || 0.0;
+        migPop = Math.round(basePop * (rateVal / 100.0) * yearsDiff);
+        annRate = rateVal.toFixed(2);
+        const lblTot = document.getElementById("lblCohortTotalMig");
+        if (lblTot) lblTot.innerText = `${migPop >= 0 ? '+' : ''}${migPop.toLocaleString('tr-TR')}`;
+        const eqBadge = document.getElementById("lblEmpEquivBadge");
+        if (eqBadge) {
+          eqBadge.innerText = `📊 Sadece Yıllık Göç Hızı Aktif: %${annRate} | Toplam Göç: ${migPop >= 0 ? '+' : ''}${migPop.toLocaleString('tr-TR')} Kişi`;
+        }
+      } else if (useTargetEmp && !useMigRate) {
+        migPop = Math.round(net * bRatio);
+        annRate = (((migPop / yearsDiff) / basePop) * 100.0).toFixed(2);
+        const lblTot = document.getElementById("lblCohortTotalMig");
+        if (lblTot) lblTot.innerText = `+${migPop.toLocaleString('tr-TR')}`;
+        const eqBadge = document.getElementById("lblEmpEquivBadge");
+        if (eqBadge) {
+          eqBadge.innerText = `📊 Sadece Hedef İstihdam Aktif: +${net.toLocaleString('tr-TR')} İş | Nüfus Etkisi: +${migPop.toLocaleString('tr-TR')} Kişi`;
+        }
+      } else {
+        migPop = Math.round(net * bRatio);
+        annRate = (((migPop / yearsDiff) / basePop) * 100.0).toFixed(2);
+        const inpRate = document.getElementById("inpCohortMigRate");
+        if (inpRate) inpRate.value = annRate;
+        const lblTot = document.getElementById("lblCohortTotalMig");
+        if (lblTot) lblTot.innerText = `+${migPop.toLocaleString('tr-TR')}`;
+        const eqBadge = document.getElementById("lblEmpEquivBadge");
+        if (eqBadge) {
+          eqBadge.innerText = `📊 Net Yeni İstihdam: +${net.toLocaleString('tr-TR')} | Göç ile Gelecek Nüfus: +${migPop.toLocaleString('tr-TR')} Kişi`;
+        }
       }
 
       clearTimeout(cohortParamDebounce);
@@ -2890,6 +3006,10 @@
     }
 
     function onMigRateOnlyChanged() {
+      const useTargetEmp = document.getElementById("chkUseCohortTargetEmp") ? document.getElementById("chkUseCohortTargetEmp").checked : true;
+      const useMigRate = document.getElementById("chkUseCohortMigRate") ? document.getElementById("chkUseCohortMigRate").checked : true;
+      if (!useMigRate) return;
+
       const basePop = parseInt(document.getElementById("inpBasePop").value) || 87528;
       const baseYear = parseInt(document.getElementById("inpBaseYear").value) || 2025;
       const targetYear = parseInt(document.getElementById("inpTargetYear1").value) || 2040;
@@ -2904,16 +3024,22 @@
 
       const bRatio = parseFloat(document.getElementById("inpCohortB").value) || 1.96;
       const equivNetEmp = Math.round(totalMig / bRatio);
-      const curEmp = parseInt(document.getElementById("inpCohortCurEmp").value) || 32000;
-      const inpTargetEmp = document.getElementById("inpCohortTargetEmp");
-      if (inpTargetEmp) inpTargetEmp.value = curEmp + equivNetEmp;
 
-      const lblJobs = document.getElementById("lblCohortNetJobs");
-      if (lblJobs) lblJobs.innerText = `${equivNetEmp >= 0 ? '+' : ''}${equivNetEmp.toLocaleString('tr-TR')}`;
+      if (useTargetEmp) {
+        const curEmp = parseInt(document.getElementById("inpCohortCurEmp").value) || 32000;
+        const inpTargetEmp = document.getElementById("inpCohortTargetEmp");
+        if (inpTargetEmp) inpTargetEmp.value = curEmp + equivNetEmp;
+        const lblJobs = document.getElementById("lblCohortNetJobs");
+        if (lblJobs) lblJobs.innerText = `${equivNetEmp >= 0 ? '+' : ''}${equivNetEmp.toLocaleString('tr-TR')}`;
+      }
 
       const eqBadge = document.getElementById("lblEmpEquivBadge");
       if (eqBadge) {
-        eqBadge.innerText = `📊 Net Yeni İstihdam: +${equivNetEmp.toLocaleString('tr-TR')} | Göç ile Gelecek Nüfus: +${totalMig.toLocaleString('tr-TR')} Kişi`;
+        if (useTargetEmp) {
+          eqBadge.innerText = `📊 Net Yeni İstihdam: +${equivNetEmp.toLocaleString('tr-TR')} | Göç ile Gelecek Nüfus: +${totalMig.toLocaleString('tr-TR')} Kişi`;
+        } else {
+          eqBadge.innerText = `📊 Yıllık Net Göç Hızı: %${rateVal.toFixed(2)} | Toplam Göç: ${totalMig >= 0 ? '+' : ''}${totalMig.toLocaleString('tr-TR')} Kişi`;
+        }
       }
 
       clearTimeout(cohortParamDebounce);

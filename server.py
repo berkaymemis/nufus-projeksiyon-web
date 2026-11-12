@@ -476,33 +476,43 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
             raw_enable_mig = req.get("enable_econ_migration")
             enable_econ_mig = True if raw_enable_mig is None else bool(raw_enable_mig)
 
+            # Granular param toggles from individual card checkboxes
+            use_k = bool(req.get("use_k", True))
+            use_b = bool(req.get("use_b", True))
+            use_cur_emp = bool(req.get("use_cur_emp", True))
+            use_target_emp = bool(req.get("use_target_emp", True))
+            use_mig_rate = bool(req.get("use_mig_rate", True))
+
             econ_ratios = EconomicBaseEngine.calculate_ratios(base_pop, tot_jobs, basic_jobs)
-            k_mult = float(req.get("base_multiplier_k", econ_ratios["base_multiplier_k"]))
-            b_ratio = float(req.get("dependency_ratio_b", econ_ratios["dependency_ratio_b"]))
+            k_mult = float(req.get("base_multiplier_k", econ_ratios["base_multiplier_k"])) if use_k else 1.0
+            b_ratio = float(req.get("dependency_ratio_b", econ_ratios["dependency_ratio_b"])) if use_b else 1.0
 
-            if target_jobs > tot_jobs:
-                net_new_emp = target_jobs - tot_jobs
-                new_basic = max(1, int(net_new_emp / max(1.0, k_mult)))
-            else:
-                net_new_emp = int(new_basic * k_mult)
+            if not use_cur_emp:
+                tot_jobs = 0
 
-            mig_mode = req.get("migration_mode", "employment")
+            years_diff = max(1, target_1 - base_year)
             direct_mig_pop = req.get("direct_migrant_pop")
             mig_rate_pct = req.get("migration_rate_pct")
-            years_diff = max(1, target_1 - base_year)
 
-            if enable_econ_mig and mig_mode == "rate" and (direct_mig_pop is not None or mig_rate_pct is not None):
-                if direct_mig_pop is not None and int(direct_mig_pop) > 0:
-                    migrant_pop = int(direct_mig_pop)
-                    calc_rate = round((migrant_pop / years_diff) / base_pop * 100.0, 2)
-                else:
-                    rate_val = float(mig_rate_pct or 0.0)
-                    migrant_pop = round(base_pop * (rate_val / 100.0) * years_diff)
-                    calc_rate = rate_val
-
-                net_new_emp = round(migrant_pop / max(0.5, b_ratio))
-                new_basic = max(1, int(net_new_emp / max(1.0, k_mult)))
-
+            if not enable_econ_mig or (not use_target_emp and not use_mig_rate):
+                econ_mig = {
+                    "new_basic_jobs": 0,
+                    "base_multiplier_k": round(k_mult, 3),
+                    "dependency_ratio_b": round(b_ratio, 3),
+                    "total_new_jobs": 0,
+                    "non_basic_new_jobs": 0,
+                    "total_migrant_pop": 0,
+                    "plan_share_pct": 100.0,
+                    "plan_migrant_pop": 0,
+                    "annual_migration_rate": 0.0,
+                    "formula_summary": "Doğal Projeksiyon (Seçili Göç/İstihdam Müdahalesi Yok)"
+                }
+            elif use_mig_rate and not use_target_emp:
+                rate_val = float(mig_rate_pct if mig_rate_pct is not None else 1.82)
+                migrant_pop = round(base_pop * (rate_val / 100.0) * years_diff)
+                calc_rate = rate_val
+                net_new_emp = round(migrant_pop / max(0.5, b_ratio)) if use_b else migrant_pop
+                new_basic = max(1, int(net_new_emp / max(1.0, k_mult))) if use_k else net_new_emp
                 econ_mig = {
                     "new_basic_jobs": new_basic,
                     "base_multiplier_k": round(k_mult, 3),
@@ -515,30 +525,51 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
                     "annual_migration_rate": calc_rate,
                     "formula_summary": f"Yıllık Net Göç Hızı: %{calc_rate:.2f} (Yılda {round(migrant_pop / years_diff):,} Kişi) --> Toplam Göç: {migrant_pop:,} Kişi"
                 }
-            elif enable_econ_mig:
-                econ_mig = EconomicBaseEngine.project_employment_migration(
-                    new_basic_jobs=new_basic,
-                    base_multiplier_k=k_mult,
-                    dependency_ratio_b=b_ratio
-                )
-                if target_jobs > tot_jobs:
-                    econ_mig["total_new_jobs"] = net_new_emp
-                    econ_mig["total_migrant_pop"] = round(net_new_emp * b_ratio)
-                    econ_mig["plan_migrant_pop"] = round(net_new_emp * b_ratio)
-                calc_rate = round((econ_mig["plan_migrant_pop"] / years_diff) / base_pop * 100.0, 2)
-                econ_mig["annual_migration_rate"] = calc_rate
-            else:
+            elif use_target_emp and not use_mig_rate:
+                net_new_emp = max(0, target_jobs - tot_jobs)
+                new_basic = max(1, int(net_new_emp / max(1.0, k_mult))) if use_k else net_new_emp
+                migrant_pop = round(net_new_emp * b_ratio) if use_b else net_new_emp
+                calc_rate = round((migrant_pop / years_diff) / base_pop * 100.0, 2)
                 econ_mig = {
-                    "new_basic_jobs": 0,
+                    "new_basic_jobs": new_basic,
                     "base_multiplier_k": round(k_mult, 3),
                     "dependency_ratio_b": round(b_ratio, 3),
-                    "total_new_jobs": 0,
-                    "non_basic_new_jobs": 0,
-                    "total_migrant_pop": 0,
+                    "total_new_jobs": net_new_emp,
+                    "non_basic_new_jobs": max(0, net_new_emp - new_basic),
+                    "total_migrant_pop": migrant_pop,
                     "plan_share_pct": 100.0,
-                    "plan_migrant_pop": 0,
-                    "annual_migration_rate": 0.0,
-                    "formula_summary": "Doğal Senaryo (İktisadi göç etkinleştirilmedi)"
+                    "plan_migrant_pop": migrant_pop,
+                    "annual_migration_rate": calc_rate,
+                    "formula_summary": f"Hedef İstihdam Artışı: +{net_new_emp:,} İş --> Toplam Göç: {migrant_pop:,} Kişi (Yıllık %{calc_rate:.2f})"
+                }
+            else:
+                mig_mode = req.get("migration_mode", "employment")
+                if mig_mode == "rate" and mig_rate_pct is not None:
+                    rate_val = float(mig_rate_pct)
+                    migrant_pop = round(base_pop * (rate_val / 100.0) * years_diff)
+                    calc_rate = rate_val
+                    net_new_emp = round(migrant_pop / max(0.5, b_ratio)) if use_b else migrant_pop
+                    new_basic = max(1, int(net_new_emp / max(1.0, k_mult))) if use_k else net_new_emp
+                else:
+                    if target_jobs > tot_jobs:
+                        net_new_emp = target_jobs - tot_jobs
+                        new_basic = max(1, int(net_new_emp / max(1.0, k_mult))) if use_k else net_new_emp
+                    else:
+                        net_new_emp = int(new_basic * k_mult)
+                    migrant_pop = round(net_new_emp * b_ratio) if use_b else net_new_emp
+                    calc_rate = round((migrant_pop / years_diff) / base_pop * 100.0, 2)
+
+                econ_mig = {
+                    "new_basic_jobs": new_basic,
+                    "base_multiplier_k": round(k_mult, 3),
+                    "dependency_ratio_b": round(b_ratio, 3),
+                    "total_new_jobs": net_new_emp,
+                    "non_basic_new_jobs": max(0, net_new_emp - new_basic),
+                    "total_migrant_pop": migrant_pop,
+                    "plan_share_pct": 100.0,
+                    "plan_migrant_pop": migrant_pop,
+                    "annual_migration_rate": calc_rate,
+                    "formula_summary": f"Net Yeni İstihdam: +{net_new_emp:,} | Yıllık Göç Hızı: %{calc_rate:.2f} --> Toplam Göç: {migrant_pop:,} Kişi"
                 }
 
             # High scenario targets
