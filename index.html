@@ -50,22 +50,20 @@
     }
     #leafletMap { height: 420px; width: 100%; border-radius: 1.5rem; z-index: 10; }
     @media (max-width: 640px) { #leafletMap { height: 320px; } }
+    .leaflet-container { border-radius: 1.25rem; }
     .leaflet-tooltip.h3-hover-tooltip {
-      background: rgba(255, 255, 255, 0.97) !important;
-      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.96) !important;
+      backdrop-filter: blur(8px);
       border: 1px solid rgba(15, 23, 42, 0.12) !important;
-      border-radius: 14px !important;
-      box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.18), 0 4px 10px -3px rgba(15, 23, 42, 0.08) !important;
-      padding: 10px 12px !important;
+      border-radius: 12px !important;
+      box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.16) !important;
+      padding: 8px 10px !important;
       color: #0f172a !important;
       pointer-events: none !important;
       white-space: normal !important;
-      min-width: 225px;
-      max-width: 290px;
-      z-index: 900 !important;
-    }
-    .leaflet-tooltip-top.h3-hover-tooltip::before {
-      border-top-color: rgba(255, 255, 255, 0.97) !important;
+      min-width: 195px;
+      max-width: 245px;
+      z-index: 1000 !important;
     }
   </style>
 </head>
@@ -762,7 +760,7 @@
               </div>
 
               <!-- The Leaflet Map container -->
-              <div id="leafletMap" class="w-full rounded-2xl overflow-hidden shadow-inner"></div>
+              <div id="leafletMap" class="w-full rounded-2xl shadow-inner"></div>
 
               <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1 flex-wrap gap-2">
                 <span>💡 <em>Mahalle dairelerinin veya ilçe sınırlarının <strong>üzerine fareyle gelerek</strong> nüfus, çekim payı (Gi) ve konut ihtiyacını anında görebilirsiniz.</em></span>
@@ -1148,7 +1146,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v40') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v41') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -1379,7 +1377,7 @@
         const sp = d.pop_2025 || d.pop_2024 || 0;
         const dName = d.display_name || dk;
         const vac = Math.max(15.0, Math.round((sp / 250.0) * 10) / 10);
-        const distMin = Math.round(Math.min(45.0, 5.0 + idx * 4.0) * 10) / 10;
+        const distMin = Math.round(Math.min(24.0, 4.0 + idx * 0.65) * 10) / 10;
         return {
           id: idx + 1,
           name: `${dName} İlçesi`,
@@ -3843,7 +3841,7 @@
       return [sumLat / ring.length, sumLng / ring.length];
     }
 
-    function getZoneColor(sz, maxGi) {
+    function getZoneColor(sz, maxGi, totalCount) {
       const curP = sz.current_pop !== undefined ? sz.current_pop : (sz.base_pop || 0);
       const addP = sz.additional_pop_Gi || 0;
       const tgtP = sz.target_pop_Pi !== undefined ? sz.target_pop_Pi : (sz.target_pop_2045 !== undefined ? sz.target_pop_2045 : (curP + addP));
@@ -3854,12 +3852,16 @@
         if (satPct > 80) return '#F59E0B';
         return '#10B981';
       } else {
-        const relGiRatio = addP / Math.max(1, maxGi);
-        const gs = Math.sqrt(Math.max(0, relGiRatio)) * 100;
-        if (gs >= 65 || relGiRatio >= 0.70) return '#EF4444'; // Zirve (Kırmızı)
-        if (gs >= 25 || relGiRatio >= 0.15) return '#F97316'; // Yüksek (Turuncu)
-        if (gs >= 10 || relGiRatio >= 0.02) return '#EAB308'; // Orta (Sarı)
-        return '#3B82F6'; // Periferi (Mavi)
+        const rank = (sz._rank !== undefined) ? sz._rank : 999;
+        const n = Math.max(4, totalCount || 10);
+        const topCut = Math.max(1, Math.ceil(n * 0.14));
+        const highCut = Math.max(2, Math.ceil(n * 0.36));
+        const midCut = Math.max(4, Math.ceil(n * 0.68));
+
+        if (rank < topCut) return '#EF4444';   // Zirve Merkez (Kırmızı)
+        if (rank < highCut) return '#F97316';  // Yüksek Çekim (Turuncu)
+        if (rank < midCut) return '#EAB308';   // Orta Çekim (Sarı)
+        return '#3B82F6';                      // Düşük / Periferi (Mavi)
       }
     }
 
@@ -3874,35 +3876,26 @@
       const isEn = (currentLang === 'en');
       const t1Year = (document.getElementById("inpTargetYear1") ? document.getElementById("inpTargetYear1").value : 2030);
       const isOver = satPct > 100;
-      const statusTxt = isOver ? (isEn ? 'Exceeded' : 'Kapasite Aşımı') : (satPct > 80 ? (isEn ? 'High' : 'Yüksek Yoğunluk') : (isEn ? 'Available' : 'Uygun Kapasite'));
       const satColor = isOver ? '#DC2626' : (satPct > 80 ? '#D97706' : '#059669');
 
       return `
-        <div class="font-sans text-xs">
-          <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-1.5 mb-1.5">
-            <strong class="text-xs sm:text-sm font-bold text-slate-900">${sz.name}</strong>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style="background:${badgeColor || satColor}">${statusTxt}</span>
+        <div class="font-sans text-[11px] leading-snug">
+          <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-1 mb-1">
+            <strong class="text-xs font-bold text-slate-900 truncate">${sz.name}</strong>
+            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded text-white shrink-0" style="background:${badgeColor || satColor}">%${sharePct.toFixed(1)} Pay</span>
           </div>
-          <div class="space-y-1">
-            <div class="flex justify-between items-center bg-slate-50 px-2 py-1 rounded border border-slate-100">
-              <span class="text-slate-600 font-medium">${isEn ? 'Allocated Add. (Gi):' : 'Dağıtılan İlave (Gi):'}</span>
-              <strong class="font-bold" style="color:${badgeColor || '#1D4ED8'}">+${addP.toLocaleString('tr-TR')} Kişi (%${sharePct.toFixed(1)})</strong>
+          <div class="space-y-0.5">
+            <div class="flex justify-between">
+              <span class="text-slate-500">${isEn ? 'Allocated (Gi):' : 'İlave Nüfus (Gi):'}</span>
+              <strong class="font-bold" style="color:${badgeColor || '#1D4ED8'}">+${addP.toLocaleString('tr-TR')} Kişi</strong>
             </div>
-            <div class="flex justify-between text-[11px] pt-0.5">
-              <span class="text-slate-500">${isEn ? 'Current Pop (2025):' : 'Mevcut Nüfus (2025):'}</span>
-              <strong class="text-slate-800">${curP.toLocaleString('tr-TR')} Kişi</strong>
+            <div class="flex justify-between">
+              <span class="text-slate-500">${isEn ? `Pop (2025 → ${t1Year}):` : `Nüfus (2025 → ${t1Year}):`}</span>
+              <strong class="text-slate-800">${curP.toLocaleString('tr-TR')} → ${tgtP.toLocaleString('tr-TR')}</strong>
             </div>
-            <div class="flex justify-between text-[11px]">
-              <span class="text-slate-500">${isEn ? `Target Pop (${t1Year}):` : `Hedef Nüfus (${t1Year}):`}</span>
-              <strong class="text-slate-900">${tgtP.toLocaleString('tr-TR')} Kişi</strong>
-            </div>
-            <div class="flex justify-between text-[11px]">
-              <span class="text-slate-500">${isEn ? 'New Housing Need:' : 'Yeni Konut İhtiyacı:'}</span>
-              <strong class="text-slate-700">${hNeed.toLocaleString('tr-TR')} Konut</strong>
-            </div>
-            <div class="flex justify-between text-[11px]">
-              <span class="text-slate-500">${isEn ? 'Plan Saturation:' : 'Plan Doygunluk:'}</span>
-              <strong style="color:${satColor}">%${satPct.toFixed(1)}</strong>
+            <div class="flex justify-between">
+              <span class="text-slate-500">${isEn ? 'Housing / Sat.:' : 'Konut / Doygunluk:'}</span>
+              <span class="font-semibold text-slate-700">${hNeed.toLocaleString('tr-TR')} Konut • <strong style="color:${satColor}">%${satPct.toFixed(0)}</strong></span>
             </div>
           </div>
         </div>
@@ -3927,7 +3920,6 @@
       if (leafletMarkersGroup) leafletMarkersGroup.clearLayers();
       updateH3LegendDisplay();
 
-      // TÜRKİYE 81 İL RESMİ MERKEZ KOORDİNATLARI (Enlem, Boylam)
       const provCoords = {
         "ADANA": [37.0000, 35.3213], "ADIYAMAN": [37.7648, 38.2786], "AFYON": [38.7507, 30.5567],
         "AFYONKARAHISAR": [38.7507, 30.5567], "AFYONKARAHİSAR": [38.7507, 30.5567],
@@ -3954,7 +3946,7 @@
         "KIRSEHIR": [39.1425, 34.1709], "KIRŞEHİR": [39.1425, 34.1709], "KOCAELI": [40.8533, 29.8815],
         "KOCAELİ": [40.8533, 29.8815], "KONYA": [37.8667, 32.4833], "KUTAHYA": [39.4167, 29.9833],
         "KÜTAHYA": [39.4167, 29.9833], "MALATYA": [38.3552, 38.3095], "MANISA": [38.6191, 27.4289],
-        "MANİSA": [38.6191, 27.4289], "KAHRAMANMARAS": [37.5858, 36.9371], "KAHRAMANMARAŞ": [37.5858, 36.9371],
+        "MANİSA": [38.6191, 27.4289], "KAHRAMANMARAS": [37.5858, 36.9371], "KAHRAMANMARAŞ": [37.5858, 37.9371],
         "MARDIN": [37.3212, 40.7245], "MARDİN": [37.3212, 40.7245], "MUGLA": [37.2153, 28.3636],
         "MUĞLA": [37.2153, 28.3636], "MUS": [38.7432, 41.5064], "MUŞ": [38.7432, 41.5064],
         "NEVSEHIR": [38.6244, 34.7142], "NEVŞEHİR": [38.6244, 34.7142], "NIGDE": [37.9667, 34.6833],
@@ -3976,7 +3968,6 @@
       };
 
       const distCoords = {
-        // VAN İLÇELERİ
         "VAN/İPEKYOLU": [38.4980, 43.3950], "VAN/IPEKYOLU": [38.4980, 43.3950],
         "VAN/TUŞBA": [38.5420, 43.3880], "VAN/TUSBA": [38.5420, 43.3880],
         "VAN/EDREMİT": [38.4189, 43.2578], "VAN/EDREMIT": [38.4189, 43.2578],
@@ -3990,7 +3981,6 @@
         "VAN/BAHÇESARAY": [38.0967, 42.7933], "VAN/BAHCESARAY": [38.0967, 42.7933],
         "VAN/ÇATAK": [38.0100, 43.0600], "VAN/CATAK": [38.0100, 43.0600],
         "VAN/SARAY": [38.6500, 44.1800],
-        // İZMİR İLÇELERİ
         "İZMİR/TİRE": [38.0886, 27.7344], "IZMIR/TIRE": [38.0886, 27.7344],
         "İZMİR/ÖDEMİŞ": [38.2317, 27.9719], "IZMIR/ODEMIS": [38.2317, 27.9719],
         "İZMİR/TORBALI": [38.1517, 27.3622], "IZMIR/TORBALI": [38.1517, 27.3622],
@@ -4017,7 +4007,6 @@
         "İZMİR/KİRAZ": [38.2306, 28.2042], "IZMIR/KIRAZ": [38.2306, 28.2042],
         "İZMİR/BEYDAĞ": [38.1528, 28.2111], "IZMIR/BEYDAG": [38.1528, 28.2111],
         "İZMİR/KARABURUN": [38.6369, 26.5117], "IZMIR/KARABURUN": [38.6369, 26.5117],
-        // ANKARA İLÇELERİ
         "ANKARA/ÇANKAYA": [39.9042, 32.8597], "ANKARA/CANKAYA": [39.9042, 32.8597],
         "ANKARA/KEÇİÖREN": [39.9833, 32.8667], "ANKARA/KECIOREN": [39.9833, 32.8667],
         "ANKARA/YENİMAHALLE": [39.9667, 32.8000], "ANKARA/YENIMAHALLE": [39.9667, 32.8000],
@@ -4051,114 +4040,91 @@
       if (!geoCache[mapKey]) geocodeDistrictCenter(provVal, distVal, mapKey);
       const bounds = [];
 
-      const totalGiAll = (subzones || []).reduce((acc, s) => acc + (s.additional_pop_Gi || 0), 0);
-      const maxGi = Math.max(...(subzones || []).map(s => s.additional_pop_Gi || 0), 1);
-
-      const cachedGeo = provSlug ? districtGeoCache[provSlug] : null;
-      let selectedDistFeature = null;
-      if (cachedGeo && cachedGeo.features) {
-        selectedDistFeature = renderDistrictGeoJSON(cachedGeo, subzones, isProvinceLevel, distVal, bounds, totalGiAll, maxGi);
-      }
-
-      // Rank subzones by Hansen additional_pop_Gi descending
+      // Rank subzones by Hansen additional_pop_Gi descending FIRST so renderDistrictGeoJSON uses _rank
       const rankedIndices = (subzones || []).map((sz, i) => ({ i, gi: sz.additional_pop_Gi || 0, pop: sz.current_pop || sz.base_pop || 0 }))
         .sort((a, b) => (b.gi - a.gi) || (b.pop - a.pop));
       rankedIndices.forEach((item, rankIdx) => {
         subzones[item.i]._rank = rankIdx;
       });
 
-      // Calculate subzone coordinates & draw circle markers
-      (subzones || []).forEach((sz, idx) => {
-        let assignedCoord = null;
-        const cleanName = (sz.name || '').replace(/\s*(İlçesi|Mahallesi|Mah\.|Köyü|Bölgesi)$/i, '').trim();
-        const distKey = `${trNorm(provVal)}/${trNorm(cleanName)}`;
+      const totalGiAll = (subzones || []).reduce((acc, s) => acc + (s.additional_pop_Gi || 0), 0);
+      const maxGi = Math.max(...(subzones || []).map(s => s.additional_pop_Gi || 0), 1);
+      const totalZones = (subzones || []).length;
 
-        if (isProvinceLevel && distN[distKey]) {
-          assignedCoord = distN[distKey];
-        } else if (isProvinceLevel && cachedGeo && cachedGeo.features) {
-          const normClean = trNorm(cleanName);
-          const matchedFeat = cachedGeo.features.find(f => {
-            const nf = trNorm(f.properties.name || '');
-            return nf === normClean || nf.includes(normClean) || normClean.includes(nf);
-          });
-          if (matchedFeat) {
-            assignedCoord = getGeoJSONCentroid(matchedFeat.geometry);
-          }
-        }
+      const cachedGeo = provSlug ? districtGeoCache[provSlug] : null;
+      let selectedDistFeature = null;
+      if (cachedGeo && cachedGeo.features) {
+        selectedDistFeature = renderDistrictGeoJSON(cachedGeo, subzones, isProvinceLevel, distVal, bounds, totalGiAll, maxGi, totalZones);
+      }
 
-        if (assignedCoord) {
-          sz._lat = assignedCoord[0];
-          sz._lon = assignedCoord[1];
-        } else if (isProvinceLevel) {
-          const distKm = 10.0 + (idx * 4.2);
-          const angle = idx * 2.3999632;
-          sz._lat = baseLoc[0] + (distKm / 111.0) * Math.sin(angle);
-          sz._lon = baseLoc[1] + (distKm / (111.0 * Math.cos(baseLoc[0] * Math.PI / 180))) * Math.cos(angle);
-        } else {
+      // In Province Mode (IL_GENELI), if official district polygons are rendered, do NOT draw overlapping circle bubbles on top!
+      const drawCircles = !isProvinceLevel || !cachedGeo;
+
+      if (drawCircles) {
+        const nZones = Math.max(1, (subzones || []).length);
+        (subzones || []).forEach((sz, idx) => {
           const rank = (sz._rank !== undefined) ? sz._rank : idx;
-          let distKm = 0.2;
-          if (rank === 0) {
-            distKm = 0.12;
-          } else if (rank <= 2) {
-            distKm = 1.20 + (rank - 1) * 0.50;
-          } else if (rank <= 6) {
-            distKm = 2.25 + (rank - 3) * 0.50;
+          if (isProvinceLevel) {
+            const distKm = 10.0 + (idx * 4.2);
+            const angle = idx * 2.3999632;
+            sz._lat = baseLoc[0] + (distKm / 111.0) * Math.sin(angle);
+            sz._lon = baseLoc[1] + (distKm / (111.0 * Math.cos(baseLoc[0] * Math.PI / 180))) * Math.cos(angle);
           } else {
-            distKm = 3.90 + ((rank - 7) * 0.42);
-          }
-          const angle = rank * 2.3999632;
-          let candLat = baseLoc[0] + (distKm / 111.0) * Math.sin(angle);
-          let candLon = baseLoc[1] + (distKm / (111.0 * Math.cos(baseLoc[0] * Math.PI / 180))) * Math.cos(angle);
+            // Evenly spaced Vogel/Fibonacci sunflower distribution across the district
+            const normR = (rank === 0) ? 0.0 : Math.sqrt((rank + 0.4) / nZones);
+            const distKm = normR * 8.2;
+            const angle = rank * 2.3999632;
+            let candLat = baseLoc[0] + (distKm / 111.0) * Math.sin(angle);
+            let candLon = baseLoc[1] + (distKm / (111.0 * Math.cos(baseLoc[0] * Math.PI / 180))) * Math.cos(angle);
 
-          if (selectedDistFeature && selectedDistFeature.geometry) {
-            for (let shrink = 0.85; shrink >= 0.10; shrink -= 0.15) {
-              if (isPointInGeoJSON(candLat, candLon, selectedDistFeature.geometry)) break;
-              candLat = baseLoc[0] + (candLat - baseLoc[0]) * shrink;
-              candLon = baseLoc[1] + (candLon - baseLoc[1]) * shrink;
+            if (selectedDistFeature && selectedDistFeature.geometry) {
+              for (let shrink = 0.88; shrink >= 0.08; shrink -= 0.12) {
+                if (isPointInGeoJSON(candLat, candLon, selectedDistFeature.geometry)) break;
+                candLat = baseLoc[0] + (candLat - baseLoc[0]) * shrink;
+                candLon = baseLoc[1] + (candLon - baseLoc[1]) * shrink;
+              }
             }
+            sz._lat = candLat;
+            sz._lon = candLon;
           }
-          sz._lat = candLat;
-          sz._lon = candLon;
-        }
 
-        if (!selectedDistFeature && (!isProvinceLevel || !cachedGeo)) {
-          bounds.push([sz._lat, sz._lon]);
-        }
+          if (!selectedDistFeature) {
+            bounds.push([sz._lat, sz._lon]);
+          }
 
-        const curP = sz.current_pop !== undefined ? sz.current_pop : (sz.base_pop || 0);
-        const markerColor = getZoneColor(sz, maxGi);
-        const baseRadius = isProvinceLevel
-          ? Math.max(6, Math.min(18, Math.sqrt(curP) * 0.032))
-          : Math.max(7, Math.min(24, Math.sqrt(curP) * 0.25));
+          const markerColor = getZoneColor(sz, maxGi, totalZones);
+          // Clean, compact circle radius (6px to 12px) so mahalleler never overlap into a messy blob
+          const baseRadius = (rank === 0) ? 12 : (rank <= 2 ? 10 : (rank <= 6 ? 8.5 : 7));
 
-        const circle = L.circleMarker([sz._lat, sz._lon], {
-          radius: baseRadius,
-          fillColor: markerColor,
-          color: '#FFFFFF',
-          weight: 2,
-          opacity: 1,
-          fillOpacity: 0.88
+          const circle = L.circleMarker([sz._lat, sz._lon], {
+            radius: baseRadius,
+            fillColor: markerColor,
+            color: '#FFFFFF',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.90
+          });
+
+          circle.on('mouseover', function() {
+            this.setStyle({ weight: 3, fillOpacity: 1.0, radius: baseRadius + 2.5 });
+          });
+          circle.on('mouseout', function() {
+            this.setStyle({ weight: 2, fillOpacity: 0.90, radius: baseRadius });
+          });
+
+          const cardHtml = buildZoneCardHtml(sz, totalGiAll, markerColor);
+
+          circle.bindTooltip(cardHtml, {
+            sticky: true,
+            direction: 'auto',
+            offset: [0, -6],
+            className: 'h3-hover-tooltip',
+            opacity: 1
+          });
+          circle.bindPopup(cardHtml);
+          leafletMarkersGroup.addLayer(circle);
         });
-
-        circle.on('mouseover', function() {
-          this.setStyle({ weight: 3.5, fillOpacity: 0.98, radius: baseRadius + 2.5 });
-        });
-        circle.on('mouseout', function() {
-          this.setStyle({ weight: 2, fillOpacity: 0.88, radius: baseRadius });
-        });
-
-        const cardHtml = buildZoneCardHtml(sz, totalGiAll, markerColor);
-
-        circle.bindTooltip(cardHtml, {
-          sticky: true,
-          direction: 'top',
-          offset: [0, -8],
-          className: 'h3-hover-tooltip',
-          opacity: 1
-        });
-        circle.bindPopup(cardHtml);
-        leafletMarkersGroup.addLayer(circle);
-      });
+      }
 
       if (bounds.length > 0) {
         leafletBounds = bounds.slice();
@@ -4170,7 +4136,6 @@
         } catch (e) {}
       }
 
-      // Fetch province district GeoJSON if not cached yet
       if (provSlug && !cachedGeo) {
         fetch(`data/districts/${provSlug}.json`)
           .then(res => {
@@ -4190,7 +4155,7 @@
       }
     }
 
-    function renderDistrictGeoJSON(geoData, subzones, isProvinceLevel, distVal, bounds, totalGiAll, maxGi) {
+    function renderDistrictGeoJSON(geoData, subzones, isProvinceLevel, distVal, bounds, totalGiAll, maxGi, totalZones) {
       if (!leafletDistrictBoundariesGroup || !geoData || !geoData.features) return null;
       leafletDistrictBoundariesGroup.clearLayers();
 
@@ -4199,7 +4164,7 @@
       let selectedBounds = null;
 
       const boundaryLayer = L.geoJSON(geoData, {
-        interactive: isProvinceLevel, // Only interactive in Province Choropleth mode; in single-district mode mahalle circles receive hover!
+        interactive: isProvinceLevel,
         style: function(feat) {
           const featName = feat.properties.name || '';
           const normFeat = trNorm(featName);
@@ -4209,25 +4174,25 @@
               const cleanSz = trNorm((sz.name || '').replace(/\s*İlçesi$/i, '').trim());
               return cleanSz === normFeat || cleanSz.includes(normFeat) || normFeat.includes(cleanSz);
             });
-            const polyColor = matchedSz ? getZoneColor(matchedSz, maxGi) : '#3B82F6';
+            const polyColor = matchedSz ? getZoneColor(matchedSz, maxGi, totalZones) : '#3B82F6';
             return {
               color: '#FFFFFF',
-              weight: 1.6,
+              weight: 1.5,
               opacity: 0.95,
               fillColor: polyColor,
-              fillOpacity: 0.52
+              fillOpacity: 0.68
             };
           } else {
             const isSelected = normDist && (normFeat === normDist || normFeat.includes(normDist) || normDist.includes(normFeat));
             if (isSelected) selectedFeature = feat;
             return {
               interactive: false,
-              color: isSelected ? '#1D4ED8' : '#94A3B8',
-              weight: isSelected ? 2.8 : 1.0,
-              opacity: isSelected ? 0.95 : 0.45,
+              color: isSelected ? '#1D4ED8' : '#CBD5E1',
+              weight: isSelected ? 2.6 : 1.0,
+              opacity: isSelected ? 0.95 : 0.40,
               dashArray: isSelected ? null : '4, 4',
               fillColor: isSelected ? '#3B82F6' : '#000000',
-              fillOpacity: isSelected ? 0.06 : 0.0
+              fillOpacity: isSelected ? 0.05 : 0.0
             };
           }
         },
@@ -4241,23 +4206,23 @@
               return cleanSz === normFeat || cleanSz.includes(normFeat) || normFeat.includes(cleanSz);
             });
             if (!matchedSz) {
-              matchedSz = { name: `${featName} İlçesi`, additional_pop_Gi: 0, current_pop: 10000, target_pop_Pi: 10000, saturation_pct: 75.0 };
+              matchedSz = { name: `${featName} İlçesi`, additional_pop_Gi: 0, current_pop: 10000, target_pop_Pi: 10000, saturation_pct: 75.0, _rank: 999 };
             }
-            const polyColor = getZoneColor(matchedSz, maxGi);
+            const polyColor = getZoneColor(matchedSz, maxGi, totalZones);
             const cardHtml = buildZoneCardHtml(matchedSz, totalGiAll, polyColor);
 
             layer.on('mouseover', function() {
-              this.setStyle({ weight: 2.8, color: '#0F172A', fillOpacity: 0.72 });
+              this.setStyle({ weight: 2.8, color: '#0F172A', fillOpacity: 0.88 });
               if (this.bringToFront) this.bringToFront();
             });
             layer.on('mouseout', function() {
-              this.setStyle({ weight: 1.6, color: '#FFFFFF', fillOpacity: 0.52 });
+              this.setStyle({ weight: 1.5, color: '#FFFFFF', fillOpacity: 0.68 });
             });
 
             layer.bindTooltip(cardHtml, {
               sticky: true,
-              direction: 'top',
-              offset: [0, -10],
+              direction: 'auto',
+              offset: [0, -6],
               className: 'h3-hover-tooltip',
               opacity: 1
             });
