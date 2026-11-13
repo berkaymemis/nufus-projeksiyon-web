@@ -1151,7 +1151,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v37') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v38') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -3938,7 +3938,7 @@
       const provVal = selP ? selP.value : "";
       const distVal = selD ? selD.value : "";
       const isProvinceLevel = distVal === "IL_GENELI";
-      const provSlug = trNorm(provVal);
+      const provSlug = trNorm(provVal).toLowerCase();
       const mapKey = `${trNorm(provVal)}/${trNorm(distVal)}`;
       const provN = {};
       Object.keys(provCoords).forEach(k => { provN[trNorm(k)] = provCoords[k]; });
@@ -4013,31 +4013,46 @@
         }
       });
 
-      // 1. Fetch Province District Boundaries GeoJSON if available
-      if (provSlug && !districtGeoCache[provSlug]) {
-        fetch(`data/districts/${provSlug}.json`)
-          .then(res => {
-            if (!res.ok) throw new Error("District boundaries not found");
-            return res.json();
-          })
-          .then(geoData => {
-            districtGeoCache[provSlug] = geoData;
-            // If user is still viewing this province, re-render with official district boundary polygons
-            const curP = document.getElementById("selAdnksProv")?.value;
-            if (trNorm(curP) === provSlug && leafletMapInstance) {
-              renderDistrictGeoJSON(geoData, subzones, isProvinceLevel, distVal, bounds);
-            }
-          })
-          .catch(err => {
-            console.info("District GeoJSON fetch notice:", err.message);
-          });
-      } else if (provSlug && districtGeoCache[provSlug]) {
-        renderDistrictGeoJSON(districtGeoCache[provSlug], subzones, isProvinceLevel, distVal, bounds);
-      }
+      // --- HYBRID / H3 RENDERING WITH ASYNC GEOJSON BOUNDARIES ---
+      const shouldRenderH3 = (mapLayerMode === 'h3' || mapLayerMode === 'hex' || mapLayerMode === 'hybrid');
 
-      // 2. Render Hexagonal DGGS Grid (with boundary clipping or centroid fallback)
-      if (mapLayerMode === 'hex' || mapLayerMode === 'hybrid') {
-        renderH3HexagonalGrid(baseLoc, subzones, bounds, districtGeoCache[provSlug]);
+      if (provSlug) {
+        if (districtGeoCache[provSlug]) {
+          renderDistrictGeoJSON(districtGeoCache[provSlug], subzones, isProvinceLevel, distVal, bounds);
+          if (shouldRenderH3) {
+            renderH3HexagonalGrid(baseLoc, subzones, bounds, districtGeoCache[provSlug]);
+          }
+        } else {
+          // Immediately render H3 grid so map is NEVER blank while fetching!
+          if (shouldRenderH3) {
+            renderH3HexagonalGrid(baseLoc, subzones, bounds, null);
+          }
+
+          fetch(`data/districts/${provSlug}.json`)
+            .then(res => {
+              if (!res.ok) throw new Error("District boundaries not found");
+              return res.json();
+            })
+            .then(geoData => {
+              districtGeoCache[provSlug] = geoData;
+              const curP = document.getElementById("selAdnksProv")?.value;
+              if (trNorm(curP).toLowerCase() === provSlug && leafletMapInstance) {
+                if (leafletDistrictBoundariesGroup) leafletDistrictBoundariesGroup.clearLayers();
+                renderDistrictGeoJSON(geoData, subzones, isProvinceLevel, distVal, bounds);
+                if (shouldRenderH3) {
+                  if (leafletH3Group) leafletH3Group.clearLayers();
+                  renderH3HexagonalGrid(baseLoc, subzones, bounds, geoData);
+                }
+              }
+            })
+            .catch(err => {
+              console.info("District GeoJSON fetch notice:", err.message);
+            });
+        }
+      } else {
+        if (shouldRenderH3) {
+          renderH3HexagonalGrid(baseLoc, subzones, bounds, null);
+        }
       }
 
       if (bounds.length > 0) {
@@ -4075,7 +4090,6 @@
 
       boundaryLayer.addTo(leafletDistrictBoundariesGroup);
 
-      // Collect bounds from district GeoJSON
       try {
         const b = boundaryLayer.getBounds();
         if (b.isValid()) {
@@ -4108,7 +4122,7 @@
       let usedPolygonClipping = false;
       if (isH3Avail && geoData && geoData.features && geoData.features.length > 0 && typeof h3.polygonToCells === 'function') {
         try {
-          const h3TargetRes = isProvinceLevel ? 7 : (h3Resolution || 8); // Res 7 for province gives ~4000 crisp cells, Res 8 for district
+          const h3TargetRes = isProvinceLevel ? 7 : (h3Resolution || 8); // Res 7 for province gives ~1000-4000 crisp cells, Res 8 for district
 
           geoData.features.forEach(feat => {
             const featName = feat.properties.name || '';
@@ -4172,7 +4186,7 @@
         }
       }
 
-      // --- METHOD 2: CENTROID CLUSTERING (FALLBACK IF GEOJSON NOT YET LOADED) ---
+      // --- METHOD 2: CENTROID CLUSTERING (IMMEDIATE FALLBACK) ---
       if (!usedPolygonClipping && isH3Avail) {
         try {
           (subzones || []).forEach(sz => {
@@ -4241,7 +4255,7 @@
         });
       }
 
-      const activeRes = (usedPolygonClipping && isProvinceLevel) ? 7 : res;
+      const activeRes = (usedPolygonClipping && isProvinceLevel) ? 7 : (h3Resolution || 8);
       const cellAreaKm2 = (activeRes === 7 ? 5.16 : (activeRes === 8 ? 0.73 : 0.10));
       const cellItems = [];
 
