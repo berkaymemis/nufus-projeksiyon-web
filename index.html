@@ -46,15 +46,13 @@
 </head>
 <body class="bg-[#f5f5f7] text-[#1d1d1f] font-sans min-h-screen flex flex-col pb-16 antialiased">
 
-  <!-- TOP APP BAR (APPLE FROSTED GLASS NAVIGATION — FULL WIDTH FLUID) -->
+  <!-- TOP APP BAR (APPLE FROSTED GLASS NAVIGATION) -->
   <header class="bg-white/80 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-30 transition">
-    <div class="w-full px-4 sm:px-8 lg:px-12 py-3 flex flex-wrap items-center justify-between gap-3">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center space-x-3">
         <a href="/" class="flex items-center gap-2.5 group">
-          <div class="w-9 h-9 rounded-2xl bg-[#1d1d1f] group-hover:bg-[#0071e3] text-white flex items-center justify-center shadow-sm transition">
-            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-              <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3zm0 2.84L18 11v7h-2v-6H8v6H6v-7l6-5.16z"/>
-            </svg>
+          <div class="w-9 h-9 rounded-2xl bg-[#1d1d1f] group-hover:bg-[#0071e3] text-white flex items-center justify-center font-bold text-lg shadow-sm transition">
+            ?
           </div>
           <div>
             <div class="flex items-center gap-2">
@@ -90,8 +88,8 @@
     </div>
   </header>
 
-  <!-- MAIN CONTAINER (FULL-WIDTH FLUID RESPONSIVE) -->
-  <main class="w-full px-4 sm:px-8 lg:px-12 mt-4 flex-1 space-y-6">
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 mt-4 w-full flex-1 space-y-6">
 
     <!-- HERO HEADLINE & QUICK EXPLORER SHELF -->
     <div class="pt-2 sm:pt-4 pb-1">
@@ -221,46 +219,9 @@
       </div>
     </section>
 
-    <!-- ==================== 2. DASHBOARD COCKPIT (2-COLUMN BALANCED GRID) ==================== -->
-    
-    <!-- STICKY SECTION NAVIGATOR (SCROLL-SPY CAPSULE) -->
-    <div class="sticky top-14 z-30 py-2.5 bg-[#f5f5f7]/90 backdrop-blur-md transition">
-      <div class="flex items-center justify-start sm:justify-center overflow-x-auto pb-1 scrollbar-none">
-        <div class="bg-white/90 p-1.5 rounded-full flex items-center gap-1 shadow-sm border border-slate-200/80">
-          <button onclick="switchTab('curves')" id="tabBtn-curves" class="tab-active py-2 px-4 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition">
-            <span data-i18n="tabCurves">📈 1. Curve Fitting & Nüfus</span>
-          </button>
-          <button onclick="switchTab('cohort')" id="tabBtn-cohort" class="tab-inactive py-2 px-4 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition">
-            <span data-i18n="tabCohort">👥 2. Çubukçu Pay & Piramit</span>
-          </button>
-          <button onclick="switchTab('hansen')" id="tabBtn-hansen" class="tab-inactive py-2 px-4 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition">
-            <span data-i18n="tabHansen">🗺️ 3. Hansen Mekânsal & Harita</span>
-          </button>
-          <button onclick="switchTab('mpyy')" id="tabBtn-mpyy" class="tab-inactive py-2 px-4 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition">
-            <span data-i18n="tabMpyy">📐 4. MPYY Donatı</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Hidden fallback elements for legacy JS hooks -->
-    <div class="hidden" style="display:none;">
-      <span id="kpiLowPop"></span>
-      <span id="kpiMidPop"></span>
-      <span id="districtMetaText"></span>
-      <span id="tableSummaryBadge"></span>
-      <div id="citationsList"></div>
-      <span id="econDepRatioB"></span>
-      <span id="econActivityRate"></span>
-      <div id="cohortSummaryCard"></div>
-      <div id="cohortScenariosCard"></div>
-      <table><tbody id="cohortTableBody"></tbody></table>
-    </div>
-
-    <!-- ===== ROW 1: HERO VITRIN METRIKLERI (SOL) & 6 REGRESYON EĞRISI (SAG) ===== -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-      <!-- SOL SUTUN: VITRIN NUFUS KARTI VE TEMEL KPI'LAR -->
-      <section class="bg-white rounded-[28px] p-6 sm:p-8 shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 flex flex-col justify-between">
+    <!-- ==================== 2. APPLE HERO BENTO SHOWCASE CARD ==================== -->
+    <section class="bg-white rounded-[28px] p-6 sm:p-9 shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 transition">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
           <div class="flex items-center gap-2 mb-2 flex-wrap">
             <span class="text-xs font-semibold text-[#0071e3] uppercase tracking-wider bg-blue-50 px-3.5 py-1 rounded-full border border-blue-100">
@@ -289,8 +250,8 @@
           </p>
         </div>
 
-        <!-- 2 Bento Pillars: En Güçlü Model & MPYY Donatı -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-6 pt-5 border-t border-slate-100">
+        <!-- 2 Bento Side Pillars: En Güçlü Model & MPYY Donatı -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3.5 lg:w-72">
           <div class="bg-[#f5f5f7] p-4 rounded-2xl border border-slate-200/60 flex flex-col justify-between">
             <span class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider block" data-i18n="kpi5Title">En Uyumlu Model</span>
             <p id="kpiBestModel" class="text-base sm:text-lg font-semibold text-purple-700 mt-1 truncate">-</p>
@@ -302,276 +263,524 @@
             <span class="text-[11px] text-[#6e6e73] mt-0.5">Ek-2 Standart (19.0 m²/kişi)</span>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- SAG SUTUN: MATEMATIKSEL EGRI UYDURMA (6 MODEL) -->
-      <section id="tabContent-curves" class="bg-white rounded-[28px] shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 p-6 sm:p-8 space-y-4 scroll-mt-28 flex flex-col justify-between">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h3 class="text-base sm:text-lg font-semibold tracking-tight text-[#1d1d1f]" data-i18n="curvesTitle">Matematiksel Eğri Uydurma (6 Model)</h3>
-            <p class="text-xs text-[#6e6e73] mt-0.5" data-i18n="curvesSub">En küçük kareler yöntemi (OLS) ile geçmiş trend analitik uyumu</p>
-          </div>
-          <span class="text-xs bg-[#f5f5f7] text-[#1d1d1f] font-semibold px-3 py-1 rounded-full border border-slate-200/80 shadow-xs">
-            <span id="curveRangeLabel">2015 - 2050</span> Aralığı
-          </span>
-        </div>
+    <!-- Hidden fallback elements for legacy JS hooks -->
+    <div class="hidden" style="display:none;">
+      <span id="kpiLowPop"></span>
+      <span id="kpiMidPop"></span>
+      <span id="districtMetaText"></span>
+      <span id="tableSummaryBadge"></span>
+      <div id="citationsList"></div>
+      <span id="econDepRatioB"></span>
+      <span id="econActivityRate"></span>
+    </div>
 
-        <div class="bg-[#f5f5f7] p-4 rounded-[24px] border border-slate-200/60">
-          <div class="h-64 sm:h-72 w-full">
-            <canvas id="curveChart"></canvas>
-          </div>
-        </div>
-
-        <!-- Progressive Disclosure Accordion for Detailed Models Table -->
-        <div class="rounded-2xl border border-slate-200/60 bg-white overflow-hidden shadow-xs">
-          <button type="button" onclick="toggleModelTable()" class="w-full p-3.5 bg-[#f5f5f7] hover:bg-slate-200/60 text-left flex items-center justify-between text-xs font-semibold text-[#1d1d1f] transition">
-            <span class="flex items-center gap-2">
-              <span>📑</span>
-              <span>6 Regresyon Modelinin Matematiksel Formül ve Hata Tablosu (SSE & R²)</span>
-            </span>
-            <span id="modelTableToggleIcon" class="text-[#0071e3] font-mono text-xs">▼ Tabloyu Göster</span>
+    <!-- ==================== 3. FOUR STREAMLINED TABS (SADELEŞTİRİLMİŞ 4 ANA SEKME) ==================== -->
+    <section class="bg-white rounded-[28px] shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 overflow-hidden">
+      <!-- Apple-style Segmented Tab Control -->
+      <div class="p-3 sm:p-4 border-b border-slate-100 flex items-center justify-start sm:justify-center overflow-x-auto">
+        <div class="bg-[#f5f5f7] p-1.5 rounded-full flex items-center gap-1 shadow-inner">
+          <button onclick="switchTab('curves')" id="tabBtn-curves" class="tab-active py-2 px-4 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap flex items-center gap-2 transition">
+            <span data-i18n="tabCurves">📈 1. Curve Fitting</span>
           </button>
-          <div id="modelTableDrawer" class="hidden overflow-x-auto border-t border-slate-100 max-h-60">
+          <button onclick="switchTab('cohort')" id="tabBtn-cohort" class="tab-inactive py-2 px-4 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap flex items-center gap-2 transition">
+            <span data-i18n="tabCohort">👥 2. Kuşak-Bileşen & Piramit</span>
+          </button>
+          <button onclick="switchTab('hansen')" id="tabBtn-hansen" class="tab-inactive py-2 px-4 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap flex items-center gap-2 transition">
+            <span data-i18n="tabHansen">🗺️ 3. Hansen Mekânsal & Harita</span>
+          </button>
+          <button onclick="switchTab('mpyy')" id="tabBtn-mpyy" class="tab-inactive py-2 px-4 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap flex items-center gap-2 transition">
+            <span data-i18n="tabMpyy">📐 4. MPYY Standartları</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB CONTENT AREA -->
+      <div class="p-6 sm:p-8">
+
+        <!-- ===== TAB 1: CURVE FITTING (6 REGRESYON MODELİ) & ÇUBUKÇU PAY MODELLERİ ===== -->
+        <div id="tabContent-curves" class="space-y-6">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="text-base sm:text-lg font-semibold tracking-tight text-[#1d1d1f]" data-i18n="curvesTitle">Matematiksel Eğri Uydurma ve Regresyon Modelleri (6 Model)</h3>
+              <p class="text-xs text-[#6e6e73] mt-0.5" data-i18n="curvesSub">En küçük kareler yöntemi (OLS) ile yerleşimin geçmiş trendine analitik eğri uyumu</p>
+            </div>
+            <span class="text-xs bg-[#f5f5f7] text-[#1d1d1f] font-semibold px-3.5 py-1.5 rounded-full border border-slate-200/80 shadow-xs">
+              <span id="curveRangeLabel">2015 - 2050</span> Projeksiyon Aralığı
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-[#f5f5f7] p-5 rounded-[24px] border border-slate-200/60">
+              <div class="h-80 w-full">
+                <canvas id="curveChart"></canvas>
+              </div>
+            </div>
+            <div class="bg-white p-6 rounded-[24px] border border-slate-200/60 shadow-sm flex flex-col justify-between space-y-4">
+              <div>
+                <h4 class="text-xs font-semibold text-purple-900 uppercase tracking-wider mb-2.5">⭐ En Yüksek Uyuma Sahip Model</h4>
+                <div class="bg-[#f5f5f7] p-4 rounded-2xl border border-slate-200/80">
+                  <p class="text-xs font-bold text-[#1d1d1f]" id="bestModelTitle">Doğrusal Trend</p>
+                  <p class="text-2xl sm:text-3xl font-semibold tracking-tight text-purple-700 mt-1" id="bestModelR2Display">R² = 0.9986</p>
+                  <p class="text-xs text-purple-900 font-mono mt-1" id="bestModelFormula">y = a + b*x</p>
+                </div>
+                <p class="text-xs text-[#6e6e73] leading-relaxed mt-4">
+                  <strong class="text-[#1d1d1f]">Planlama Notu:</strong> Tek modele bağlı kalınmaz; Düşük (doğal artış), Orta (geçmiş trend) ve Yüksek (plan kabulü) senaryoları birlikte değerlendirilir.
+                </p>
+              </div>
+              <div class="pt-4 border-t border-slate-100 text-xs text-[#6e6e73]">
+                Hedef <strong class="text-[#1d1d1f]" data-yr="t1">2035</strong> Projeksiyon Aralığı: <span id="curveMinMaxRange" class="font-semibold text-[#1d1d1f]">85.000 - 110.000</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Progressive Disclosure Accordion for Detailed Models Table -->
+          <div class="rounded-2xl border border-slate-200/60 bg-white overflow-hidden shadow-xs">
+            <button type="button" onclick="toggleModelTable()" class="w-full p-4 bg-[#f5f5f7] hover:bg-slate-200/60 text-left flex items-center justify-between text-xs font-semibold text-[#1d1d1f] transition">
+              <span class="flex items-center gap-2">
+                <span>📑</span>
+                <span>6 Regresyon Modelinin Matematiksel Formül ve Hata Tablosu (SSE & R²)</span>
+              </span>
+              <span id="modelTableToggleIcon" class="text-[#0071e3] font-mono text-xs">▼ Tabloyu Göster</span>
+            </button>
+            <div id="modelTableDrawer" class="hidden overflow-x-auto border-t border-slate-100">
+              <table class="w-full text-left text-xs text-[#1d1d1f]">
+                <thead class="bg-[#f5f5f7] text-[#6e6e73] font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200/80">
+                  <tr>
+                    <th class="py-3 px-4" data-i18n="thModel">Model Türü</th>
+                    <th class="py-3 px-4" data-i18n="thFormula">Matematiksel Formül</th>
+                    <th class="py-3 px-4 text-right" data-i18n="thR2">R² (Uyum)</th>
+                    <th class="py-3 px-4 text-right" data-i18n="thMape">SSE Hata</th>
+                    <th class="py-3 px-4 text-right" id="thProjCol1"><span data-yr="t1">2035</span> Projeksiyonu</th>
+                    <th class="py-3 px-4 text-right" id="thProjCol2"><span data-yr="t2">2050</span> Projeksiyonu</th>
+                    <th class="py-3 px-4" data-i18n="thEval">Değerlendirme</th>
+                  </tr>
+                </thead>
+                <tbody id="curveModelsTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ===== PROF. DR. K. MERT ÇUBUKÇU BÖLGESEL PAY MODELLERİ (SHARE APPROACH) ===== -->
+          <div class="mt-6 bg-[#f5f5f7] rounded-[24px] p-6 sm:p-7 border border-slate-200/60">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">🏛️</span>
+                <div>
+                  <h4 class="text-sm font-semibold text-[#1d1d1f] tracking-tight">Prof. Dr. K. Mert Çubukçu — Bölgesel Pay ve Makro Dağıtım Modelleri (Bölüm 4.3)</h4>
+                  <p class="text-xs text-[#6e6e73]">Üst bölge (İl / Ülke) nüfus hareketlerinin yerel ölçekle ilişkilendirilmesi (Pay Yaklaşımı / Share Approach)</p>
+                </div>
+              </div>
+              <span class="bg-white text-[#0071e3] font-semibold text-xs px-3.5 py-1.5 rounded-full border border-slate-200/80 shadow-xs">
+                Makro-Bölgesel Yaklaşım
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <!-- 1. Sabit Pay -->
+              <div class="bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold text-[#1d1d1f] flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-sky-500 inline-block"></span>
+                      4.3.1. Sabit Pay Tekniği (Constant Share)
+                    </span>
+                    <span class="text-[10px] font-mono bg-sky-50 text-sky-700 px-2 py-0.5 rounded-md font-semibold border border-sky-200">Formül (4.30)</span>
+                  </div>
+                  <p class="text-xs text-[#6e6e73] mb-3" id="shareConstReview">
+                    Yerleşimin üst bölgedeki payının sabit kalacağı kabulüyle üst kademe yıllık bileşik artış oranında büyümesi.
+                  </p>
+                  <div class="bg-[#f5f5f7] rounded-xl p-2.5 font-mono text-[11px] text-[#1d1d1f] mb-3 border border-slate-200/60" id="shareConstFormula">
+                    e^(t+k) = e^t × (1 + R₁)^k
+                  </div>
+                  <div class="grid grid-cols-2 gap-2 text-xs mb-3">
+                    <div class="bg-[#f5f5f7] p-2.5 rounded-xl border border-slate-200/60">
+                      <span class="text-[10px] text-[#86868b] block font-medium">Üst Kademe Artışı (R₁)</span>
+                      <span class="font-semibold text-sky-800" id="shareConstUpperRate">%1.64 / yıl</span>
+                    </div>
+                    <div class="bg-[#f5f5f7] p-2.5 rounded-xl border border-slate-200/60">
+                      <span class="text-[10px] text-[#86868b] block font-medium">İlçe / Yerel Pay (c)</span>
+                      <span class="font-semibold text-sky-800" id="shareConstLocalShare">%2.46</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <div>
+                    <span class="text-[10px] text-[#86868b] uppercase font-semibold block" id="shareConstTarget1Year">Hedef Yıl 1</span>
+                    <span class="text-base sm:text-lg font-semibold text-[#1d1d1f]" id="shareConstTarget1Val">-</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] text-[#86868b] uppercase font-semibold block" id="shareConstTarget2Year">Hedef Yıl 2</span>
+                    <span class="text-sm sm:text-base font-semibold text-[#6e6e73]" id="shareConstTarget2Val">-</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. Değişken Pay -->
+              <div class="bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm flex flex-col justify-between">
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold text-[#1d1d1f] flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+                      4.3.2. Değişken Pay Tekniği (Shift-Share)
+                    </span>
+                    <span class="text-[10px] font-mono bg-amber-50 text-amber-700 px-2 py-0.5 rounded-md font-semibold border border-amber-200">Formül (4.39)</span>
+                  </div>
+                  <p class="text-xs text-[#6e6e73] mb-3" id="shareVarReview">
+                    Üst kademe büyüme hızına, yerleşimin geçmiş 10 yıllık ayrışma dinamizmi (shift terimi s₁) eklenerek hesaplanan diferansiyel senaryo.
+                  </p>
+                  <div class="bg-[#f5f5f7] rounded-xl p-2.5 font-mono text-[11px] text-[#1d1d1f] mb-3 border border-slate-200/60" id="shareVarFormula">
+                    e^(t+k) = e^t × (1 + R₁ + s₁)^k
+                  </div>
+                  <div class="grid grid-cols-2 gap-2 text-xs mb-3">
+                    <div class="bg-[#f5f5f7] p-2.5 rounded-xl border border-slate-200/60">
+                      <span class="text-[10px] text-[#86868b] block font-medium">Değişim Terimi (s₁)</span>
+                      <span class="font-semibold text-amber-800" id="shareVarShiftRate">+%2.85 / yıl</span>
+                    </div>
+                    <div class="bg-[#f5f5f7] p-2.5 rounded-xl border border-slate-200/60">
+                      <span class="text-[10px] text-[#86868b] block font-medium">Net Bileşik Büyüme</span>
+                      <span class="font-semibold text-amber-800" id="shareVarNetRate">%4.49 / yıl</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <div>
+                    <span class="text-[10px] text-[#86868b] uppercase font-semibold block" id="shareVarTarget1Year">Hedef Yıl 1</span>
+                    <span class="text-base sm:text-lg font-semibold text-[#1d1d1f]" id="shareVarTarget1Val">-</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] text-[#86868b] uppercase font-semibold block" id="shareVarTarget2Year">Hedef Yıl 2</span>
+                    <span class="text-sm sm:text-base font-semibold text-[#6e6e73]" id="shareVarTarget2Val">-</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== TAB 2: COHORT & PYRAMID (KUŞAK-BİLEŞEN) ===== -->
+        <div id="tabContent-cohort" class="hidden space-y-6">
+
+          <!-- İktisadi Taban & Göç Senaryosu İşaretleme Kutucuğu -->
+          <div class="bg-[#f5f5f7] border border-slate-200/60 rounded-[24px] p-6 shadow-xs transition">
+            <div class="flex items-center justify-between flex-wrap gap-3">
+              <label class="flex items-center gap-3 cursor-pointer select-none">
+                <input type="checkbox" id="chkEnableEconMigration" onchange="onToggleEconMigration()" class="w-5 h-5 text-[#0071e3] rounded-md border-slate-300 focus:ring-[#0071e3] cursor-pointer">
+                <div class="flex flex-col">
+                  <span class="text-xs sm:text-sm font-semibold text-[#1d1d1f] flex items-center gap-2">
+                    <span>🏭</span>
+                    <span>İktisadi Taban, İstihdam & Net Göç Modeli (Çarpan & Yıllık Göç Hızı)</span>
+                  </span>
+                  <span class="text-[11px] text-[#6e6e73] font-normal">İşaretlendiğinde baz çarpanı, bağımlılık oranı, istihdam ve yıllık net göç hızı aktifleşir; piramit ve senaryolar canlı güncellenir.</span>
+                </div>
+              </label>
+              <span id="badgeEconStatus" class="text-xs font-semibold px-3.5 py-1 rounded-full bg-white text-[#1d1d1f] border border-slate-200/80 shadow-xs">🌱 Doğal Yaşlanma (Sıfır Göç)</span>
+            </div>
+
+            <!-- Tek ve Sade Kontrol Paneli (Evrensel, Granüler Tik Seçimli) -->
+            <div id="econControlPanel" class="hidden mt-5 pt-5 border-t border-slate-200/80 space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 text-xs">
+                <!-- 1. Baz Çarpanı k -->
+                <div id="cardCohortK" class="bg-white p-4 rounded-2xl border border-slate-200/60 shadow-sm transition">
+                  <div class="flex items-center justify-between mb-2">
+                    <label for="inpCohortK" class="text-[11px] font-semibold text-[#1d1d1f] cursor-pointer select-none">Baz Çarpanı (k):</label>
+                    <input type="checkbox" id="chkUseCohortK" checked onchange="onToggleParamCard('k')" title="Baz Çarpanını dahil et / çıkar" class="w-4 h-4 text-[#0071e3] rounded border-slate-300 focus:ring-[#0071e3] cursor-pointer">
+                  </div>
+                  <input type="number" id="inpCohortK" step="0.01" min="1.0" max="15.0" value="4.90" onchange="onCohortParamChanged()" class="w-full font-bold text-[#1d1d1f] text-sm bg-[#f5f5f7] border border-slate-200/80 rounded-xl p-2.5 focus:ring-2 focus:ring-[#0071e3] focus:bg-white transition">
+                  <span id="subCohortK" class="block text-[10px] text-[#86868b] mt-1.5 font-medium">1 temel çalışan başına toplam iş</span>
+                </div>
+
+                <!-- 2. Bağımlılık Oranı b -->
+                <div id="cardCohortB" class="bg-white p-4 rounded-2xl border border-slate-200/60 shadow-sm transition">
+                  <div class="flex items-center justify-between mb-2">
+                    <label for="inpCohortB" class="text-[11px] font-semibold text-[#1d1d1f] cursor-pointer select-none">Bağımlılık Oranı (b):</label>
+                    <input type="checkbox" id="chkUseCohortB" checked onchange="onToggleParamCard('b')" title="Bağımlılık Oranını dahil et / çıkar" class="w-4 h-4 text-[#0071e3] rounded border-slate-300 focus:ring-[#0071e3] cursor-pointer">
+                  </div>
+                  <input type="number" id="inpCohortB" step="0.01" min="0.5" max="10.0" value="1.96" onchange="onCohortParamChanged()" class="w-full font-bold text-[#1d1d1f] text-sm bg-[#f5f5f7] border border-slate-200/80 rounded-xl p-2.5 focus:ring-2 focus:ring-[#0071e3] focus:bg-white transition">
+                  <span id="subCohortB" class="block text-[10px] text-[#86868b] mt-1.5 font-medium">1 çalışan başına nüfus yükü</span>
+                </div>
+
+                <!-- 3. Mevcut İstihdam -->
+                <div id="cardCohortCurEmp" class="bg-white p-4 rounded-2xl border border-slate-200/60 shadow-sm transition">
+                  <div class="flex items-center justify-between mb-2">
+                    <label for="inpCohortCurEmp" class="text-[11px] font-semibold text-[#1d1d1f] cursor-pointer select-none">Mevcut İstihdam:</label>
+                    <input type="checkbox" id="chkUseCohortCurEmp" checked onchange="onToggleParamCard('curEmp')" title="Mevcut İstihdamı dahil et / çıkar" class="w-4 h-4 text-[#0071e3] rounded border-slate-300 focus:ring-[#0071e3] cursor-pointer">
+                  </div>
+                  <input type="number" id="inpCohortCurEmp" step="500" min="1000" value="32000" onchange="onCohortParamChanged()" class="w-full font-bold text-[#1d1d1f] text-sm bg-[#f5f5f7] border border-slate-200/80 rounded-xl p-2.5 focus:ring-2 focus:ring-[#0071e3] focus:bg-white transition">
+                  <span id="subCohortCurEmp" class="block text-[10px] text-[#86868b] mt-1.5 font-medium">Başlangıç yılı mevcut istihdamı</span>
+                </div>
+
+                <!-- 4. Hedef Yıl İstihdamı -->
+                <div id="cardCohortTargetEmp" class="bg-white p-4 rounded-2xl border border-slate-200/60 shadow-sm transition">
+                  <div class="flex items-center justify-between mb-2">
+                    <label for="inpCohortTargetEmp" class="text-[11px] font-semibold text-[#1d1d1f] cursor-pointer select-none">Hedef Yıl İstihdamı:</label>
+                    <input type="checkbox" id="chkUseCohortTargetEmp" checked onchange="onToggleParamCard('targetEmp')" title="Hedef İstihdamı dahil et / çıkar" class="w-4 h-4 text-[#0071e3] rounded border-slate-300 focus:ring-[#0071e3] cursor-pointer">
+                  </div>
+                  <input type="number" id="inpCohortTargetEmp" step="500" min="1000" value="45000" onchange="onCohortParamChanged()" class="w-full font-bold text-[#0071e3] text-sm bg-[#f5f5f7] border border-slate-200/80 rounded-xl p-2.5 focus:ring-2 focus:ring-[#0071e3] focus:bg-white transition">
+                  <span id="subCohortTargetEmp" class="block text-[10px] text-[#0071e3] font-semibold mt-1.5">Net Yeni İş: <strong id="lblCohortNetJobs">+13.000</strong></span>
+                </div>
+
+                <!-- 5. Yıllık Net Göç Hızı (%) -->
+                <div id="cardCohortMigRate" class="bg-white p-4 rounded-2xl border border-slate-200/60 shadow-sm transition">
+                  <div class="flex items-center justify-between mb-2">
+                    <label for="inpCohortMigRate" class="text-[11px] font-semibold text-[#1d1d1f] cursor-pointer select-none">Yıllık Net Göç Hızı (%):</label>
+                    <input type="checkbox" id="chkUseCohortMigRate" checked onchange="onToggleParamCard('migRate')" title="Yıllık Net Göç Hızını dahil et / çıkar" class="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500 cursor-pointer">
+                  </div>
+                  <input type="number" id="inpCohortMigRate" step="0.05" min="-5.0" max="10.0" value="1.82" oninput="onMigRateOnlyChanged()" class="w-full font-bold text-emerald-700 text-sm bg-[#f5f5f7] border border-slate-200/80 rounded-xl p-2.5 focus:ring-2 focus:ring-[#0071e3] focus:bg-white transition">
+                  <span id="subCohortMigRate" class="block text-[10px] text-emerald-600 font-semibold mt-1.5">Toplam Göç: <strong id="lblCohortTotalMig">+25.480</strong></span>
+                </div>
+              </div>
+
+              <!-- Alt Bilgi ve Güncelle Butonu -->
+              <div class="flex items-center justify-between flex-wrap gap-3 pt-2">
+                <span id="lblEmpEquivBadge" class="text-xs font-medium text-[#1d1d1f] bg-white px-4 py-2 rounded-xl border border-slate-200/80 shadow-xs">
+                  📊 Net Yeni İstihdam: +13.000 | Göç ile Gelecek Nüfus: +25.480 Kişi
+                </span>
+                <button type="button" onclick="onCohortParamChanged(true)" class="bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-semibold py-2 px-5 rounded-full shadow-sm transition flex items-center gap-1.5">
+                  <span>🚀</span> <span>İstihdam ve Göç Projeksiyonunu Güncelle</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 Dependency Badges -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="bg-[#f5f5f7] p-4 rounded-2xl border border-slate-200/60 flex flex-col justify-between">
+              <p class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider" data-i18n="kpiChildDep">Çocuk Bağımlılığı (0-14)</p>
+              <p id="indChildDep" class="text-xl sm:text-2xl font-semibold tracking-tight text-[#0071e3] mt-2">%24.57</p>
+            </div>
+            <div class="bg-[#f5f5f7] p-4 rounded-2xl border border-slate-200/60 flex flex-col justify-between">
+              <p class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider" data-i18n="kpiOldDep">Yaşlı Bağımlılığı (65+)</p>
+              <p id="indOldDep" class="text-xl sm:text-2xl font-semibold tracking-tight text-amber-700 mt-2">%15.65</p>
+            </div>
+            <div class="bg-[#f5f5f7] p-4 rounded-2xl border border-slate-200/60 flex flex-col justify-between">
+              <p class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider" data-i18n="kpiTotDep">Toplam Bağımlılık Oranı</p>
+              <p id="indTotalDep" class="text-xl sm:text-2xl font-semibold tracking-tight text-purple-700 mt-2">%40.23</p>
+            </div>
+            <div class="bg-[#f5f5f7] p-4 rounded-2xl border border-slate-200/60 flex flex-col justify-between">
+              <p class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider" data-i18n="kpiAgingIdx">Yaşlanma İndeksi</p>
+              <p id="indAgingIdx" class="text-xl sm:text-2xl font-semibold tracking-tight text-rose-600 mt-2">63.71</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Pyramid Chart -->
+            <div class="bg-[#f5f5f7] p-5 sm:p-6 rounded-[24px] border border-slate-200/60">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-xs font-semibold text-[#1d1d1f]" data-i18n="pyramidTitle">Demografik Yaş-Cinsiyet Nüfus Piramidi (<span id="pyramidYearLabel">2025</span>)</h4>
+                <div class="flex items-center gap-2">
+                  <select id="selPyramidYear" onchange="onPyramidYearChanged()" class="text-xs border border-slate-200/80 rounded-xl px-2.5 py-1 bg-white font-semibold text-[#1d1d1f] shadow-xs"></select>
+                  <span class="text-[11px] text-[#6e6e73]">Mavi: Erkek | Pembe: Kadın</span>
+                </div>
+              </div>
+              <div class="h-80 w-full">
+                <canvas id="pyramidChart"></canvas>
+              </div>
+            </div>
+
+            <!-- 5-Year Cohort Table -->
+            <div class="bg-[#f5f5f7] p-5 sm:p-6 rounded-[24px] border border-slate-200/60 flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider" data-i18n="cohortTableTitle">5'er Yıllık Yaş Grupları ve TÜİK Yaşam Oranları</h4>
+                <span class="text-[11px] text-[#6e6e73] font-mono">TÜİK TD-10 Hayat Tablosu</span>
+              </div>
+              <div class="overflow-y-auto max-h-80 rounded-2xl border border-slate-200/60 bg-white">
+                <table class="w-full text-left text-xs text-[#1d1d1f]">
+                  <thead class="bg-[#f5f5f7] text-[#6e6e73] font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200/80 sticky top-0">
+                    <tr>
+                      <th class="py-2.5 px-3">Yaş Grubu</th>
+                      <th class="py-2.5 px-3 text-right"><span data-yr="base">2025</span> Erkek</th>
+                      <th class="py-2.5 px-3 text-right"><span data-yr="base">2025</span> Kadın</th>
+                      <th class="py-2.5 px-3 text-right"><span data-yr="base">2025</span> Toplam</th>
+                      <th class="py-2.5 px-3 text-right"><span data-yr="t1">2035</span> Hedef</th>
+                      <th class="py-2.5 px-3 text-right">Sx (Erkek)</th>
+                      <th class="py-2.5 px-3 text-right">Sx (Kadın)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cohortTableBody" class="divide-y divide-slate-100"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- İktisadi Temel ve Göç Projeksiyon Özeti Tablosu -->
+          <div id="cohortSummaryCard" class="hidden bg-white rounded-2xl border border-slate-200/60 overflow-hidden shadow-sm">
+            <div class="bg-[#f5f5f7] px-5 py-3.5 border-b border-slate-200/80 flex items-center justify-between flex-wrap gap-2">
+              <h4 class="text-xs sm:text-sm font-semibold text-[#1d1d1f] flex items-center gap-2">
+                <span>📊</span> <span>İktisadi Temel ve Göç Projeksiyon Özeti (<span id="lblSummaryYear">2040</span>)</span>
+              </h4>
+              <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">Planlama Eşiği Nüfusu = Doğal Nüfus + Göç</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-white text-[#6e6e73] font-semibold uppercase text-[11px] border-b border-slate-100">
+                  <tr>
+                    <th class="py-2.5 px-4 w-1/4">Gösterge</th>
+                    <th class="py-2.5 px-4 text-right w-1/4">Değer</th>
+                    <th class="py-2.5 px-4 w-1/2">Açıklama</th>
+                  </tr>
+                </thead>
+                <tbody id="cohortSummaryTableBody" class="divide-y divide-slate-100 font-medium text-[#1d1d1f]"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 3 Alternatif Planlama Senaryosu -->
+          <div id="cohortScenariosCard" class="hidden space-y-4">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <h4 class="text-xs sm:text-sm font-semibold text-[#1d1d1f] flex items-center gap-2">
+                <span>🛡️</span> <span>3 Alternatif Planlama Senaryosu (What-If Analizi)</span>
+              </h4>
+              <span class="text-xs text-[#6e6e73]">Jüride hocaya farklı büyüme koşullarını sunmak için tasarlanmıştır.</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <!-- DÜŞÜK -->
+              <div id="cardScenLow" class="p-5 rounded-2xl border border-slate-200/60 bg-white shadow-sm flex flex-col justify-between transition">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                    <span class="text-xs font-semibold text-[#6e6e73] uppercase tracking-wider">DÜŞÜK (DURGUNLUK)</span>
+                  </div>
+                  <p id="scenLowPop" class="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1d1d1f] mt-2">-</p>
+                  <p id="scenLowDiff" class="text-xs font-medium text-[#6e6e73] mt-1">Değişim: -</p>
+                  <p class="text-xs text-[#6e6e73] mt-3 bg-[#f5f5f7] p-3 rounded-xl border border-slate-200/60">Sıfır göç, sadece demografik doğal yaşlanma (Kuşak-Bileşen kapalı model)</p>
+                </div>
+                <button type="button" onclick="selectPlanningScenario('low')" id="btnScenLow" class="mt-4 w-full py-2 px-4 rounded-full text-xs font-semibold bg-[#f5f5f7] hover:bg-slate-200 text-[#1d1d1f] transition">
+                  ✓ Bu Senaryoyu Seç (DÜŞÜK)
+                </button>
+              </div>
+
+              <!-- ORTA -->
+              <div id="cardScenMid" class="p-5 rounded-2xl border border-slate-200/60 bg-white shadow-sm flex flex-col justify-between transition">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                    <span class="text-xs font-semibold text-[#0071e3] uppercase tracking-wider">ORTA (TREND / REGRESYON)</span>
+                  </div>
+                  <p id="scenMidPop" class="text-2xl sm:text-3xl font-semibold tracking-tight text-[#0071e3] mt-2">-</p>
+                  <p id="scenMidDiff" class="text-xs font-medium text-[#0071e3] mt-1">Değişim: -</p>
+                  <p id="scenMidDesc" class="text-xs text-[#6e6e73] mt-3 bg-[#f5f5f7] p-3 rounded-xl border border-slate-200/60">Geçmiş eğilimin analitik devamı (En yüksek uyumlu regresyon modeli)</p>
+                </div>
+                <button type="button" onclick="selectPlanningScenario('mid')" id="btnScenMid" class="mt-4 w-full py-2 px-4 rounded-full text-xs font-semibold bg-blue-50 hover:bg-blue-100 text-[#0071e3] border border-blue-200 transition">
+                  ✓ Bu Senaryoyu Seç (ORTA)
+                </button>
+              </div>
+
+              <!-- YÜKSEK -->
+              <div id="cardScenHigh" class="p-5 rounded-2xl border-2 border-[#0071e3] bg-white shadow-md flex flex-col justify-between transition">
+                <div>
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                      <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">YÜKSEK (SANAYİ / VİZYON)</span>
+                    </div>
+                    <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">Önerilen</span>
+                  </div>
+                  <p id="scenHighPop" class="text-2xl sm:text-3xl font-semibold tracking-tight text-emerald-600 mt-2">-</p>
+                  <p id="scenHighDiff" class="text-xs font-semibold text-emerald-600 mt-1">Değişim: -</p>
+                  <p id="scenHighDesc" class="text-xs text-[#6e6e73] mt-3 bg-[#f5f5f7] p-3 rounded-xl border border-slate-200/60">İktisadi Taban ve İstihdam Çarpanı ile gelen işgücü ve aile göçü</p>
+                </div>
+                <button type="button" onclick="selectPlanningScenario('high')" id="btnScenHigh" class="mt-4 w-full py-2 px-4 rounded-full text-xs font-semibold bg-[#0071e3] hover:bg-[#0077ed] text-white transition shadow-sm">
+                  ✓ Bu Senaryoyu Seç (YÜKSEK)
+                </button>
+              </div>
+            </div>
+
+            <!-- Karşılaştırmalı Analiz Tablosu -->
+            <div class="bg-white rounded-2xl border border-slate-200/60 overflow-hidden shadow-sm mt-4">
+              <div class="bg-[#f5f5f7] px-5 py-3 border-b border-slate-200/80 flex items-center justify-between">
+                <h5 class="text-xs font-semibold text-[#1d1d1f]">📑 Planlama Senaryolarının Karşılaştırmalı Analizi (<span id="lblAnalysisYear">2045</span>)</h5>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-[#1d1d1f]">
+                  <thead class="bg-white text-[#6e6e73] font-semibold uppercase text-[11px] border-b border-slate-100">
+                    <tr>
+                      <th class="py-2.5 px-3">Senaryo Adı</th>
+                      <th class="py-2.5 px-3 text-right">Öngörülen Nüfus</th>
+                      <th class="py-2.5 px-3 text-right">Artış Oranı (%)</th>
+                      <th class="py-2.5 px-3">Kullanılan Metot & Temel Varsayım</th>
+                      <th class="py-2.5 px-3">Stüdyodaki Rolü</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cohortComparisonTableBody" class="divide-y divide-slate-100"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ===== TAB 3: HANSEN & MAP (MEKÂNSAL DAĞITIM VE HARİTA) ===== -->
+        <div id="tabContent-hansen" class="hidden space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Map -->
+            <div class="bg-[#f5f5f7] p-5 sm:p-6 rounded-[24px] border border-slate-200/60">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-xs font-semibold text-[#1d1d1f]" data-i18n="hansenMapTitle">İnteraktif Kentsel Mekânsal Harita (Leaflet)</h3>
+                <span class="text-xs text-[#6e6e73]" data-i18n="hansenMapLegend">Yeşil: Uygun | Kırmızı: Kapasite Aşımı</span>
+              </div>
+              <div id="leafletMap"></div>
+            </div>
+
+            <!-- Hansen Chart -->
+            <div class="bg-[#f5f5f7] p-5 sm:p-6 rounded-[24px] border border-slate-200/60">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-xs font-semibold text-[#1d1d1f]" data-i18n="hansenChartTitle">Hansen Modeli Alt Bölge Nüfus Dağıtımı</h3>
+                <span class="text-xs text-teal-700 font-mono font-medium">Gi = ΔP × (Ai · di^-α) / Σ(...)</span>
+              </div>
+              <div class="h-80 w-full">
+                <canvas id="hansenChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Saturation Table -->
+          <div class="overflow-x-auto rounded-2xl border border-slate-200/60 bg-white">
             <table class="w-full text-left text-xs text-[#1d1d1f]">
               <thead class="bg-[#f5f5f7] text-[#6e6e73] font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200/80">
                 <tr>
-                  <th class="py-2 px-3" data-i18n="thModel">Model</th>
-                  <th class="py-2 px-3" data-i18n="thFormula">Formül</th>
-                  <th class="py-2 px-3 text-right" data-i18n="thR2">R²</th>
-                  <th class="py-2 px-3 text-right" data-i18n="thMape">SSE</th>
-                  <th class="py-2 px-3 text-right" id="thProjCol1"><span data-yr="t1">2035</span></th>
-                  <th class="py-2 px-3 text-right" id="thProjCol2"><span data-yr="t2">2050</span></th>
+                  <th class="py-3 px-3.5">Mahalle / Alt Bölge</th>
+                  <th class="py-3 px-3.5 text-right">Mevcut (<span data-yr="base">2025</span>)</th>
+                  <th class="py-3 px-3.5 text-right">Dağıtılan İlave (Gi)</th>
+                  <th class="py-3 px-3.5 text-right">Hedef Nüfus (<span data-yr="t1">2035</span>)</th>
+                  <th class="py-3 px-3.5 text-right" data-i18n="thHouseNeed">Konut İhtiyacı</th>
+                  <th class="py-3 px-3.5 text-right" data-i18n="thSaturation">Doygunluk (%)</th>
+                  <th class="py-3 px-3.5" data-i18n="thCapStatus">Kapasite Durumu</th>
                 </tr>
               </thead>
-              <tbody id="curveModelsTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
+              <tbody id="hansenTableBody" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
 
-        <!-- Hidden elements to preserve JS targets -->
-        <div class="hidden" style="display:none;">
-          <span id="bestModelTitle"></span>
-          <span id="bestModelR2Display"></span>
-          <span id="bestModelFormula"></span>
-          <span id="curveMinMaxRange"></span>
-        </div>
-      </section>
-    </div>
-
-    <!-- ===== ROW 2: ÇUBUKÇU BÖLGESEL PAY (SOL) & KUŞAK-BİLEŞEN YAŞ PİRAMİDİ (SAĞ) ===== -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-      <!-- SOL SUTUN: ÇUBUKÇU BÖLGESEL PAY MODELLERİ -->
-      <section class="bg-white rounded-[28px] p-6 sm:p-8 shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 flex flex-col justify-between space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
-          <div class="flex items-center gap-2.5">
-            <span class="text-xl">🏛️</span>
+        <!-- ===== TAB 4: MPYY STANDARTS ===== -->
+        <div id="tabContent-mpyy" class="hidden space-y-5">
+          <div class="flex items-center justify-between flex-wrap gap-3">
             <div>
-              <h4 class="text-sm font-semibold text-[#1d1d1f] tracking-tight">Prof. Dr. K. Mert Çubukçu — Bölgesel Pay Modelleri (Bölüm 4.3)</h4>
-              <p class="text-xs text-[#6e6e73]">Üst bölge (İl / Ülke) nüfus hareketlerinin yerel ölçekle pay ilişkisi</p>
+              <h3 class="text-base sm:text-lg font-semibold tracking-tight text-[#1d1d1f]" data-i18n="mpyyTitle">Mekânsal Planlar Yapım Yönetmeliği (Ek-2) Donatı Standartları</h3>
+              <p class="text-xs text-[#6e6e73] mt-0.5">Hedef <span data-yr="t1">2035</span> Nüfus Artışı İçin Zorunlu Asgari Sosyal ve Teknik Altyapı Alanları</p>
             </div>
+            <span class="text-xs font-semibold bg-rose-50 text-rose-700 py-1.5 px-4 rounded-full border border-rose-200/80">Kişi Başı 19.0 m² Standart</span>
           </div>
-          <span class="bg-blue-50 text-[#0071e3] font-semibold text-xs px-3 py-1 rounded-full border border-blue-200/80 shadow-xs">
-            Makro Yaklaşım
-          </span>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- 1. Sabit Pay -->
-          <div class="bg-[#f5f5f7] rounded-2xl p-4 border border-slate-200/60 shadow-xs flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="text-xs font-semibold text-[#1d1d1f] flex items-center gap-1.5">
-                  <span class="w-2.5 h-2.5 rounded-full bg-sky-500 inline-block"></span>
-                  4.3.1. Sabit Pay (Constant Share)
-                </span>
-                <span class="text-[10px] font-mono bg-sky-50 text-sky-700 px-2 py-0.5 rounded-md font-semibold border border-sky-200">F. 4.30</span>
-              </div>
-              <p class="text-[11px] text-[#6e6e73] mb-2" id="shareConstReview">
-                Yerleşimin üst bölgedeki payının sabit kalacağı kabulü.
-              </p>
-              <div class="bg-white rounded-xl p-2 font-mono text-[10px] text-[#1d1d1f] mb-2 border border-slate-200/60" id="shareConstFormula">
-                e^(t+k) = e^t × (1 + R₁)^k
-              </div>
-              <div class="grid grid-cols-2 gap-2 text-[11px] mb-2">
-                <div class="bg-white p-2 rounded-xl border border-slate-200/60">
-                  <span class="text-[10px] text-[#86868b] block font-medium">Üst Artış (R₁)</span>
-                  <span class="font-semibold text-sky-800" id="shareConstUpperRate">%1.64 / yıl</span>
-                </div>
-                <div class="bg-white p-2 rounded-xl border border-slate-200/60">
-                  <span class="text-[10px] text-[#86868b] block font-medium">Yerel Pay (c)</span>
-                  <span class="font-semibold text-sky-800" id="shareConstLocalShare">%2.46</span>
-                </div>
-              </div>
-            </div>
-            <div class="pt-2 border-t border-slate-200/60 flex items-center justify-between">
-              <div>
-                <span class="text-[10px] text-[#86868b] uppercase font-semibold block" id="shareConstTarget1Year">Hedef Yıl 1</span>
-                <span class="text-sm font-semibold text-[#1d1d1f]" id="shareConstTarget1Val">-</span>
-              </div>
-              <div class="text-right">
-                <span class="text-[10px] text-[#86868b] uppercase font-semibold block" id="shareConstTarget2Year">Hedef Yıl 2</span>
-                <span class="text-xs font-semibold text-[#6e6e73]" id="shareConstTarget2Val">-</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- 2. Değişken Pay -->
-          <div class="bg-[#f5f5f7] rounded-2xl p-4 border border-slate-200/60 shadow-xs flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="text-xs font-semibold text-[#1d1d1f] flex items-center gap-1.5">
-                  <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
-                  4.3.2. Değişken Pay (Shift-Share)
-                </span>
-                <span class="text-[10px] font-mono bg-amber-50 text-amber-700 px-2 py-0.5 rounded-md font-semibold border border-amber-200">F. 4.39</span>
-              </div>
-              <p class="text-[11px] text-[#6e6e73] mb-2" id="shareVarReview">
-                Geçmiş 10 yıllık ayrışma dinamizmi (shift terimi s₁).
-              </p>
-              <div class="bg-white rounded-xl p-2 font-mono text-[10px] text-[#1d1d1f] mb-2 border border-slate-200/60" id="shareVarFormula">
-                e^(t+k) = e^t × (1 + R₁ + s₁)^k
-              </div>
-              <div class="grid grid-cols-2 gap-2 text-[11px] mb-2">
-                <div class="bg-white p-2 rounded-xl border border-slate-200/60">
-                  <span class="text-[10px] text-[#86868b] block font-medium">Değişim (s₁)</span>
-                  <span class="font-semibold text-amber-800" id="shareVarShiftRate">+%2.85 / yıl</span>
-                </div>
-                <div class="bg-white p-2 rounded-xl border border-slate-200/60">
-                  <span class="text-[10px] text-[#86868b] block font-medium">Net Büyüme</span>
-                  <span class="font-semibold text-amber-800" id="shareVarNetRate">%4.49 / yıl</span>
-                </div>
-              </div>
-            </div>
-            <div class="pt-2 border-t border-slate-200/60 flex items-center justify-between">
-              <div>
-                <span class="text-[10px] text-[#86868b] uppercase font-semibold block" id="shareVarTarget1Year">Hedef Yıl 1</span>
-                <span class="text-sm font-semibold text-[#1d1d1f]" id="shareVarTarget1Val">-</span>
-              </div>
-              <div class="text-right">
-                <span class="text-[10px] text-[#86868b] uppercase font-semibold block" id="shareVarTarget2Year">Hedef Yıl 2</span>
-                <span class="text-xs font-semibold text-[#6e6e73]" id="shareVarTarget2Val">-</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SAG SUTUN: KUŞAK-BİLEŞEN & YAŞ PİRAMİDİ -->
-      <section id="tabContent-cohort" class="bg-white rounded-[28px] shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 p-6 sm:p-8 space-y-4 scroll-mt-28 flex flex-col justify-between">
-        <div class="flex items-center justify-between flex-wrap gap-2">
-          <div class="flex items-center gap-2">
-            <span class="text-xl">👥</span>
-            <div>
-              <h4 class="text-sm font-semibold text-[#1d1d1f] tracking-tight">Kuşak-Bileşen & Demografik Yaş Piramidi</h4>
-              <p class="text-xs text-[#6e6e73]">5'er yıllık yaş grupları, kadın/erkek dağılımı ve hayatta kalma oranları</p>
-            </div>
-          </div>
-          <span id="badgeEconStatus" class="text-xs font-semibold px-3 py-1 rounded-full bg-[#f5f5f7] text-[#1d1d1f] border border-slate-200/80 shadow-xs">🌱 Doğal Yaşlanma</span>
-        </div>
-
-        <div class="bg-[#f5f5f7] p-4 rounded-[24px] border border-slate-200/60">
-          <div class="h-64 sm:h-72 w-full">
-            <canvas id="pyramidChart"></canvas>
+          <div class="overflow-x-auto rounded-2xl border border-slate-200/60 bg-white">
+            <table class="w-full text-left text-xs text-[#1d1d1f]">
+              <thead class="bg-[#f5f5f7] text-[#6e6e73] font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200/80">
+                <tr>
+                  <th class="py-3 px-4">Donatı Türü</th>
+                  <th class="py-3 px-4 text-right">Yasal Standart (m²/kişi)</th>
+                  <th class="py-3 px-4 text-right">Gereken Alan (m²)</th>
+                  <th class="py-3 px-4 text-right">Gereken Alan (Hektar)</th>
+                </tr>
+              </thead>
+              <tbody id="mpyyTableBody" class="divide-y divide-slate-100"></tbody>
+            </table>
           </div>
         </div>
 
-        <!-- 3 Senaryo Hızlı Seçim Butonları -->
-        <div class="grid grid-cols-3 gap-2.5 pt-2 border-t border-slate-100">
-          <div id="cardScenLow" class="p-2.5 rounded-xl border border-slate-200/60 bg-[#f5f5f7] text-center">
-            <span class="text-[10px] font-semibold text-[#6e6e73] block uppercase">DÜŞÜK</span>
-            <span id="scenLowPop" class="text-xs sm:text-sm font-bold text-[#1d1d1f] block mt-0.5">-</span>
-            <span id="scenLowDiff" class="text-[9px] text-[#86868b] block">Doğal</span>
-          </div>
-          <div id="cardScenMid" class="p-2.5 rounded-xl border border-blue-200 bg-blue-50/50 text-center">
-            <span class="text-[10px] font-semibold text-[#0071e3] block uppercase">ORTA</span>
-            <span id="scenMidPop" class="text-xs sm:text-sm font-bold text-[#0071e3] block mt-0.5">-</span>
-            <span id="scenMidDiff" class="text-[9px] text-[#0071e3] block">Trend</span>
-          </div>
-          <div id="cardScenHigh" class="p-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50/50 text-center">
-            <span class="text-[10px] font-semibold text-emerald-700 block uppercase">YÜKSEK ⭐</span>
-            <span id="scenHighPop" class="text-xs sm:text-sm font-bold text-emerald-700 block mt-0.5">-</span>
-            <span id="scenHighDiff" class="text-[9px] text-emerald-600 block">Plan Kabulü</span>
-          </div>
-        </div>
-
-        <!-- Hidden checkbox & inputs for cohort JS handlers -->
-        <div class="hidden" style="display:none;">
-          <input type="checkbox" id="chkEnableEconMigration" onchange="onToggleEconMigration()">
-          <div id="econControlPanel">
-            <div id="cardCohortK"><input type="checkbox" id="chkUseCohortK" checked><input type="number" id="inpCohortK" value="4.90"></div>
-            <div id="cardCohortB"><input type="checkbox" id="chkUseCohortB" checked><input type="number" id="inpCohortB" value="1.96"></div>
-            <div id="cardCohortCurEmp"><input type="checkbox" id="chkUseCohortCurEmp" checked><input type="number" id="inpCohortCurEmp" value="32000"></div>
-            <div id="cardCohortTargetEmp"><input type="checkbox" id="chkUseCohortTargetEmp" checked><input type="number" id="inpCohortTargetEmp" value="42000"></div>
-            <div id="cardCohortMigRate"><input type="checkbox" id="chkUseCohortNetMig" checked><input type="number" id="inpCohortNetMig" value="1500"></div>
-          </div>
-          <button id="btnScenLow" onclick="selectPlanningScenario('low')"></button>
-          <button id="btnScenMid" onclick="selectPlanningScenario('mid')"></button>
-          <button id="btnScenHigh" onclick="selectPlanningScenario('high')"></button>
-          <table id="cohortComparisonTable"><tbody id="cohortComparisonTableBody"></tbody></table>
-        </div>
-      </section>
-    </div>
-
-    <!-- ===== ROW 3: HANSEN MEKÂNSAL & HARİTA (SOL) & MPYY STANDARTLARI (SAĞ) ===== -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-      <!-- SOL SUTUN: HANSEN & LEAFLET HARİTA -->
-      <section id="tabContent-hansen" class="bg-white rounded-[28px] shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 p-6 sm:p-8 space-y-4 scroll-mt-28 flex flex-col justify-between">
-        <div class="flex items-center justify-between flex-wrap gap-2">
-          <div>
-            <h3 class="text-base sm:text-lg font-semibold tracking-tight text-[#1d1d1f]" data-i18n="hansenMapTitle">İnteraktif Kentsel Mekânsal Harita (Leaflet)</h3>
-            <p class="text-xs text-[#6e6e73]" data-i18n="hansenMapLegend">Yeşil: Uygun Kapasite | Kırmızı: Kapasite Aşımı</p>
-          </div>
-          <span class="text-xs text-teal-700 font-mono font-medium bg-teal-50 px-2.5 py-1 rounded-full border border-teal-200">Hansen Modeli</span>
-        </div>
-
-        <div class="rounded-2xl overflow-hidden border border-slate-200/60 shadow-xs">
-          <div id="leafletMap" style="height: 340px;"></div>
-        </div>
-
-        <div class="overflow-x-auto rounded-2xl border border-slate-200/60 bg-[#f5f5f7] max-h-48">
-          <table class="w-full text-left text-xs text-[#1d1d1f]">
-            <thead class="bg-white text-[#6e6e73] font-semibold uppercase text-[10px] tracking-wider border-b border-slate-200/80">
-              <tr>
-                <th class="py-2 px-3">Alt Bölge</th>
-                <th class="py-2 px-3 text-right">Mevcut</th>
-                <th class="py-2 px-3 text-right">Hedef (<span data-yr="t1">2035</span>)</th>
-                <th class="py-2 px-3 text-right">Doygunluk</th>
-              </tr>
-            </thead>
-            <tbody id="hansenTableBody" class="divide-y divide-slate-100 bg-[#f5f5f7]"></tbody>
-          </table>
-        </div>
-
-        <div class="hidden" style="display:none;">
-          <canvas id="hansenChart"></canvas>
-        </div>
-      </section>
-
-      <!-- SAG SUTUN: MPYY STANDARTLARI -->
-      <section id="tabContent-mpyy" class="bg-white rounded-[28px] shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 p-6 sm:p-8 space-y-4 scroll-mt-28 flex flex-col justify-between">
-        <div class="flex items-center justify-between flex-wrap gap-2">
-          <div>
-            <h3 class="text-base sm:text-lg font-semibold tracking-tight text-[#1d1d1f]" data-i18n="mpyyTitle">MPYY Ek-2 Donatı Standartları</h3>
-            <p class="text-xs text-[#6e6e73]">Hedef <span data-yr="t1">2035</span> Nüfus Artışı İçin Zorunlu Asgari Sosyal ve Teknik Altyapı</p>
-          </div>
-          <span class="text-xs font-semibold bg-rose-50 text-rose-700 py-1 px-3 rounded-full border border-rose-200/80">19.0 m²/kişi</span>
-        </div>
-
-        <div class="overflow-x-auto rounded-2xl border border-slate-200/60 bg-white shadow-xs max-h-96">
-          <table class="w-full text-left text-xs text-[#1d1d1f]">
-            <thead class="bg-[#f5f5f7] text-[#6e6e73] font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200/80 sticky top-0">
-              <tr>
-                <th class="py-2.5 px-3">Donatı Türü</th>
-                <th class="py-2.5 px-3 text-right">Standart (m²)</th>
-                <th class="py-2.5 px-3 text-right">Gereken Alan</th>
-                <th class="py-2.5 px-3 text-right">Alan (Ha)</th>
-              </tr>
-            </thead>
-            <tbody id="mpyyTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
-          </table>
-        </div>
-      </section>
-    </div>
+      </div>
+    </section>
 
     <!-- ==================== 4. COLLAPSIBLE ADVANCED SETTINGS (GELİŞMİŞ AYARLAR ÇEKMECESİ) ==================== -->
     <section class="bg-white rounded-[28px] shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 overflow-hidden">
@@ -729,9 +938,9 @@
 
   <!-- FOOTER -->
   <footer class="mt-12 py-8 border-t border-slate-200/60 text-center text-xs text-[#86868b] space-y-1">
-    <div class="w-full px-4 sm:px-8 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-3">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
       <div class="flex items-center gap-2">
-        <span class="w-5 h-5 rounded-md bg-[#1d1d1f] text-white font-bold text-[10px] flex items-center justify-center">🏛️</span>
+        <span class="w-5 h-5 rounded-md bg-[#1d1d1f] text-white font-bold text-[10px] flex items-center justify-center">?</span>
         <span class="font-semibold text-[#1d1d1f]">NüfusKaç.</span>
         <span class="text-slate-300">•</span>
         <span class="text-[#6e6e73] font-normal">BM-GEO Demografi & Kentsel Bilişim</span>
@@ -890,7 +1099,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v30') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v31') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -1972,17 +2181,26 @@
       document.getElementById("qrModal").classList.add("hidden");
     }
 
-    function switchTab(tabId, shouldScroll = true) {
+    function switchTab(tabId) {
       const tabs = ['curves', 'cohort', 'hansen', 'mpyy'];
       tabs.forEach(t => {
+        const content = document.getElementById(`tabContent-${t}`);
         const btn = document.getElementById(`tabBtn-${t}`);
         const mBtn = document.getElementById(`mTab-${t}`);
 
+        if (content) {
+          if (t === tabId) {
+            content.classList.remove("hidden");
+          } else {
+            content.classList.add("hidden");
+          }
+        }
+
         if (btn) {
           if (t === tabId) {
-            btn.className = "tab-active py-2 px-4 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition";
+            btn.className = "tab-active py-3 px-4 whitespace-nowrap flex items-center gap-1.5 transition";
           } else {
-            btn.className = "tab-inactive py-2 px-4 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition";
+            btn.className = "tab-inactive py-3 px-4 whitespace-nowrap flex items-center gap-1.5 transition";
           }
         }
 
@@ -1994,13 +2212,6 @@
           }
         }
       });
-
-      if (shouldScroll) {
-        const target = document.getElementById(`tabContent-${tabId}`);
-        if (target) {
-          target.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      }
 
       // Special resize trigger for map & charts when tab becomes visible
       if (tabId === 'curves' && curveChartInstance) {
@@ -2019,20 +2230,6 @@
         }, 120);
       }
     }
-
-    // Scroll-Spy: Update active navigation pill on scroll
-    window.addEventListener("scroll", () => {
-      const sectionIds = ['curves', 'cohort', 'hansen', 'mpyy'];
-      const scrollPos = window.scrollY + 200;
-      for (let i = sectionIds.length - 1; i >= 0; i--) {
-        const sid = sectionIds[i];
-        const el = document.getElementById(`tabContent-${sid}`);
-        if (el && el.offsetTop <= scrollPos) {
-          switchTab(sid, false);
-          break;
-        }
-      }
-    }, { passive: true });
 
     function renderSettlementsTable() {
       const tbody = document.getElementById("settlementsTableBody");
