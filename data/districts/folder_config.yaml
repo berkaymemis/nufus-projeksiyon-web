@@ -1,0 +1,5 @@
+name: "district_boundaries"
+version: "1.0.0"
+description: "81 Province partitioned official district boundary GeoJSONs for Uber H3 clipping"
+format: "GeoJSON"
+source: "turkiye-harita-verisi"

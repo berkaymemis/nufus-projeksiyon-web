@@ -1151,7 +1151,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v36') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v37') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -3774,6 +3774,10 @@
       }
     }
 
+    // Global cache for per-province district GeoJSON boundaries
+    let districtGeoCache = {};
+    let leafletDistrictBoundariesGroup = null;
+
     function updateH3LegendDisplay() {
       const legElem = document.getElementById('h3LegendPills');
       if (!legElem) return;
@@ -3815,10 +3819,12 @@
           maxZoom: 18,
           attribution: '© OpenStreetMap contributors | Uber H3 DGGS'
         }).addTo(leafletMapInstance);
+        leafletDistrictBoundariesGroup = L.layerGroup().addTo(leafletMapInstance);
         leafletH3Group = L.layerGroup().addTo(leafletMapInstance);
         leafletMarkersGroup = L.layerGroup().addTo(leafletMapInstance);
       }
 
+      if (leafletDistrictBoundariesGroup) leafletDistrictBoundariesGroup.clearLayers();
       leafletMarkersGroup.clearLayers();
       leafletH3Group.clearLayers();
       updateH3LegendDisplay();
@@ -3880,7 +3886,7 @@
         "VAN/ERCİŞ": [39.0278, 43.3597], "VAN/ERCIS": [39.0278, 43.3597],
         "VAN/MURADİYE": [38.9850, 43.7550], "VAN/MURADIYE": [38.9850, 43.7550],
         "VAN/ÖZALP": [38.6550, 44.0200], "VAN/OZALP": [38.6550, 44.0200],
-        "VAN/ÇALDIRAN": [39.1450, 43.9100], "VAN/CALDIRAN": [39.1450, 43.9100],
+        "VAN/ÇALDIRAN": [39.1450, 44.9100], "VAN/CALDIRAN": [39.1450, 44.9100],
         "VAN/GEVAŞ": [38.2950, 43.1000], "VAN/GEVAS": [38.2950, 43.1000],
         "VAN/GÜRPINAR": [38.3200, 43.4150], "VAN/GURPINAR": [38.3200, 43.4150],
         "VAN/BAŞKALE": [37.9650, 44.0150], "VAN/BASKALE": [37.9650, 44.0150],
@@ -3914,21 +3920,6 @@
         "İZMİR/KİRAZ": [38.2306, 28.2042], "IZMIR/KIRAZ": [38.2306, 28.2042],
         "İZMİR/BEYDAĞ": [38.1528, 28.2111], "IZMIR/BEYDAG": [38.1528, 28.2111],
         "İZMİR/KARABURUN": [38.6369, 26.5117], "IZMIR/KARABURUN": [38.6369, 26.5117],
-        // SAMSUN İLÇELERİ
-        "SAMSUN/19 MAYIS": [41.4939, 36.0825], "SAMSUN/ONDOKUZMAYIS": [41.4939, 36.0825],
-        "SAMSUN/BAFRA": [41.5678, 35.9069],
-        "SAMSUN/ÇARŞAMBA": [41.1989, 36.7267], "SAMSUN/CARSAMBA": [41.1989, 36.7267],
-        "SAMSUN/ATAKUM": [41.3217, 36.2750],
-        "SAMSUN/İLKADIM": [41.2867, 36.3300], "SAMSUN/ILKADIM": [41.2867, 36.3300],
-        "SAMSUN/CANİK": [41.2750, 36.3600], "SAMSUN/CANIK": [41.2750, 36.3600],
-        "SAMSUN/TEKKEKÖY": [41.2150, 36.4550], "SAMSUN/TEKKEKOY": [41.2150, 36.4550],
-        "SAMSUN/HAVZA": [40.9789, 35.6728],
-        "SAMSUN/VEZİRKÖPRÜ": [41.1417, 35.4550], "SAMSUN/VEZIRKOPRU": [41.1417, 35.4550],
-        // KÜTAHYA İLÇELERİ
-        "KÜTAHYA/ALTINTAŞ": [39.0628, 30.0894], "KUTAHYA/ALTINTAS": [39.0628, 30.0894],
-        "KÜTAHYA/TAVŞANLI": [39.5442, 29.4922], "KUTAHYA/TAVSANLI": [39.5442, 29.4922],
-        "KÜTAHYA/GEDİZ": [38.9989, 29.5744], "KUTAHYA/GEDIZ": [38.9989, 29.5744],
-        "KÜTAHYA/SİMAV": [39.0889, 28.9778], "KUTAHYA/SIMAV": [39.0889, 28.9778],
         // ANKARA İLÇELERİ
         "ANKARA/ÇANKAYA": [39.9042, 32.8597], "ANKARA/CANKAYA": [39.9042, 32.8597],
         "ANKARA/KEÇİÖREN": [39.9833, 32.8667], "ANKARA/KECIOREN": [39.9833, 32.8667],
@@ -3939,23 +3930,7 @@
         "ANKARA/ALTINDAĞ": [39.9417, 32.8542], "ANKARA/ALTINDAG": [39.9417, 32.8542],
         "ANKARA/PURSAKLAR": [40.0389, 32.9011],
         "ANKARA/GÖLBAŞI": [39.7917, 32.8083], "ANKARA/GOLBASI": [39.7917, 32.8083],
-        "ANKARA/POLATLI": [39.5786, 32.1464],
-        // İSTANBUL İLÇELERİ
-        "İSTANBUL/KADIKÖY": [40.9917, 29.0278], "ISTANBUL/KADIKOY": [40.9917, 29.0278],
-        "İSTANBUL/BEŞİKTAŞ": [41.0428, 29.0078], "ISTANBUL/BESIKTAS": [41.0428, 29.0078],
-        "İSTANBUL/ŞİŞLİ": [41.0606, 28.9878], "ISTANBUL/SISLI": [41.0606, 28.9878],
-        "İSTANBUL/FATİH": [41.0189, 28.9489], "ISTANBUL/FATIH": [41.0189, 28.9489],
-        "İSTANBUL/ÜSKÜDAR": [41.0267, 29.0167], "ISTANBUL/USKUDAR": [41.0267, 29.0167],
-        "İSTANBUL/MALTEPE": [40.9250, 29.1333],
-        "İSTANBUL/KARTAL": [40.8989, 29.1867],
-        "İSTANBUL/PENDİK": [40.8756, 29.2333], "ISTANBUL/PENDIK": [40.8756, 29.2333],
-        "İSTANBUL/ÜMRANİYE": [41.0256, 29.0967], "ISTANBUL/UMRANIYE": [41.0256, 29.0967],
-        "İSTANBUL/BAKIRKÖY": [40.9786, 28.8722], "ISTANBUL/BAKIRKOY": [40.9786, 28.8722],
-        "İSTANBUL/BEYOĞLU": [41.0369, 28.9772], "ISTANBUL/BEYOGLU": [41.0369, 28.9772],
-        "İSTANBUL/SARIYER": [41.1689, 29.0567],
-        "İSTANBUL/ESENYURT": [41.0342, 28.6806],
-        "İSTANBUL/KÜÇÜKÇEKMECE": [41.0028, 28.7789], "ISTANBUL/KUCUKCEKMECE": [41.0028, 28.7789],
-        "İSTANBUL/BAŞAKŞEHİR": [41.1069, 28.8028], "ISTANBUL/BASAKSEHIR": [41.1069, 28.8028]
+        "ANKARA/POLATLI": [39.5786, 32.1464]
       };
 
       const selP = document.getElementById("selAdnksProv");
@@ -3963,6 +3938,7 @@
       const provVal = selP ? selP.value : "";
       const distVal = selD ? selD.value : "";
       const isProvinceLevel = distVal === "IL_GENELI";
+      const provSlug = trNorm(provVal);
       const mapKey = `${trNorm(provVal)}/${trNorm(distVal)}`;
       const provN = {};
       Object.keys(provCoords).forEach(k => { provN[trNorm(k)] = provCoords[k]; });
@@ -3989,13 +3965,11 @@
           sz._lat = assignedCoord[0];
           sz._lon = assignedCoord[1];
         } else if (isProvinceLevel) {
-          // If not in distCoords, distribute across the province at realistic regional distance (12 - 45 km)
           const distKm = 12.0 + (idx * 4.5);
           const angle = (idx / Math.max(1, subzones.length)) * 2 * Math.PI;
           sz._lat = baseLoc[0] + (distKm / 111.0) * Math.sin(angle);
           sz._lon = baseLoc[1] + (distKm / (111.0 * Math.cos(baseLoc[0] * Math.PI / 180))) * Math.cos(angle);
         } else {
-          // Local neighbourhoods within urban footprint (0.8 - 3.5 km)
           const distKm = 0.8 + ((idx % 5) * 0.55) + (Math.floor(idx / 5) * 0.7);
           const angle = (idx * (2 * Math.PI / Math.min(subzones.length, 6))) + (Math.floor(idx / 6) * 0.5);
           sz._lat = baseLoc[0] + (distKm / 111.0) * Math.sin(angle);
@@ -4039,9 +4013,31 @@
         }
       });
 
-      // Render Hexagonal DGGS Grid
+      // 1. Fetch Province District Boundaries GeoJSON if available
+      if (provSlug && !districtGeoCache[provSlug]) {
+        fetch(`data/districts/${provSlug}.json`)
+          .then(res => {
+            if (!res.ok) throw new Error("District boundaries not found");
+            return res.json();
+          })
+          .then(geoData => {
+            districtGeoCache[provSlug] = geoData;
+            // If user is still viewing this province, re-render with official district boundary polygons
+            const curP = document.getElementById("selAdnksProv")?.value;
+            if (trNorm(curP) === provSlug && leafletMapInstance) {
+              renderDistrictGeoJSON(geoData, subzones, isProvinceLevel, distVal, bounds);
+            }
+          })
+          .catch(err => {
+            console.info("District GeoJSON fetch notice:", err.message);
+          });
+      } else if (provSlug && districtGeoCache[provSlug]) {
+        renderDistrictGeoJSON(districtGeoCache[provSlug], subzones, isProvinceLevel, distVal, bounds);
+      }
+
+      // 2. Render Hexagonal DGGS Grid (with boundary clipping or centroid fallback)
       if (mapLayerMode === 'hex' || mapLayerMode === 'hybrid') {
-        renderH3HexagonalGrid(baseLoc, subzones, bounds);
+        renderH3HexagonalGrid(baseLoc, subzones, bounds, districtGeoCache[provSlug]);
       }
 
       if (bounds.length > 0) {
@@ -4049,7 +4045,47 @@
       }
     }
 
-    function renderH3HexagonalGrid(baseLoc, subzones, bounds) {
+    function renderDistrictGeoJSON(geoData, subzones, isProvinceLevel, distVal, bounds) {
+      if (!leafletDistrictBoundariesGroup || !geoData || !geoData.features) return;
+      leafletDistrictBoundariesGroup.clearLayers();
+
+      const normDist = trNorm(distVal || '');
+
+      const boundaryLayer = L.geoJSON(geoData, {
+        style: function(feat) {
+          const normFeat = trNorm(feat.properties.name || '');
+          const isSelected = !isProvinceLevel && normDist && (normFeat.includes(normDist) || normDist.includes(normFeat));
+          return {
+            color: isSelected ? '#3B82F6' : '#64748B',
+            weight: isSelected ? 2.5 : 1.2,
+            opacity: 0.9,
+            dashArray: isSelected ? null : '4, 4',
+            fillColor: isSelected ? '#6366F1' : '#000000',
+            fillOpacity: isSelected ? 0.08 : 0.0
+          };
+        },
+        onEachFeature: function(feat, layer) {
+          const dName = feat.properties.name || '';
+          layer.bindTooltip(`<strong>${dName} İlçesi Sınırı</strong>`, {
+            sticky: true,
+            className: 'text-xs font-semibold px-2 py-1 rounded shadow-sm bg-white/95 text-slate-800'
+          });
+        }
+      });
+
+      boundaryLayer.addTo(leafletDistrictBoundariesGroup);
+
+      // Collect bounds from district GeoJSON
+      try {
+        const b = boundaryLayer.getBounds();
+        if (b.isValid()) {
+          bounds.push([b.getSouthWest().lat, b.getSouthWest().lng]);
+          bounds.push([b.getNorthEast().lat, b.getNorthEast().lng]);
+        }
+      } catch(e) {}
+    }
+
+    function renderH3HexagonalGrid(baseLoc, subzones, bounds, geoData) {
       if (!leafletH3Group) return;
       const res = h3Resolution || 8;
       const isH3Avail = (typeof h3 !== 'undefined' && h3 && typeof h3.latLngToCell === 'function');
@@ -4057,6 +4093,8 @@
 
       const selD = document.getElementById("selAdnksDist");
       const isProvinceLevel = selD && selD.value === "IL_GENELI";
+      const distVal = selD ? selD.value : "";
+      const normDist = trNorm(distVal || '');
 
       const totalGi = (subzones || []).reduce((acc, s) => acc + (s.additional_pop_Gi || 0), 0);
       const maxGi = Math.max(...(subzones || []).map(s => s.additional_pop_Gi || 0), 1);
@@ -4066,9 +4104,77 @@
         return s.target_pop_Pi !== undefined ? s.target_pop_Pi : (s.target_pop_2045 !== undefined ? s.target_pop_2045 : (cur + add));
       }), 1);
 
-      if (isH3Avail) {
+      // --- METHOD 1: EXACT DISTRICT BOUNDARY POLYGON TO CELLS (H3 CLIPPING) ---
+      let usedPolygonClipping = false;
+      if (isH3Avail && geoData && geoData.features && geoData.features.length > 0 && typeof h3.polygonToCells === 'function') {
         try {
-          // 1. Generate hexagons directly covering each subzone / district
+          const h3TargetRes = isProvinceLevel ? 7 : (h3Resolution || 8); // Res 7 for province gives ~4000 crisp cells, Res 8 for district
+
+          geoData.features.forEach(feat => {
+            const featName = feat.properties.name || '';
+            const normFeat = trNorm(featName);
+
+            // If user selected a specific district, focus strictly on that district
+            if (!isProvinceLevel && normDist && !normFeat.includes(normDist) && !normDist.includes(normFeat)) {
+              return;
+            }
+
+            // Match to Hansen subzone
+            let matchedSz = null;
+            (subzones || []).forEach(sz => {
+              const normSz = trNorm(sz.name || '');
+              if (normSz.includes(normFeat) || normFeat.includes(normSz)) {
+                matchedSz = sz;
+              }
+            });
+
+            if (!matchedSz && (subzones || []).length > 0) {
+              matchedSz = subzones.find(s => trNorm(s.name || '').includes(normFeat)) || null;
+            }
+            if (!matchedSz) {
+              matchedSz = {
+                name: `${featName} İlçesi`,
+                additional_pop_Gi: 0,
+                current_pop: 5000,
+                target_pop_Pi: 5000
+              };
+            }
+
+            const geom = feat.geometry;
+            if (!geom || !geom.coordinates) return;
+
+            const polyList = (geom.type === 'Polygon') ? [geom.coordinates] : (geom.type === 'MultiPolygon' ? geom.coordinates : []);
+
+            polyList.forEach(polyCoords => {
+              try {
+                // h3.polygonToCells(coordinates, res, isGeoJson = true)
+                const cells = h3.polygonToCells(polyCoords, h3TargetRes, true);
+                cells.forEach(cid => {
+                  if (!cellsMap.has(cid)) {
+                    cellsMap.set(cid, {
+                      boundary: h3.cellToBoundary(cid),
+                      center: h3.cellToLatLng(cid),
+                      cellId: cid,
+                      primarySz: matchedSz,
+                      districtName: featName
+                    });
+                  }
+                });
+              } catch(pErr) {}
+            });
+          });
+
+          if (cellsMap.size > 0) {
+            usedPolygonClipping = true;
+          }
+        } catch (err) {
+          console.warn("District polygonToCells notice, falling back to centroid tessellation:", err);
+        }
+      }
+
+      // --- METHOD 2: CENTROID CLUSTERING (FALLBACK IF GEOJSON NOT YET LOADED) ---
+      if (!usedPolygonClipping && isH3Avail) {
+        try {
           (subzones || []).forEach(sz => {
             if (sz._lat && sz._lon) {
               const szCell = h3.latLngToCell(sz._lat, sz._lon, res);
@@ -4080,14 +4186,14 @@
                     boundary: h3.cellToBoundary(cid),
                     center: h3.cellToLatLng(cid),
                     cellId: cid,
-                    primarySz: sz
+                    primarySz: sz,
+                    districtName: sz.name
                   });
                 }
               });
             }
           });
 
-          // 2. Also cover central town area if single district / neighborhood level
           if (!isProvinceLevel && baseLoc) {
             const centerCell = h3.latLngToCell(baseLoc[0], baseLoc[1], res);
             const centerDisk = h3.gridDisk(centerCell, res === 7 ? 2 : 3);
@@ -4097,17 +4203,18 @@
                   boundary: h3.cellToBoundary(cid),
                   center: h3.cellToLatLng(cid),
                   cellId: cid,
-                  primarySz: null
+                  primarySz: null,
+                  districtName: "Merkez"
                 });
               }
             });
           }
         } catch (err) {
-          console.warn("h3-js calculation error:", err);
+          console.warn("Centroid h3 calculation notice:", err);
         }
       }
 
-      // Mathematical Fallback for Hexagonal DGGS if h3-js unavailable
+      // --- METHOD 3: MATHEMATICAL FALLBACK IF H3-JS UNAVAILABLE ---
       if (cellsMap.size === 0) {
         const edgeKm = (res === 7) ? 1.4 : (res === 8 ? 0.53 : 0.20);
         (subzones || []).forEach(sz => {
@@ -4128,13 +4235,14 @@
                 boundary.push([pLat, pLng]);
               }
               const cellId = `8${res}` + Math.abs(Math.round(cLat * 1000 + cLng * 1000)).toString(16).padStart(13, 'a');
-              cellsMap.set(cellId, { boundary, center: [cLat, cLng], cellId, primarySz: sz });
+              cellsMap.set(cellId, { boundary, center: [cLat, cLng], cellId, primarySz: sz, districtName: sz.name });
             }
           }
         });
       }
 
-      const cellAreaKm2 = (res === 7 ? 5.16 : (res === 8 ? 0.73 : 0.10));
+      const activeRes = (usedPolygonClipping && isProvinceLevel) ? 7 : res;
+      const cellAreaKm2 = (activeRes === 7 ? 5.16 : (activeRes === 8 ? 0.73 : 0.10));
       const cellItems = [];
 
       cellsMap.forEach((cellData, cid) => {
@@ -4142,7 +4250,7 @@
         const cLng = cellData.center[1];
         bounds.push([cLat, cLng]);
 
-        // Find associated subzone: primarySz or nearest subzone
+        // Strict 1:1 data binding: use primary associated subzone
         let assignedSz = cellData.primarySz;
         if (!assignedSz && (subzones || []).length > 0) {
           let minDist = Infinity;
@@ -4167,7 +4275,6 @@
         const hNeed = assignedSz.housing_need !== undefined ? assignedSz.housing_need : Math.round(addP / 2.85);
         const sharePct = totalGi > 0 ? (addP / totalGi) * 100 : 0;
 
-        // Gravity score: square-root normalized relative to peak Gi so every tier is visibly differentiated
         const relGiRatio = addP / maxGi;
         const gravScoreSqrt = Math.sqrt(Math.max(0, relGiRatio)) * 100;
         const densityScore = (tgtP / maxTgtPop) * 100;
@@ -4185,7 +4292,8 @@
           sharePct,
           relGiRatio,
           gravScoreSqrt,
-          densityScore
+          densityScore,
+          districtName: cellData.districtName || assignedSz.name
         });
       });
 
@@ -4220,13 +4328,13 @@
 
           if (gs >= 65 || item.relGiRatio >= 0.70) {
             fillColor = '#EF4444'; // Zirve Hansen Çekim (Kırmızı)
-            fillOpacity = 0.80;
+            fillOpacity = 0.82;
           } else if (gs >= 25 || item.relGiRatio >= 0.15) {
             fillColor = '#F97316'; // Yüksek Çekim (Turuncu)
-            fillOpacity = 0.72;
+            fillOpacity = 0.74;
           } else if (gs >= 10 || item.relGiRatio >= 0.02) {
             fillColor = '#EAB308'; // Orta Çekim (Sarı)
-            fillOpacity = 0.65;
+            fillOpacity = 0.68;
           } else {
             fillColor = '#3B82F6'; // Düşük / Periferi (Mavi)
             fillOpacity = 0.55;
@@ -4236,16 +4344,16 @@
         const poly = L.polygon(item.boundary, {
           fillColor: fillColor,
           color: strokeColor,
-          weight: 1.2,
-          opacity: 0.95,
+          weight: 1.0,
+          opacity: 0.90,
           fillOpacity: fillOpacity
         });
 
         poly.on('mouseover', function() {
-          this.setStyle({ weight: 2.8, color: '#FFFFFF', fillOpacity: 0.90 });
+          this.setStyle({ weight: 2.8, color: '#FFFFFF', fillOpacity: 0.92 });
         });
         poly.on('mouseout', function() {
-          this.setStyle({ weight: 1.2, color: strokeColor, fillOpacity: fillOpacity });
+          this.setStyle({ weight: 1.0, color: strokeColor, fillOpacity: fillOpacity });
         });
 
         const isEn = (currentLang === 'en');
@@ -4258,12 +4366,12 @@
               <div class="flex items-center gap-1.5 font-bold text-slate-900">
                 <span style="color:${fillColor}">⬡</span> <span>Uber H3 DGGS</span>
               </div>
-              <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full" style="background:${fillColor}22; color:${fillColor};">Res ${res}</span>
+              <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full" style="background:${fillColor}22; color:${fillColor};">Res ${activeRes}</span>
             </div>
             <p class="text-[11px] font-mono text-slate-500 mb-1.5 bg-slate-50 p-1 rounded">ID: <strong>${item.cellId}</strong></p>
             
             <div class="bg-indigo-50/70 border border-indigo-100/80 rounded p-1.5 mb-2 text-center">
-              <div class="text-[10px] uppercase font-semibold text-indigo-600">${isEn ? 'Associated Settlement' : 'İlişkili Bölge / Mahalle'}</div>
+              <div class="text-[10px] uppercase font-semibold text-indigo-600">${isEn ? 'Official District Boundary' : 'Resmi İlçe Mülki Sınırı'}</div>
               <strong class="text-xs font-bold text-slate-900">${item.sz.name}</strong>
             </div>
 
