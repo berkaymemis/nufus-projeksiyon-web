@@ -231,14 +231,13 @@
             <span class="text-xs text-[#6e6e73] font-medium" id="kpiHighSubtitle">Hedef Yıl: <strong class="text-[#1d1d1f]" data-yr="t1">2030</strong></span>
           </div>
 
-          <h2 id="heroCityTitle" class="text-2xl sm:text-4xl font-semibold tracking-tight text-[#1d1d1f]">
+          <h2 id="heroCityTitle" class="text-xl sm:text-2xl font-semibold tracking-tight text-[#1d1d1f]">
             İzmir / Tire
           </h2>
 
-          <div class="flex items-baseline gap-3 my-3 flex-wrap">
-            <span id="kpiHighPop" class="text-5xl sm:text-7xl font-semibold tracking-tight text-[#1d1d1f]">-</span>
-            <span class="text-xl sm:text-2xl font-normal text-[#86868b]">Kişi</span>
-            <span id="heroNetChange" class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3.5 py-1.5 rounded-full border border-emerald-200/80">
+          <div class="flex items-center gap-3 my-2 flex-wrap">
+            <span id="kpiHighPop" class="text-3xl sm:text-4xl font-semibold tracking-tight text-[#1d1d1f]">-</span>
+            <span id="heroNetChange" class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/80">
               Canlı Projeksiyon
             </span>
           </div>
@@ -1100,7 +1099,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v24') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v25') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -3910,8 +3909,8 @@
         kpi3Sub: "(Geçmiş Trend)",
         kpi4Title: "4. Yüksek Senaryo",
         kpi4Sub: "(Plan Kabulü)",
-        kpi5Title: "3. MODEL UYUMU",
-        kpi6Title: "4. MPYY DONATI",
+        kpi5Title: "En Uyumlu Model",
+        kpi6Title: "Gereken Donatı",
         kpi6Sub: "Ek-2 Yasal Standart",
         tabData: "📂 1. Çalışma Alanı & Veri",
         tabCurves: "📈 1. Curve Fitting (6 Regresyon Modeli)",
@@ -4027,8 +4026,8 @@
         kpi3Sub: "(Historical Trend)",
         kpi4Title: "4. High Scenario",
         kpi4Sub: "(Master Plan Policy)",
-        kpi5Title: "3. MODEL FIT",
-        kpi6Title: "4. MPYY AMENITIES",
+        kpi5Title: "Best-Fit Model",
+        kpi6Title: "Required Facility Area",
         kpi6Sub: "Annex-2 Legal Std",
         tabData: "📂 1. Study Area & Data",
         tabCurves: "📈 1. Curve Fitting (6 Regression Models)",
