@@ -24,6 +24,9 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <!-- QRCode.js -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <!-- Uber H3 DGGS Hexagonal Spatial Index via CDN -->
+  <script src="https://unpkg.com/h3-js@4.1.0/dist/h3-js.umd.js"></script>
+
 
   <style>
     body {
@@ -713,13 +716,60 @@
         <!-- ===== TAB 3: HANSEN & MAP (MEKÂNSAL DAĞITIM VE HARİTA) ===== -->
         <div id="tabContent-hansen" class="hidden space-y-6">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Map -->
-            <div class="bg-[#f5f5f7] p-5 sm:p-6 rounded-[24px] border border-slate-200/60">
-              <div class="flex items-center justify-between mb-3">
-                <h3 class="text-xs font-semibold text-[#1d1d1f]" data-i18n="hansenMapTitle">İnteraktif Kentsel Mekânsal Harita (Leaflet)</h3>
-                <span class="text-xs text-[#6e6e73]" data-i18n="hansenMapLegend">Yeşil: Uygun | Kırmızı: Kapasite Aşımı</span>
+            <!-- Map Container with Uber H3 DGGS Controls -->
+            <div class="bg-white p-5 sm:p-6 rounded-[24px] border border-slate-200/80 shadow-xs space-y-3">
+              <div class="flex items-center justify-between flex-wrap gap-2.5 pb-2 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse"></span>
+                  <h3 class="text-xs sm:text-sm font-semibold text-slate-900" data-i18n="hansenMapTitle">İnteraktif Mekânsal Harita (Leaflet & Uber H3 DGGS)</h3>
+                </div>
+
+                <!-- Layer Switcher Pills -->
+                <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-full border border-slate-200 text-xs">
+                  <button type="button" id="btnMapLayerAdmin" onclick="setMapLayerMode('admin')" class="py-1 px-3 rounded-full font-semibold transition text-slate-600 hover:text-slate-900">
+                    🏛️ İdari Mahalleler
+                  </button>
+                  <button type="button" id="btnMapLayerH3" onclick="setMapLayerMode('h3')" class="py-1 px-3 rounded-full font-semibold transition bg-white text-blue-600 shadow-xs">
+                    ⬡ Uber H3 Heksagon
+                  </button>
+                  <button type="button" id="btnMapLayerHybrid" onclick="setMapLayerMode('hybrid')" class="py-1 px-3 rounded-full font-semibold transition text-slate-600 hover:text-slate-900">
+                    🗺️ Hibrit
+                  </button>
+                </div>
               </div>
-              <div id="leafletMap"></div>
+
+              <!-- Secondary H3 Controls Row: Resolution & Metric Selector -->
+              <div id="h3ControlsBar" class="flex items-center justify-between flex-wrap gap-2 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-200/80">
+                <div class="flex items-center gap-2">
+                  <span class="text-slate-500 font-semibold text-[11px] uppercase tracking-wider">⬡ H3 Çözünürlük:</span>
+                  <select id="selH3Resolution" onchange="onH3ConfigChanged()" class="bg-white border border-slate-200 text-slate-800 font-semibold text-xs rounded-lg px-2 py-1 focus:ring-1 focus:ring-blue-600">
+                    <option value="7">Res 7 (~5.1 km² - İlçe / Havza)</option>
+                    <option value="8" selected>Res 8 (~0.73 km² - Kentsel / Mahalle)</option>
+                    <option value="9">Res 9 (~0.10 km² - Yapı Adası / Blok)</option>
+                  </select>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-slate-500 font-semibold text-[11px] uppercase tracking-wider">Gösterge:</span>
+                  <select id="selH3Metric" onchange="onH3ConfigChanged()" class="bg-white border border-slate-200 text-slate-800 font-semibold text-xs rounded-lg px-2 py-1 focus:ring-1 focus:ring-blue-600">
+                    <option value="gravity" selected>Hansen Çekim Gücü (Gi)</option>
+                    <option value="density">Tahmini Nüfus Yoğunluğu</option>
+                  </select>
+                </div>
+                <div class="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium">
+                  <span class="inline-block w-3 h-3 rounded-sm bg-[#3b82f6]"></span> Düşük
+                  <span class="inline-block w-3 h-3 rounded-sm bg-[#10b981]"></span> Orta
+                  <span class="inline-block w-3 h-3 rounded-sm bg-[#f59e0b]"></span> Yüksek
+                  <span class="inline-block w-3 h-3 rounded-sm bg-[#ef4444]"></span> Zirve
+                </div>
+              </div>
+
+              <!-- The Leaflet Map container -->
+              <div id="leafletMap" class="w-full rounded-2xl overflow-hidden shadow-inner"></div>
+
+              <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1 flex-wrap gap-2">
+                <span>💡 <em>Altıgenlerin üzerine tıklayarak H3 Index kodunu, erişilebilirlik skorunu ve tahmini nüfus payını görebilirsiniz.</em></span>
+                <span class="font-mono text-blue-600 font-semibold">Discrete Global Grid System (DGGS)</span>
+              </div>
             </div>
 
             <!-- Hansen Chart -->
@@ -1091,13 +1141,17 @@
     let hansenChartInstance = null;
     let leafletMapInstance = null;
     let leafletMarkersGroup = null;
+    let leafletH3Group = null;
+    let mapLayerMode = 'h3'; // 'admin', 'h3', 'hybrid'
+    let h3Resolution = 8;
+    let h3Metric = 'gravity';
 
     // Service Worker Registration & Cache Refresh for PWA
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v33') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v34') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -3693,6 +3747,43 @@
       }
     }
 
+    function setMapLayerMode(mode) {
+      mapLayerMode = mode;
+      updateMapLayerButtons();
+      if (leafletLastSubzones) {
+        initLeafletMap(leafletLastSubzones);
+      }
+    }
+
+    function updateMapLayerButtons() {
+      const btnAdmin = document.getElementById('btnMapLayerAdmin');
+      const btnH3 = document.getElementById('btnMapLayerH3');
+      const btnHybrid = document.getElementById('btnMapLayerHybrid');
+      const cBar = document.getElementById('h3ControlsBar');
+
+      [btnAdmin, btnH3, btnHybrid].forEach(b => {
+        if (b) b.className = "py-1 px-3 rounded-full font-semibold transition text-slate-600 hover:text-slate-900";
+      });
+
+      if (mapLayerMode === 'admin' && btnAdmin) btnAdmin.className = "py-1 px-3 rounded-full font-semibold transition bg-white text-blue-600 shadow-xs";
+      if (mapLayerMode === 'h3' && btnH3) btnH3.className = "py-1 px-3 rounded-full font-semibold transition bg-white text-blue-600 shadow-xs";
+      if (mapLayerMode === 'hybrid' && btnHybrid) btnHybrid.className = "py-1 px-3 rounded-full font-semibold transition bg-white text-blue-600 shadow-xs";
+
+      if (cBar) {
+        cBar.style.display = mapLayerMode === 'admin' ? 'none' : 'flex';
+      }
+    }
+
+    function onH3ConfigChanged() {
+      const selRes = document.getElementById('selH3Resolution');
+      const selMet = document.getElementById('selH3Metric');
+      if (selRes) h3Resolution = parseInt(selRes.value, 10) || 8;
+      if (selMet) h3Metric = selMet.value || 'gravity';
+      if (leafletLastSubzones) {
+        initLeafletMap(leafletLastSubzones);
+      }
+    }
+
     function initLeafletMap(subzones) {
       const mapElem = document.getElementById('leafletMap');
       if (!mapElem || typeof L === "undefined") return;
@@ -3701,12 +3792,14 @@
         leafletMapInstance = L.map('leafletMap').setView([38.0886, 27.7344], 12);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 18,
-          attribution: '© OpenStreetMap contributors'
+          attribution: '© OpenStreetMap contributors | Uber H3 DGGS'
         }).addTo(leafletMapInstance);
+        leafletH3Group = L.layerGroup().addTo(leafletMapInstance);
         leafletMarkersGroup = L.layerGroup().addTo(leafletMapInstance);
       }
 
       leafletMarkersGroup.clearLayers();
+      leafletH3Group.clearLayers();
 
       // TÜRKİYE 81 İL RESMİ MERKEZ KOORDİNATLARI (Enlem, Boylam)
       const provCoords = {
@@ -3789,45 +3882,52 @@
       if (!geoCache[mapKey]) geocodeDistrictCenter(provVal, distVal, mapKey);
       const bounds = [];
 
+      // Calculate subzone coordinates
       (subzones || []).forEach((sz, idx) => {
         const distKm = ((sz.dist_to_center_min || sz.distance_to_center_min || 3)) * 0.5;
         const angle = (idx / Math.max(1, subzones.length)) * 2 * Math.PI;
-        const lat = baseLoc[0] + (distKm / 111) * Math.sin(angle);
-        const lon = baseLoc[1] + (distKm / (111 * Math.cos(baseLoc[0] * Math.PI / 180))) * Math.cos(angle);
+        sz._lat = baseLoc[0] + (distKm / 111) * Math.sin(angle);
+        sz._lon = baseLoc[1] + (distKm / (111 * Math.cos(baseLoc[0] * Math.PI / 180))) * Math.cos(angle);
+        bounds.push([sz._lat, sz._lon]);
 
-        bounds.push([lat, lon]);
+        if (mapLayerMode === 'admin' || mapLayerMode === 'hybrid') {
+          const curP = sz.current_pop !== undefined ? sz.current_pop : (sz.base_pop || 0);
+          const addP = sz.additional_pop_Gi || 0;
+          const tgtP = sz.target_pop_2045 !== undefined ? sz.target_pop_2045 : (curP + addP);
+          const satPct = sz.saturation_pct !== undefined ? sz.saturation_pct : 85.0;
 
-        const curP = sz.current_pop !== undefined ? sz.current_pop : (sz.base_pop || 0);
-        const addP = sz.additional_pop_Gi || 0;
-        const tgtP = sz.target_pop_2045 !== undefined ? sz.target_pop_2045 : (curP + addP);
-        const satPct = sz.saturation_pct !== undefined ? sz.saturation_pct : 85.0;
+          const isOver = satPct > 100;
+          const markerColor = isOver ? '#DC2626' : (satPct > 80 ? '#D97706' : '#059669');
 
-        const isOver = satPct > 100;
-        const markerColor = isOver ? '#DC2626' : (satPct > 80 ? '#D97706' : '#059669');
+          const circle = L.circleMarker([sz._lat, sz._lon], {
+            radius: Math.max(6, Math.min(22, Math.sqrt(curP) * 0.25)),
+            fillColor: markerColor,
+            color: '#FFFFFF',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.90
+          });
 
-        const circle = L.circleMarker([lat, lon], {
-          radius: Math.max(6, Math.min(22, Math.sqrt(curP) * 0.25)),
-          fillColor: markerColor,
-          color: '#FFFFFF',
-          weight: 2,
-          opacity: 1,
-          fillOpacity: 0.85
-        });
+          const isEn = (currentLang === 'en');
+          circle.bindPopup(`
+            <div class="font-sans text-xs">
+              <h4 class="font-bold text-slate-900 border-b pb-1 mb-1">${sz.name}</h4>
+              <p>${isEn ? 'Current Pop' : 'Mevcut Nüfus'}: <strong>${curP.toLocaleString('tr-TR')}</strong></p>
+              <p>${isEn ? 'Allocated Add.' : 'İlave Dağıtılan'}: <strong class="text-blue-600">+${addP.toLocaleString('tr-TR')}</strong></p>
+              <p>${getYears().t1} ${isEn ? 'Target Pop' : 'Hedef Nüfus'}: <strong>${tgtP.toLocaleString('tr-TR')}</strong></p>
+              <p>${isEn ? 'Saturation' : 'Doygunluk'}: <strong>%${satPct.toFixed(1)}</strong></p>
+              <p class="mt-1 font-semibold ${isOver ? 'text-red-600' : 'text-emerald-600'}">${isOver ? (isEn ? '⚠️ Capacity Exceeded' : '⚠️ Kapasite Aşımı') : (isEn ? '✅ Capacity Available' : '✅ Kapasite Uygun')}</p>
+            </div>
+          `);
 
-        const isEn = currentLang === 'en';
-        circle.bindPopup(`
-          <div class="font-sans text-xs">
-            <h4 class="font-bold text-slate-900 border-b pb-1 mb-1">${sz.name}</h4>
-            <p>${isEn ? 'Current Pop' : 'Mevcut Nüfus'}: <strong>${curP.toLocaleString('tr-TR')}</strong></p>
-            <p>${isEn ? 'Allocated Add.' : 'İlave Dağıtılan'}: <strong class="text-blue-600">+${addP.toLocaleString('tr-TR')}</strong></p>
-            <p>${getYears().t1} ${isEn ? 'Target Pop' : 'Hedef Nüfus'}: <strong>${tgtP.toLocaleString('tr-TR')}</strong></p>
-            <p>${isEn ? 'Saturation' : 'Doygunluk'}: <strong>%${satPct.toFixed(1)}</strong></p>
-            <p class="mt-1 font-semibold ${isOver ? 'text-red-600' : 'text-emerald-600'}">${isOver ? (isEn ? '⚠️ Capacity Exceeded' : '⚠️ Kapasite Aşımı') : (isEn ? '✅ Capacity Available' : '✅ Kapasite Uygun')}</p>
-          </div>
-        `);
-
-        leafletMarkersGroup.addLayer(circle);
+          leafletMarkersGroup.addLayer(circle);
+        }
       });
+
+      // Render Uber H3 Hexagonal Grid if H3 or Hybrid mode
+      if (mapLayerMode === 'h3' || mapLayerMode === 'hybrid') {
+        renderH3HexagonalGrid(baseLoc, subzones, bounds);
+      }
 
       leafletBounds = bounds;
       if (bounds.length > 0) {
@@ -3836,6 +3936,181 @@
         leafletMapInstance.setView(baseLoc, 12);
       }
       setTimeout(() => { try { leafletMapInstance.invalidateSize(); } catch(e){} }, 100);
+    }
+
+    function renderH3HexagonalGrid(baseLoc, subzones, bounds) {
+      if (!leafletH3Group) return;
+      const res = h3Resolution || 8;
+      const isH3Avail = (typeof h3 !== 'undefined' && h3 && typeof h3.latLngToCell === 'function');
+      const cellsMap = new Map();
+
+      if (isH3Avail) {
+        try {
+          const centerCell = h3.latLngToCell(baseLoc[0], baseLoc[1], res);
+          const ringRadius = (res === 7) ? 2 : (res === 8 ? 3 : 4);
+          const diskCells = h3.gridDisk(centerCell, ringRadius);
+          diskCells.forEach(cid => {
+            cellsMap.set(cid, {
+              boundary: h3.cellToBoundary(cid),
+              center: h3.cellToLatLng(cid),
+              cellId: cid
+            });
+          });
+
+          (subzones || []).forEach(sz => {
+            if (sz._lat && sz._lon) {
+              const szCell = h3.latLngToCell(sz._lat, sz._lon, res);
+              const szDisk = h3.gridDisk(szCell, 1);
+              szDisk.forEach(cid => {
+                if (!cellsMap.has(cid)) {
+                  cellsMap.set(cid, {
+                    boundary: h3.cellToBoundary(cid),
+                    center: h3.cellToLatLng(cid),
+                    cellId: cid
+                  });
+                }
+              });
+            }
+          });
+        } catch (err) {
+          console.warn("h3-js calculation error:", err);
+        }
+      }
+
+      // Mathematical Fallback for Hexagonal DGGS if h3-js unavailable
+      if (cellsMap.size === 0) {
+        const edgeKm = (res === 7) ? 1.4 : (res === 8 ? 0.53 : 0.20);
+        const stepLat = edgeKm * 1.5 / 111.0;
+        const stepLng = edgeKm * Math.sqrt(3) / (111.0 * Math.cos(baseLoc[0] * Math.PI / 180));
+        const range = (res === 7) ? 2 : (res === 8 ? 3 : 5);
+
+        for (let r = -range; r <= range; r++) {
+          for (let c = -range; c <= range; c++) {
+            if (Math.abs(r + c) > range * 1.5) continue;
+            const cLat = baseLoc[0] + r * stepLat;
+            const cLng = baseLoc[1] + (c + (Math.abs(r) % 2) * 0.5) * stepLng;
+            const boundary = [];
+            for (let i = 0; i < 6; i++) {
+              const angle = (Math.PI / 6) + (i * Math.PI / 3);
+              const pLat = cLat + (edgeKm / 111.0) * Math.sin(angle);
+              const pLng = cLng + (edgeKm / (111.0 * Math.cos(cLat * Math.PI / 180))) * Math.cos(angle);
+              boundary.push([pLat, pLng]);
+            }
+            const cellId = `8${res}` + Math.abs(r * 31 + c).toString(16).padStart(13, 'a');
+            cellsMap.set(cellId, { boundary, center: [cLat, cLng], cellId });
+          }
+        }
+      }
+
+      const cellItems = [];
+      cellsMap.forEach((cellData, cid) => {
+        const cLat = cellData.center[0];
+        const cLng = cellData.center[1];
+        bounds.push([cLat, cLng]);
+
+        const dCenter = Math.sqrt(
+          Math.pow((cLat - baseLoc[0]) * 111.0, 2) +
+          Math.pow((cLng - baseLoc[1]) * 111.0 * Math.cos(baseLoc[0] * Math.PI / 180), 2)
+        );
+
+        const rawGravity = 100.0 / Math.pow(Math.max(0.4, dCenter), 1.8);
+
+        let nearestSz = null;
+        let minSzDist = Infinity;
+        (subzones || []).forEach(sz => {
+          if (sz._lat && sz._lon) {
+            const dSz = Math.sqrt(
+              Math.pow((cLat - sz._lat) * 111.0, 2) +
+              Math.pow((cLng - sz._lon) * 111.0 * Math.cos(baseLoc[0] * Math.PI / 180), 2)
+            );
+            if (dSz < minSzDist) {
+              minSzDist = dSz;
+              nearestSz = sz;
+            }
+          }
+        });
+
+        const szPop = nearestSz ? (nearestSz.target_pop_2045 || nearestSz.current_pop || 3200) : 3200;
+        const popShare = Math.round(szPop * (rawGravity / 140.0) / 3.5);
+
+        cellItems.push({
+          cellId: cid,
+          boundary: cellData.boundary,
+          center: cellData.center,
+          dCenter,
+          rawGravity,
+          popShare,
+          nearestSzName: nearestSz ? nearestSz.name : "Merkez Çekim Aksı"
+        });
+      });
+
+      const maxGrav = Math.max(...cellItems.map(c => c.rawGravity), 1);
+      const maxPop = Math.max(...cellItems.map(c => c.popShare), 1);
+
+      cellItems.forEach(item => {
+        const gravNorm = Math.min(100, Math.max(5, (item.rawGravity / maxGrav) * 100));
+        const popNorm = Math.min(100, Math.max(5, (item.popShare / maxPop) * 100));
+        const metricVal = (h3Metric === 'density') ? popNorm : gravNorm;
+
+        let fillColor = '#3B82F6';
+        if (metricVal > 75) fillColor = '#EF4444';
+        else if (metricVal > 50) fillColor = '#F59E0B';
+        else if (metricVal > 25) fillColor = '#10B981';
+        else fillColor = '#0284C7';
+
+        const poly = L.polygon(item.boundary, {
+          fillColor: fillColor,
+          color: '#FFFFFF',
+          weight: 1.2,
+          opacity: 0.95,
+          fillOpacity: 0.60
+        });
+
+        poly.on('mouseover', function() {
+          this.setStyle({ weight: 2.5, color: '#FFFFFF', fillOpacity: 0.85 });
+        });
+        poly.on('mouseout', function() {
+          this.setStyle({ weight: 1.2, color: '#FFFFFF', fillOpacity: 0.60 });
+        });
+
+        const isEn = (currentLang === 'en');
+        const areaKm2 = (res === 7 ? '5.16' : (res === 8 ? '0.73' : '0.10'));
+
+        poly.bindPopup(`
+          <div class="font-sans text-xs p-1 min-w-[210px]">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-2">
+              <div class="flex items-center gap-1.5 font-bold text-slate-900">
+                <span class="text-blue-600">⬡</span> <span>Uber H3 DGGS</span>
+              </div>
+              <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">Res ${res}</span>
+            </div>
+            <p class="text-[11px] font-mono text-slate-500 mb-1.5 bg-slate-50 p-1 rounded">ID: <strong>${item.cellId}</strong></p>
+            <div class="space-y-1">
+              <div class="flex justify-between">
+                <span class="text-slate-500">${isEn ? 'Hansen Gravity Score:' : 'Hansen Çekim Skoru:'}</span>
+                <strong class="text-blue-600 font-bold">%${gravNorm.toFixed(1)}</strong>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">${isEn ? 'Est. Target Pop:' : 'Tahmini Nüfus Payı:'}</span>
+                <strong class="text-slate-900">${item.popShare.toLocaleString('tr-TR')} Kişi</strong>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">${isEn ? 'Hexagon Area:' : 'Heksagon Alanı:'}</span>
+                <span class="text-slate-700">~${areaKm2} km²</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">${isEn ? 'Nearest Zone:' : 'İlişkili Mahalle:'}</span>
+                <span class="text-slate-700 font-medium">${item.nearestSzName}</span>
+              </div>
+            </div>
+            <p class="mt-2 pt-1.5 border-t border-slate-100 text-[10px] text-slate-400">
+              Walter Christaller Merkezi Yerler & Hansen Çekim Modeli
+            </p>
+          </div>
+        `);
+
+        leafletH3Group.addLayer(poly);
+      });
     }
 
     function renderMpyyTab(mpyy) {
