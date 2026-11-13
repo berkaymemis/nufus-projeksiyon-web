@@ -277,31 +277,28 @@
       <span id="econActivityRate"></span>
     </div>
 
-    <!-- ==================== 3. FOUR STREAMLINED TABS (SADELEŞTİRİLMİŞ 4 ANA SEKME) ==================== -->
-    <section class="bg-white rounded-[28px] shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 overflow-hidden">
-      <!-- Apple-style Segmented Tab Control -->
-      <div class="p-3 sm:p-4 border-b border-slate-100 flex items-center justify-start sm:justify-center overflow-x-auto">
-        <div class="bg-[#f5f5f7] p-1.5 rounded-full flex items-center gap-1 shadow-inner">
-          <button onclick="switchTab('curves')" id="tabBtn-curves" class="tab-active py-2 px-4 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap flex items-center gap-2 transition">
+    <!-- ==================== 3. SEAMLESS SCROLLYTELLING NAVIGATION BAR ==================== -->
+    <div class="sticky top-14 z-30 py-2.5 bg-[#f5f5f7]/90 backdrop-blur-md transition">
+      <div class="flex items-center justify-start sm:justify-center overflow-x-auto pb-1 scrollbar-none">
+        <div class="bg-white/90 p-1.5 rounded-full flex items-center gap-1 shadow-sm border border-slate-200/80">
+          <button onclick="switchTab('curves')" id="tabBtn-curves" class="tab-active py-2 px-4 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition">
             <span data-i18n="tabCurves">📈 1. Curve Fitting</span>
           </button>
-          <button onclick="switchTab('cohort')" id="tabBtn-cohort" class="tab-inactive py-2 px-4 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap flex items-center gap-2 transition">
+          <button onclick="switchTab('cohort')" id="tabBtn-cohort" class="tab-inactive py-2 px-4 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition">
             <span data-i18n="tabCohort">👥 2. Kuşak-Bileşen & Piramit</span>
           </button>
-          <button onclick="switchTab('hansen')" id="tabBtn-hansen" class="tab-inactive py-2 px-4 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap flex items-center gap-2 transition">
+          <button onclick="switchTab('hansen')" id="tabBtn-hansen" class="tab-inactive py-2 px-4 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition">
             <span data-i18n="tabHansen">🗺️ 3. Hansen Mekânsal & Harita</span>
           </button>
-          <button onclick="switchTab('mpyy')" id="tabBtn-mpyy" class="tab-inactive py-2 px-4 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap flex items-center gap-2 transition">
+          <button onclick="switchTab('mpyy')" id="tabBtn-mpyy" class="tab-inactive py-2 px-4 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition">
             <span data-i18n="tabMpyy">📐 4. MPYY Standartları</span>
           </button>
         </div>
       </div>
+    </div>
 
-      <!-- TAB CONTENT AREA -->
-      <div class="p-6 sm:p-8">
-
-        <!-- ===== TAB 1: CURVE FITTING (6 REGRESYON MODELİ) & ÇUBUKÇU PAY MODELLERİ ===== -->
-        <div id="tabContent-curves" class="space-y-6">
+    <!-- ===== SECTION 1: CURVE FITTING (6 REGRESYON MODELİ) ===== -->
+    <section id="tabContent-curves" class="bg-white rounded-[28px] shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 p-6 sm:p-8 space-y-6 scroll-mt-28">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 class="text-base sm:text-lg font-semibold tracking-tight text-[#1d1d1f]" data-i18n="curvesTitle">Matematiksel Eğri Uydurma ve Regresyon Modelleri (6 Model)</h3>
@@ -458,10 +455,10 @@
               </div>
             </div>
           </div>
-        </div>
+    </section>
 
-        <!-- ===== TAB 2: COHORT & PYRAMID (KUŞAK-BİLEŞEN) ===== -->
-        <div id="tabContent-cohort" class="hidden space-y-6">
+    <!-- ===== SECTION 2: COHORT & PYRAMID (KUŞAK-BİLEŞEN) ===== -->
+    <section id="tabContent-cohort" class="bg-white rounded-[28px] shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 p-6 sm:p-8 space-y-6 scroll-mt-28">
 
           <!-- İktisadi Taban & Göç Senaryosu İşaretleme Kutucuğu -->
           <div class="bg-[#f5f5f7] border border-slate-200/60 rounded-[24px] p-6 shadow-xs transition">
@@ -710,10 +707,10 @@
             </div>
           </div>
 
-        </div>
+    </section>
 
-        <!-- ===== TAB 3: HANSEN & MAP (MEKÂNSAL DAĞITIM VE HARİTA) ===== -->
-        <div id="tabContent-hansen" class="hidden space-y-6">
+    <!-- ===== SECTION 3: HANSEN & MAP (MEKÂNSAL DAĞITIM VE HARİTA) ===== -->
+    <section id="tabContent-hansen" class="bg-white rounded-[28px] shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 p-6 sm:p-8 space-y-6 scroll-mt-28">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Map -->
             <div class="bg-[#f5f5f7] p-5 sm:p-6 rounded-[24px] border border-slate-200/60">
@@ -753,32 +750,29 @@
               <tbody id="hansenTableBody" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
-        </div>
+    </section>
 
-        <!-- ===== TAB 4: MPYY STANDARTS ===== -->
-        <div id="tabContent-mpyy" class="hidden space-y-5">
-          <div class="flex items-center justify-between flex-wrap gap-3">
-            <div>
-              <h3 class="text-base sm:text-lg font-semibold tracking-tight text-[#1d1d1f]" data-i18n="mpyyTitle">Mekânsal Planlar Yapım Yönetmeliği (Ek-2) Donatı Standartları</h3>
-              <p class="text-xs text-[#6e6e73] mt-0.5">Hedef <span data-yr="t1">2035</span> Nüfus Artışı İçin Zorunlu Asgari Sosyal ve Teknik Altyapı Alanları</p>
-            </div>
-            <span class="text-xs font-semibold bg-rose-50 text-rose-700 py-1.5 px-4 rounded-full border border-rose-200/80">Kişi Başı 19.0 m² Standart</span>
-          </div>
-          <div class="overflow-x-auto rounded-2xl border border-slate-200/60 bg-white">
-            <table class="w-full text-left text-xs text-[#1d1d1f]">
-              <thead class="bg-[#f5f5f7] text-[#6e6e73] font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200/80">
-                <tr>
-                  <th class="py-3 px-4">Donatı Türü</th>
-                  <th class="py-3 px-4 text-right">Yasal Standart (m²/kişi)</th>
-                  <th class="py-3 px-4 text-right">Gereken Alan (m²)</th>
-                  <th class="py-3 px-4 text-right">Gereken Alan (Hektar)</th>
-                </tr>
-              </thead>
-              <tbody id="mpyyTableBody" class="divide-y divide-slate-100"></tbody>
-            </table>
-          </div>
+    <!-- ===== SECTION 4: MPYY STANDARTS ===== -->
+    <section id="tabContent-mpyy" class="bg-white rounded-[28px] shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 p-6 sm:p-8 space-y-5 scroll-mt-28">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h3 class="text-base sm:text-lg font-semibold tracking-tight text-[#1d1d1f]" data-i18n="mpyyTitle">Mekânsal Planlar Yapım Yönetmeliği (Ek-2) Donatı Standartları</h3>
+          <p class="text-xs text-[#6e6e73] mt-0.5">Hedef <span data-yr="t1">2035</span> Nüfus Artışı İçin Zorunlu Asgari Sosyal ve Teknik Altyapı Alanları</p>
         </div>
-
+        <span class="text-xs font-semibold bg-rose-50 text-rose-700 py-1.5 px-4 rounded-full border border-rose-200/80">Kişi Başı 19.0 m² Standart</span>
+      </div>
+      <div class="overflow-x-auto rounded-2xl border border-slate-200/60 bg-white">
+        <table class="w-full text-left text-xs text-[#1d1d1f]">
+          <thead class="bg-[#f5f5f7] text-[#6e6e73] font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200/80">
+            <tr>
+              <th class="py-3 px-4">Donatı Türü</th>
+              <th class="py-3 px-4 text-right">Yasal Standart (m²/kişi)</th>
+              <th class="py-3 px-4 text-right">Gereken Alan (m²)</th>
+              <th class="py-3 px-4 text-right">Gereken Alan (Hektar)</th>
+            </tr>
+          </thead>
+          <tbody id="mpyyTableBody" class="divide-y divide-slate-100"></tbody>
+        </table>
       </div>
     </section>
 
@@ -1099,7 +1093,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v27') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v28') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -2181,26 +2175,17 @@
       document.getElementById("qrModal").classList.add("hidden");
     }
 
-    function switchTab(tabId) {
+    function switchTab(tabId, shouldScroll = true) {
       const tabs = ['curves', 'cohort', 'hansen', 'mpyy'];
       tabs.forEach(t => {
-        const content = document.getElementById(`tabContent-${t}`);
         const btn = document.getElementById(`tabBtn-${t}`);
         const mBtn = document.getElementById(`mTab-${t}`);
 
-        if (content) {
-          if (t === tabId) {
-            content.classList.remove("hidden");
-          } else {
-            content.classList.add("hidden");
-          }
-        }
-
         if (btn) {
           if (t === tabId) {
-            btn.className = "tab-active py-3 px-4 whitespace-nowrap flex items-center gap-1.5 transition";
+            btn.className = "tab-active py-2 px-4 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition";
           } else {
-            btn.className = "tab-inactive py-3 px-4 whitespace-nowrap flex items-center gap-1.5 transition";
+            btn.className = "tab-inactive py-2 px-4 rounded-full text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition";
           }
         }
 
@@ -2212,6 +2197,13 @@
           }
         }
       });
+
+      if (shouldScroll) {
+        const target = document.getElementById(`tabContent-${tabId}`);
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
 
       // Special resize trigger for map & charts when tab becomes visible
       if (tabId === 'curves' && curveChartInstance) {
@@ -2230,6 +2222,20 @@
         }, 120);
       }
     }
+
+    // Scroll-Spy: Update active navigation pill on scroll
+    window.addEventListener("scroll", () => {
+      const sectionIds = ['curves', 'cohort', 'hansen', 'mpyy'];
+      const scrollPos = window.scrollY + 200;
+      for (let i = sectionIds.length - 1; i >= 0; i--) {
+        const sid = sectionIds[i];
+        const el = document.getElementById(`tabContent-${sid}`);
+        if (el && el.offsetTop <= scrollPos) {
+          switchTab(sid, false);
+          break;
+        }
+      }
+    }, { passive: true });
 
     function renderSettlementsTable() {
       const tbody = document.getElementById("settlementsTableBody");
