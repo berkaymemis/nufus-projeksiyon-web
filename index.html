@@ -1151,7 +1151,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v35') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v36') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -3779,22 +3779,22 @@
       if (!legElem) return;
       if (h3Metric === 'density') {
         legElem.innerHTML = `
-          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#10b981]"></span> <span class="text-slate-600">Seyrek (<1.5k)</span></span>
-          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#eab308]"></span> <span class="text-slate-600">Orta (1.5-5k)</span></span>
-          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#f97316]"></span> <span class="text-slate-600">Yoğun (5-10k)</span></span>
-          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#ef4444]"></span> <span class="text-slate-600">Zirve (>10k)</span></span>
+          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#10b981]"></span> <span class="text-slate-600">Seyrek</span></span>
+          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#eab308]"></span> <span class="text-slate-600">Orta</span></span>
+          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#f97316]"></span> <span class="text-slate-600">Yüksek</span></span>
+          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#ef4444]"></span> <span class="text-slate-600">Zirve Yoğun</span></span>
         `;
       } else {
         legElem.innerHTML = `
-          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#6366f1]"></span> <span class="text-slate-600">Periferi</span></span>
-          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#3b82f6]"></span> <span class="text-slate-600">Alt Merkez</span></span>
-          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#a855f7]"></span> <span class="text-slate-600">Yüksek Çekim</span></span>
-          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#ec4899]"></span> <span class="text-slate-600">Zirve CBD</span></span>
+          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#3b82f6]"></span> <span class="text-slate-600">Düşük (Periferi)</span></span>
+          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#eab308]"></span> <span class="text-slate-600">Orta Çekim</span></span>
+          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#f97316]"></span> <span class="text-slate-600">Yüksek Çekim</span></span>
+          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#ef4444]"></span> <span class="text-slate-600">Zirve (Gi)</span></span>
         `;
       }
     }
 
-    function onH3ConfigChanged() {
+    function onH3ControlChanged() {
       const selRes = document.getElementById('selH3Resolution');
       const selMet = document.getElementById('selH3Metric');
       if (selRes) h3Resolution = parseInt(selRes.value, 10) || 8;
@@ -3871,27 +3871,98 @@
         "OSMANİYE": [37.0742, 36.2478], "DUZCE": [40.8438, 31.1565], "DÜZCE": [40.8438, 31.1565]
       };
 
-      // İlçe Özel Merkez Koordinatları
+      // İlçe Özel Merkez Koordinatları (81 İlin popüler ve modelleme ilçeleri)
       const distCoords = {
+        // VAN İLÇELERİ
+        "VAN/İPEKYOLU": [38.4980, 43.3950], "VAN/IPEKYOLU": [38.4980, 43.3950],
+        "VAN/TUŞBA": [38.5420, 43.3880], "VAN/TUSBA": [38.5420, 43.3880],
+        "VAN/EDREMİT": [38.4189, 43.2578], "VAN/EDREMIT": [38.4189, 43.2578],
+        "VAN/ERCİŞ": [39.0278, 43.3597], "VAN/ERCIS": [39.0278, 43.3597],
+        "VAN/MURADİYE": [38.9850, 43.7550], "VAN/MURADIYE": [38.9850, 43.7550],
+        "VAN/ÖZALP": [38.6550, 44.0200], "VAN/OZALP": [38.6550, 44.0200],
+        "VAN/ÇALDIRAN": [39.1450, 43.9100], "VAN/CALDIRAN": [39.1450, 43.9100],
+        "VAN/GEVAŞ": [38.2950, 43.1000], "VAN/GEVAS": [38.2950, 43.1000],
+        "VAN/GÜRPINAR": [38.3200, 43.4150], "VAN/GURPINAR": [38.3200, 43.4150],
+        "VAN/BAŞKALE": [37.9650, 44.0150], "VAN/BASKALE": [37.9650, 44.0150],
+        "VAN/BAHÇESARAY": [38.0967, 42.7933], "VAN/BAHCESARAY": [38.0967, 42.7933],
+        "VAN/ÇATAK": [38.0100, 43.0600], "VAN/CATAK": [38.0100, 43.0600],
+        "VAN/SARAY": [38.6500, 44.1800],
+        // İZMİR İLÇELERİ
+        "İZMİR/TİRE": [38.0886, 27.7344], "IZMIR/TIRE": [38.0886, 27.7344],
+        "İZMİR/ÖDEMİŞ": [38.2317, 27.9719], "IZMIR/ODEMIS": [38.2317, 27.9719],
+        "İZMİR/TORBALI": [38.1517, 27.3622], "IZMIR/TORBALI": [38.1517, 27.3622],
+        "İZMİR/ALİAĞA": [38.7989, 26.9722], "IZMIR/ALIAGA": [38.7989, 26.9722],
+        "İZMİR/KONAK": [38.4189, 27.1287], "IZMIR/KONAK": [38.4189, 27.1287],
+        "İZMİR/KARŞIYAKA": [38.4556, 27.1139], "IZMIR/KARSIYAKA": [38.4556, 27.1139],
+        "İZMİR/BORNOVA": [38.4697, 27.2189], "IZMIR/BORNOVA": [38.4697, 27.2189],
+        "İZMİR/BUCA": [38.3881, 27.1764], "IZMIR/BUCA": [38.3881, 27.1764],
+        "İZMİR/ÇİĞLİ": [38.4986, 27.0603], "IZMIR/CIGLI": [38.4986, 27.0603],
+        "İZMİR/GAZİEMİR": [38.3242, 27.1328], "IZMIR/GAZIEMIR": [38.3242, 27.1328],
+        "İZMİR/KARABAĞLAR": [38.3739, 27.1256], "IZMIR/KARABAGLAR": [38.3739, 27.1256],
+        "İZMİR/BAYRAKLI": [38.4631, 27.1681], "IZMIR/BAYRAKLI": [38.4631, 27.1681],
+        "İZMİR/MENEMEN": [38.6083, 27.0683], "IZMIR/MENEMEN": [38.6083, 27.0683],
+        "İZMİR/BERGAMA": [39.1239, 27.1803], "IZMIR/BERGAMA": [39.1239, 27.1803],
+        "İZMİR/URLA": [38.3228, 26.7639], "IZMIR/URLA": [38.3228, 26.7639],
+        "İZMİR/ÇEŞME": [38.3236, 26.3042], "IZMIR/CESME": [38.3236, 26.3042],
+        "İZMİR/SEFERİHİSAR": [38.1978, 26.8389], "IZMIR/SEFERIHISAR": [38.1978, 26.8389],
+        "İZMİR/KEMALPAŞA": [38.4264, 27.4172], "IZMIR/KEMALPASA": [38.4264, 27.4172],
+        "İZMİR/MENDERES": [38.2536, 27.1350], "IZMIR/MENDERES": [38.2536, 27.1350],
+        "İZMİR/SELÇUK": [37.9489, 27.3683], "IZMIR/SELCUK": [37.9489, 27.3683],
+        "İZMİR/DİKİLİ": [39.0719, 26.8897], "IZMIR/DIKILI": [39.0719, 26.8897],
+        "İZMİR/FOÇA": [38.6708, 26.7583], "IZMIR/FOCA": [38.6708, 26.7583],
+        "İZMİR/KINIK": [39.0889, 27.3828], "IZMIR/KINIK": [39.0889, 27.3828],
+        "İZMİR/KİRAZ": [38.2306, 28.2042], "IZMIR/KIRAZ": [38.2306, 28.2042],
+        "İZMİR/BEYDAĞ": [38.1528, 28.2111], "IZMIR/BEYDAG": [38.1528, 28.2111],
+        "İZMİR/KARABURUN": [38.6369, 26.5117], "IZMIR/KARABURUN": [38.6369, 26.5117],
+        // SAMSUN İLÇELERİ
+        "SAMSUN/19 MAYIS": [41.4939, 36.0825], "SAMSUN/ONDOKUZMAYIS": [41.4939, 36.0825],
+        "SAMSUN/BAFRA": [41.5678, 35.9069],
+        "SAMSUN/ÇARŞAMBA": [41.1989, 36.7267], "SAMSUN/CARSAMBA": [41.1989, 36.7267],
+        "SAMSUN/ATAKUM": [41.3217, 36.2750],
+        "SAMSUN/İLKADIM": [41.2867, 36.3300], "SAMSUN/ILKADIM": [41.2867, 36.3300],
+        "SAMSUN/CANİK": [41.2750, 36.3600], "SAMSUN/CANIK": [41.2750, 36.3600],
+        "SAMSUN/TEKKEKÖY": [41.2150, 36.4550], "SAMSUN/TEKKEKOY": [41.2150, 36.4550],
+        "SAMSUN/HAVZA": [40.9789, 35.6728],
+        "SAMSUN/VEZİRKÖPRÜ": [41.1417, 35.4550], "SAMSUN/VEZIRKOPRU": [41.1417, 35.4550],
+        // KÜTAHYA İLÇELERİ
         "KÜTAHYA/ALTINTAŞ": [39.0628, 30.0894], "KUTAHYA/ALTINTAS": [39.0628, 30.0894],
         "KÜTAHYA/TAVŞANLI": [39.5442, 29.4922], "KUTAHYA/TAVSANLI": [39.5442, 29.4922],
         "KÜTAHYA/GEDİZ": [38.9989, 29.5744], "KUTAHYA/GEDIZ": [38.9989, 29.5744],
         "KÜTAHYA/SİMAV": [39.0889, 28.9778], "KUTAHYA/SIMAV": [39.0889, 28.9778],
-        "VAN/BAHÇESARAY": [38.0967, 42.7933], "VAN/BAHCESARAY": [38.0967, 42.7933],
-        "VAN/ERCİŞ": [39.0278, 43.3597], "VAN/ERCIS": [39.0278, 43.3597],
-        "VAN/EDREMİT": [38.4189, 43.2578], "VAN/EDREMIT": [38.4189, 43.2578],
-        "SAMSUN/19 MAYIS": [41.4939, 36.0825], "SAMSUN/ONDOKUZMAYIS": [41.4939, 36.0825],
-        "SAMSUN/BAFRA": [41.5678, 35.9069], "SAMSUN/ÇARŞAMBA": [41.1989, 36.7267],
-        "İZMİR/TİRE": [38.0886, 27.7344], "IZMIR/TIRE": [38.0886, 27.7344],
-        "İZMİR/ÖDEMİŞ": [38.2317, 27.9719], "IZMIR/ODEMIS": [38.2317, 27.9719],
-        "İZMİR/TORBALI": [38.1517, 27.3622], "IZMIR/TORBALI": [38.1517, 27.3622],
-        "İZMİR/ALİAĞA": [38.7989, 26.9722], "IZMIR/ALIAGA": [38.7989, 26.9722]
+        // ANKARA İLÇELERİ
+        "ANKARA/ÇANKAYA": [39.9042, 32.8597], "ANKARA/CANKAYA": [39.9042, 32.8597],
+        "ANKARA/KEÇİÖREN": [39.9833, 32.8667], "ANKARA/KECIOREN": [39.9833, 32.8667],
+        "ANKARA/YENİMAHALLE": [39.9667, 32.8000], "ANKARA/YENIMAHALLE": [39.9667, 32.8000],
+        "ANKARA/MAMAK": [39.9333, 32.9167],
+        "ANKARA/ETİMESGUT": [39.9489, 32.6739], "ANKARA/ETIMESGUT": [39.9489, 32.6739],
+        "ANKARA/SİNCAN": [39.9611, 32.5767], "ANKARA/SINCAN": [39.9611, 32.5767],
+        "ANKARA/ALTINDAĞ": [39.9417, 32.8542], "ANKARA/ALTINDAG": [39.9417, 32.8542],
+        "ANKARA/PURSAKLAR": [40.0389, 32.9011],
+        "ANKARA/GÖLBAŞI": [39.7917, 32.8083], "ANKARA/GOLBASI": [39.7917, 32.8083],
+        "ANKARA/POLATLI": [39.5786, 32.1464],
+        // İSTANBUL İLÇELERİ
+        "İSTANBUL/KADIKÖY": [40.9917, 29.0278], "ISTANBUL/KADIKOY": [40.9917, 29.0278],
+        "İSTANBUL/BEŞİKTAŞ": [41.0428, 29.0078], "ISTANBUL/BESIKTAS": [41.0428, 29.0078],
+        "İSTANBUL/ŞİŞLİ": [41.0606, 28.9878], "ISTANBUL/SISLI": [41.0606, 28.9878],
+        "İSTANBUL/FATİH": [41.0189, 28.9489], "ISTANBUL/FATIH": [41.0189, 28.9489],
+        "İSTANBUL/ÜSKÜDAR": [41.0267, 29.0167], "ISTANBUL/USKUDAR": [41.0267, 29.0167],
+        "İSTANBUL/MALTEPE": [40.9250, 29.1333],
+        "İSTANBUL/KARTAL": [40.8989, 29.1867],
+        "İSTANBUL/PENDİK": [40.8756, 29.2333], "ISTANBUL/PENDIK": [40.8756, 29.2333],
+        "İSTANBUL/ÜMRANİYE": [41.0256, 29.0967], "ISTANBUL/UMRANIYE": [41.0256, 29.0967],
+        "İSTANBUL/BAKIRKÖY": [40.9786, 28.8722], "ISTANBUL/BAKIRKOY": [40.9786, 28.8722],
+        "İSTANBUL/BEYOĞLU": [41.0369, 28.9772], "ISTANBUL/BEYOGLU": [41.0369, 28.9772],
+        "İSTANBUL/SARIYER": [41.1689, 29.0567],
+        "İSTANBUL/ESENYURT": [41.0342, 28.6806],
+        "İSTANBUL/KÜÇÜKÇEKMECE": [41.0028, 28.7789], "ISTANBUL/KUCUKCEKMECE": [41.0028, 28.7789],
+        "İSTANBUL/BAŞAKŞEHİR": [41.1069, 28.8028], "ISTANBUL/BASAKSEHIR": [41.1069, 28.8028]
       };
 
       const selP = document.getElementById("selAdnksProv");
       const selD = document.getElementById("selAdnksDist");
       const provVal = selP ? selP.value : "";
       const distVal = selD ? selD.value : "";
+      const isProvinceLevel = distVal === "IL_GENELI";
       const mapKey = `${trNorm(provVal)}/${trNorm(distVal)}`;
       const provN = {};
       Object.keys(provCoords).forEach(k => { provN[trNorm(k)] = provCoords[k]; });
@@ -3904,18 +3975,38 @@
       if (!geoCache[mapKey]) geocodeDistrictCenter(provVal, distVal, mapKey);
       const bounds = [];
 
-      // Calculate subzone coordinates
+      // Calculate subzone coordinates with real geography
       (subzones || []).forEach((sz, idx) => {
-        const distKm = ((sz.dist_to_center_min || sz.distance_to_center_min || 3)) * 0.5;
-        const angle = (idx / Math.max(1, subzones.length)) * 2 * Math.PI;
-        sz._lat = baseLoc[0] + (distKm / 111) * Math.sin(angle);
-        sz._lon = baseLoc[1] + (distKm / (111 * Math.cos(baseLoc[0] * Math.PI / 180))) * Math.cos(angle);
+        let assignedCoord = null;
+        const cleanName = (sz.name || '').replace(/\s*(İlçesi|Mahallesi|Köyü|Bölgesi)$/i, '').trim();
+        const distKey = `${trNorm(provVal)}/${trNorm(cleanName)}`;
+
+        if (isProvinceLevel && distN[distKey]) {
+          assignedCoord = distN[distKey];
+        }
+
+        if (assignedCoord) {
+          sz._lat = assignedCoord[0];
+          sz._lon = assignedCoord[1];
+        } else if (isProvinceLevel) {
+          // If not in distCoords, distribute across the province at realistic regional distance (12 - 45 km)
+          const distKm = 12.0 + (idx * 4.5);
+          const angle = (idx / Math.max(1, subzones.length)) * 2 * Math.PI;
+          sz._lat = baseLoc[0] + (distKm / 111.0) * Math.sin(angle);
+          sz._lon = baseLoc[1] + (distKm / (111.0 * Math.cos(baseLoc[0] * Math.PI / 180))) * Math.cos(angle);
+        } else {
+          // Local neighbourhoods within urban footprint (0.8 - 3.5 km)
+          const distKm = 0.8 + ((idx % 5) * 0.55) + (Math.floor(idx / 5) * 0.7);
+          const angle = (idx * (2 * Math.PI / Math.min(subzones.length, 6))) + (Math.floor(idx / 6) * 0.5);
+          sz._lat = baseLoc[0] + (distKm / 111.0) * Math.sin(angle);
+          sz._lon = baseLoc[1] + (distKm / (111.0 * Math.cos(baseLoc[0] * Math.PI / 180))) * Math.cos(angle);
+        }
         bounds.push([sz._lat, sz._lon]);
 
         if (mapLayerMode === 'admin' || mapLayerMode === 'hybrid') {
           const curP = sz.current_pop !== undefined ? sz.current_pop : (sz.base_pop || 0);
           const addP = sz.additional_pop_Gi || 0;
-          const tgtP = sz.target_pop_2045 !== undefined ? sz.target_pop_2045 : (curP + addP);
+          const tgtP = sz.target_pop_Pi !== undefined ? sz.target_pop_Pi : (sz.target_pop_2045 !== undefined ? sz.target_pop_2045 : (curP + addP));
           const satPct = sz.saturation_pct !== undefined ? sz.saturation_pct : 85.0;
 
           const isOver = satPct > 100;
@@ -3925,39 +4016,37 @@
             radius: Math.max(7, Math.min(24, Math.sqrt(curP) * 0.25)),
             fillColor: markerColor,
             color: '#FFFFFF',
-            weight: 2.5,
+            weight: 2,
             opacity: 1,
-            fillOpacity: 0.95
+            fillOpacity: 0.8
           });
 
           const isEn = (currentLang === 'en');
+          const t1Year = (document.getElementById("inpTargetYear1") ? document.getElementById("inpTargetYear1").value : 2030);
+
           circle.bindPopup(`
-            <div class="font-sans text-xs">
-              <h4 class="font-bold text-slate-900 border-b pb-1 mb-1">${sz.name}</h4>
-              <p>${isEn ? 'Current Pop' : 'Mevcut Nüfus'}: <strong>${curP.toLocaleString('tr-TR')}</strong></p>
-              <p>${isEn ? 'Allocated Add.' : 'İlave Dağıtılan'}: <strong class="text-blue-600">+${addP.toLocaleString('tr-TR')}</strong></p>
-              <p>${getYears().t1} ${isEn ? 'Target Pop' : 'Hedef Nüfus'}: <strong>${tgtP.toLocaleString('tr-TR')}</strong></p>
-              <p>${isEn ? 'Saturation' : 'Doygunluk'}: <strong>%${satPct.toFixed(1)}</strong></p>
-              <p class="mt-1 font-semibold ${isOver ? 'text-red-600' : 'text-emerald-600'}">${isOver ? (isEn ? '⚠️ Capacity Exceeded' : '⚠️ Kapasite Aşımı') : (isEn ? '✅ Capacity Available' : '✅ Kapasite Uygun')}</p>
+            <div class="font-sans text-xs p-1">
+              <strong class="text-sm font-bold text-slate-800 block mb-1">${sz.name}</strong>
+              <div class="space-y-1">
+                <div>${isEn ? 'Current Pop (2025):' : 'Mevcut Nüfus (2025):'} <strong>${curP.toLocaleString('tr-TR')}</strong></div>
+                <div class="text-blue-600 font-semibold">${isEn ? 'Allocated Pop (Gi):' : 'Dağıtılan İlave (Gi):'} <strong>+${addP.toLocaleString('tr-TR')}</strong></div>
+                <div class="text-slate-900 font-bold">${isEn ? `Target Pop (${t1Year}):` : `Hedef Nüfus (${t1Year}):`} <strong>${tgtP.toLocaleString('tr-TR')}</strong></div>
+                <div>${isEn ? 'Saturation Rate:' : 'Plan Doygunluk:'} <strong>%${satPct.toFixed(1)}</strong></div>
+              </div>
             </div>
           `);
-
           leafletMarkersGroup.addLayer(circle);
         }
       });
 
-      // Render Uber H3 Hexagonal Grid if H3 or Hybrid mode
-      if (mapLayerMode === 'h3' || mapLayerMode === 'hybrid') {
+      // Render Hexagonal DGGS Grid
+      if (mapLayerMode === 'hex' || mapLayerMode === 'hybrid') {
         renderH3HexagonalGrid(baseLoc, subzones, bounds);
       }
 
-      leafletBounds = bounds;
       if (bounds.length > 0) {
         leafletMapInstance.fitBounds(bounds, { padding: [35, 35], maxZoom: 14 });
-      } else {
-        leafletMapInstance.setView(baseLoc, 12);
       }
-      setTimeout(() => { try { leafletMapInstance.invalidateSize(); } catch(e){} }, 100);
     }
 
     function renderH3HexagonalGrid(baseLoc, subzones, bounds) {
@@ -3966,34 +4055,53 @@
       const isH3Avail = (typeof h3 !== 'undefined' && h3 && typeof h3.latLngToCell === 'function');
       const cellsMap = new Map();
 
+      const selD = document.getElementById("selAdnksDist");
+      const isProvinceLevel = selD && selD.value === "IL_GENELI";
+
+      const totalGi = (subzones || []).reduce((acc, s) => acc + (s.additional_pop_Gi || 0), 0);
+      const maxGi = Math.max(...(subzones || []).map(s => s.additional_pop_Gi || 0), 1);
+      const maxTgtPop = Math.max(...(subzones || []).map(s => {
+        const cur = s.current_pop !== undefined ? s.current_pop : (s.base_pop || 0);
+        const add = s.additional_pop_Gi || 0;
+        return s.target_pop_Pi !== undefined ? s.target_pop_Pi : (s.target_pop_2045 !== undefined ? s.target_pop_2045 : (cur + add));
+      }), 1);
+
       if (isH3Avail) {
         try {
-          const centerCell = h3.latLngToCell(baseLoc[0], baseLoc[1], res);
-          const ringRadius = (res === 7) ? 2 : (res === 8 ? 3 : 5);
-          const diskCells = h3.gridDisk(centerCell, ringRadius);
-          diskCells.forEach(cid => {
-            cellsMap.set(cid, {
-              boundary: h3.cellToBoundary(cid),
-              center: h3.cellToLatLng(cid),
-              cellId: cid
-            });
-          });
-
+          // 1. Generate hexagons directly covering each subzone / district
           (subzones || []).forEach(sz => {
             if (sz._lat && sz._lon) {
               const szCell = h3.latLngToCell(sz._lat, sz._lon, res);
-              const szDisk = h3.gridDisk(szCell, 1);
-              szDisk.forEach(cid => {
+              const diskRadius = isProvinceLevel ? (res === 7 ? 1 : 2) : (res === 7 ? 1 : (res === 8 ? 2 : 3));
+              const diskCells = h3.gridDisk(szCell, diskRadius);
+              diskCells.forEach(cid => {
                 if (!cellsMap.has(cid)) {
                   cellsMap.set(cid, {
                     boundary: h3.cellToBoundary(cid),
                     center: h3.cellToLatLng(cid),
-                    cellId: cid
+                    cellId: cid,
+                    primarySz: sz
                   });
                 }
               });
             }
           });
+
+          // 2. Also cover central town area if single district / neighborhood level
+          if (!isProvinceLevel && baseLoc) {
+            const centerCell = h3.latLngToCell(baseLoc[0], baseLoc[1], res);
+            const centerDisk = h3.gridDisk(centerCell, res === 7 ? 2 : 3);
+            centerDisk.forEach(cid => {
+              if (!cellsMap.has(cid)) {
+                cellsMap.set(cid, {
+                  boundary: h3.cellToBoundary(cid),
+                  center: h3.cellToLatLng(cid),
+                  cellId: cid,
+                  primarySz: null
+                });
+              }
+            });
+          }
         } catch (err) {
           console.warn("h3-js calculation error:", err);
         }
@@ -4002,26 +4110,28 @@
       // Mathematical Fallback for Hexagonal DGGS if h3-js unavailable
       if (cellsMap.size === 0) {
         const edgeKm = (res === 7) ? 1.4 : (res === 8 ? 0.53 : 0.20);
-        const stepLat = edgeKm * 1.5 / 111.0;
-        const stepLng = edgeKm * Math.sqrt(3) / (111.0 * Math.cos(baseLoc[0] * Math.PI / 180));
-        const range = (res === 7) ? 2 : (res === 8 ? 4 : 6);
-
-        for (let r = -range; r <= range; r++) {
-          for (let c = -range; c <= range; c++) {
-            if (Math.abs(r + c) > range * 1.5) continue;
-            const cLat = baseLoc[0] + r * stepLat;
-            const cLng = baseLoc[1] + (c + (Math.abs(r) % 2) * 0.5) * stepLng;
-            const boundary = [];
-            for (let i = 0; i < 6; i++) {
-              const angle = (Math.PI / 6) + (i * Math.PI / 3);
-              const pLat = cLat + (edgeKm / 111.0) * Math.sin(angle);
-              const pLng = cLng + (edgeKm / (111.0 * Math.cos(cLat * Math.PI / 180))) * Math.cos(angle);
-              boundary.push([pLat, pLng]);
+        (subzones || []).forEach(sz => {
+          if (!sz._lat || !sz._lon) return;
+          const range = isProvinceLevel ? 1 : 2;
+          const stepLat = edgeKm * 1.5 / 111.0;
+          const stepLng = edgeKm * Math.sqrt(3) / (111.0 * Math.cos(sz._lat * Math.PI / 180));
+          for (let r = -range; r <= range; r++) {
+            for (let c = -range; c <= range; c++) {
+              if (Math.abs(r + c) > range * 1.5) continue;
+              const cLat = sz._lat + r * stepLat;
+              const cLng = sz._lon + (c + (Math.abs(r) % 2) * 0.5) * stepLng;
+              const boundary = [];
+              for (let i = 0; i < 6; i++) {
+                const angle = (Math.PI / 6) + (i * Math.PI / 3);
+                const pLat = cLat + (edgeKm / 111.0) * Math.sin(angle);
+                const pLng = cLng + (edgeKm / (111.0 * Math.cos(cLat * Math.PI / 180))) * Math.cos(angle);
+                boundary.push([pLat, pLng]);
+              }
+              const cellId = `8${res}` + Math.abs(Math.round(cLat * 1000 + cLng * 1000)).toString(16).padStart(13, 'a');
+              cellsMap.set(cellId, { boundary, center: [cLat, cLng], cellId, primarySz: sz });
             }
-            const cellId = `8${res}` + Math.abs(r * 31 + c).toString(16).padStart(13, 'a');
-            cellsMap.set(cellId, { boundary, center: [cLat, cLng], cellId });
           }
-        }
+        });
       }
 
       const cellAreaKm2 = (res === 7 ? 5.16 : (res === 8 ? 0.73 : 0.10));
@@ -4032,98 +4142,93 @@
         const cLng = cellData.center[1];
         bounds.push([cLat, cLng]);
 
-        // 1. Hansen Central Distance & Gravity Score (Concentric accessibility from CBD)
-        const dCenter = Math.sqrt(
-          Math.pow((cLat - baseLoc[0]) * 111.0, 2) +
-          Math.pow((cLng - baseLoc[1]) * 111.0 * Math.cos(baseLoc[0] * Math.PI / 180), 2)
-        );
-        // Pure inverse distance gravity potential from CBD
-        const gravityPotential = 100.0 / Math.pow(1.0 + (dCenter / 1.8), 1.9);
-
-        // 2. Real Gaussian Kernel Population Density from all settlements (Multi-cluster distribution)
-        let totalPopContribution = 0;
-        let nearestSz = null;
-        let minSzDist = Infinity;
-        const kernelSigma = (res === 7 ? 2.5 : (res === 8 ? 1.1 : 0.45)); // km
-
-        (subzones || []).forEach(sz => {
-          if (sz._lat && sz._lon) {
-            const dSz = Math.sqrt(
-              Math.pow((cLat - sz._lat) * 111.0, 2) +
-              Math.pow((cLng - sz._lon) * 111.0 * Math.cos(baseLoc[0] * Math.PI / 180), 2)
-            );
-            if (dSz < minSzDist) {
-              minSzDist = dSz;
-              nearestSz = sz;
+        // Find associated subzone: primarySz or nearest subzone
+        let assignedSz = cellData.primarySz;
+        if (!assignedSz && (subzones || []).length > 0) {
+          let minDist = Infinity;
+          subzones.forEach(sz => {
+            if (sz._lat && sz._lon) {
+              const d = Math.hypot((cLat - sz._lat) * 111.0, (cLng - sz._lon) * 111.0 * Math.cos(sz._lat * Math.PI / 180));
+              if (d < minDist) {
+                minDist = d;
+                assignedSz = sz;
+              }
             }
-            const szTargetPop = sz.target_pop_2045 || (sz.current_pop ? sz.current_pop * 1.15 : 4500);
-            // Gaussian influence
-            const kernelWeight = Math.exp(-Math.pow(dSz, 2) / (2 * Math.pow(kernelSigma, 2)));
-            totalPopContribution += (szTargetPop * 0.18) * kernelWeight;
-          }
-        });
+          });
+        }
+        if (!assignedSz) {
+          assignedSz = subzones[0] || { name: "Merkez Bölgesi", additional_pop_Gi: 0, current_pop: 5000 };
+        }
 
-        // Add base urban background population density
-        const basePopWeight = Math.exp(-Math.pow(dCenter, 2) / (2 * Math.pow(kernelSigma * 2.5, 2)));
-        const cellEstimatedPop = Math.round(totalPopContribution + (1200 * basePopWeight));
-        const cellDensityKm2 = Math.round(cellEstimatedPop / cellAreaKm2);
+        const curP = assignedSz.current_pop !== undefined ? assignedSz.current_pop : (assignedSz.base_pop || 0);
+        const addP = assignedSz.additional_pop_Gi || 0;
+        const tgtP = assignedSz.target_pop_Pi !== undefined ? assignedSz.target_pop_Pi : (assignedSz.target_pop_2045 !== undefined ? assignedSz.target_pop_2045 : (curP + addP));
+        const satPct = assignedSz.saturation_pct !== undefined ? assignedSz.saturation_pct : ((tgtP / Math.max(1, assignedSz.plan_capacity || assignedSz.plan_capacity_pop || curP * 1.5)) * 100);
+        const hNeed = assignedSz.housing_need !== undefined ? assignedSz.housing_need : Math.round(addP / 2.85);
+        const sharePct = totalGi > 0 ? (addP / totalGi) * 100 : 0;
+
+        // Gravity score: square-root normalized relative to peak Gi so every tier is visibly differentiated
+        const relGiRatio = addP / maxGi;
+        const gravScoreSqrt = Math.sqrt(Math.max(0, relGiRatio)) * 100;
+        const densityScore = (tgtP / maxTgtPop) * 100;
 
         cellItems.push({
           cellId: cid,
           boundary: cellData.boundary,
           center: cellData.center,
-          dCenter,
-          gravityPotential,
-          cellEstimatedPop,
-          cellDensityKm2,
-          nearestSzName: nearestSz ? nearestSz.name : "Merkez Aksı"
+          sz: assignedSz,
+          curP,
+          addP,
+          tgtP,
+          satPct,
+          hNeed,
+          sharePct,
+          relGiRatio,
+          gravScoreSqrt,
+          densityScore
         });
       });
 
-      // Max values for normalization
-      const maxGrav = Math.max(...cellItems.map(c => c.gravityPotential), 1);
-      const maxDensity = Math.max(...cellItems.map(c => c.cellDensityKm2), 1000);
-
       cellItems.forEach(item => {
-        let fillColor = '#6366F1';
+        let fillColor = '#3B82F6';
         let strokeColor = '#FFFFFF';
         let fillOpacity = 0.65;
         let metricDisplayVal = '';
 
         if (h3Metric === 'density') {
           // --- POPULATION DENSITY PALETTE (EMERALD -> YELLOW -> ORANGE -> CRIMSON RED) ---
-          const dens = item.cellDensityKm2;
-          metricDisplayVal = `${dens.toLocaleString('tr-TR')} kişi/km²`;
+          const ds = item.densityScore;
+          metricDisplayVal = `${item.tgtP.toLocaleString('tr-TR')} Kişi (%${ds.toFixed(0)})`;
 
-          if (dens > 8000) {
-            fillColor = '#EF4444'; // Zirve Yoğun (Kırmızı)
-            fillOpacity = 0.75;
-          } else if (dens > 4500) {
-            fillColor = '#F97316'; // Yüksek Yoğun (Turuncu)
-            fillOpacity = 0.70;
-          } else if (dens > 1800) {
-            fillColor = '#EAB308'; // Orta Yoğun (Sarı)
+          if (ds >= 70) {
+            fillColor = '#EF4444'; // Zirve Yoğun
+            fillOpacity = 0.78;
+          } else if (ds >= 40) {
+            fillColor = '#F97316'; // Yüksek Yoğun
+            fillOpacity = 0.72;
+          } else if (ds >= 15) {
+            fillColor = '#EAB308'; // Orta Yoğun
             fillOpacity = 0.65;
           } else {
-            fillColor = '#10B981'; // Seyrek / Kırsal (Yeşil)
+            fillColor = '#10B981'; // Seyrek
             fillOpacity = 0.55;
           }
         } else {
-          // --- HANSEN GRAVITY PALETTE (INDIGO -> BLUE -> PURPLE -> MAGENTA/PINK) ---
-          const gravNorm = Math.min(100, Math.max(5, (item.gravityPotential / maxGrav) * 100));
-          metricDisplayVal = `%${gravNorm.toFixed(1)} / 100`;
+          // --- HANSEN GRAVITY PALETTE (BLUE -> YELLOW -> ORANGE -> CRIMSON RED) ---
+          const gs = item.gravScoreSqrt;
+          metricDisplayVal = `+${item.addP.toLocaleString('tr-TR')} Kişi (%${item.sharePct.toFixed(1)})`;
 
-          if (gravNorm > 80) {
-            fillColor = '#EC4899'; // Zirve CBD Erişilebilirlik (Parlak Pembe/Macenta)
-            fillOpacity = 0.75;
-          } else if (gravNorm > 55) {
-            fillColor = '#A855F7'; // Yüksek Çekim (Mor)
-            fillOpacity = 0.70;
-          } else if (gravNorm > 30) {
-            fillColor = '#3B82F6'; // Orta Erişilebilirlik (Kraliyet Mavisi)
+          if (gs >= 65 || item.relGiRatio >= 0.70) {
+            fillColor = '#EF4444'; // Zirve Hansen Çekim (Kırmızı)
+            fillOpacity = 0.80;
+          } else if (gs >= 25 || item.relGiRatio >= 0.15) {
+            fillColor = '#F97316'; // Yüksek Çekim (Turuncu)
+            fillOpacity = 0.72;
+          } else if (gs >= 10 || item.relGiRatio >= 0.02) {
+            fillColor = '#EAB308'; // Orta Çekim (Sarı)
             fillOpacity = 0.65;
           } else {
-            fillColor = '#6366F1'; // Düşük / Periferi (İndigo)
+            fillColor = '#3B82F6'; // Düşük / Periferi (Mavi)
             fillOpacity = 0.55;
           }
         }
@@ -4144,10 +4249,11 @@
         });
 
         const isEn = (currentLang === 'en');
-        const gravScoreText = `%${Math.min(100, (item.gravityPotential / maxGrav) * 100).toFixed(1)}`;
+        const t1Year = (document.getElementById("inpTargetYear1") ? document.getElementById("inpTargetYear1").value : 2030);
+        const baseYear = (document.getElementById("inpBaseYear") ? document.getElementById("inpBaseYear").value : 2025);
 
         poly.bindPopup(`
-          <div class="font-sans text-xs p-1 min-w-[220px]">
+          <div class="font-sans text-xs p-1 min-w-[230px]">
             <div class="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-2">
               <div class="flex items-center gap-1.5 font-bold text-slate-900">
                 <span style="color:${fillColor}">⬡</span> <span>Uber H3 DGGS</span>
@@ -4155,30 +4261,44 @@
               <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full" style="background:${fillColor}22; color:${fillColor};">Res ${res}</span>
             </div>
             <p class="text-[11px] font-mono text-slate-500 mb-1.5 bg-slate-50 p-1 rounded">ID: <strong>${item.cellId}</strong></p>
+            
+            <div class="bg-indigo-50/70 border border-indigo-100/80 rounded p-1.5 mb-2 text-center">
+              <div class="text-[10px] uppercase font-semibold text-indigo-600">${isEn ? 'Associated Settlement' : 'İlişkili Bölge / Mahalle'}</div>
+              <strong class="text-xs font-bold text-slate-900">${item.sz.name}</strong>
+            </div>
+
             <div class="space-y-1.5">
-              <div class="flex justify-between items-center bg-slate-50 p-1 rounded">
-                <span class="text-slate-500 font-medium">${h3Metric === 'density' ? 'Nüfus Yoğunluğu:' : 'Hansen Çekim Skoru:'}</span>
+              <div class="flex justify-between items-center bg-slate-50 p-1.5 rounded">
+                <span class="text-slate-600 font-medium">${h3Metric === 'density' ? (isEn ? 'Target Pop:' : 'Hedef Nüfus:') : (isEn ? 'Allocated Pop (Gi):' : 'Dağıtılan İlave (Gi):')}</span>
                 <strong class="font-bold text-sm" style="color:${fillColor}">${metricDisplayVal}</strong>
               </div>
-              <div class="flex justify-between text-[11px]">
-                <span class="text-slate-500">${isEn ? 'Hansen Gravity:' : 'Hansen Çekim Skoru:'}</span>
-                <strong class="text-indigo-600">${gravScoreText}</strong>
+              <div class="flex justify-between text-[11px] py-0.5 border-b border-slate-100">
+                <span class="text-slate-500">${isEn ? 'Hansen Share:' : 'Hansen Çekim Payı:'}</span>
+                <strong class="text-indigo-600">%${item.sharePct.toFixed(1)}</strong>
               </div>
-              <div class="flex justify-between text-[11px]">
-                <span class="text-slate-500">${isEn ? 'Est. Cell Pop:' : 'Tahmini Hücre Nüfusu:'}</span>
-                <strong class="text-slate-900">${item.cellEstimatedPop.toLocaleString('tr-TR')} Kişi</strong>
+              <div class="flex justify-between text-[11px] py-0.5 border-b border-slate-100">
+                <span class="text-slate-500">${isEn ? `Target Pop (${t1Year}):` : `Hedef Nüfus (${t1Year}):`}</span>
+                <strong class="text-slate-900">${item.tgtP.toLocaleString('tr-TR')} ${isEn ? 'Capita' : 'Kişi'}</strong>
               </div>
-              <div class="flex justify-between text-[11px]">
+              <div class="flex justify-between text-[11px] py-0.5 border-b border-slate-100">
+                <span class="text-slate-500">${isEn ? `Base Pop (${baseYear}):` : `Mevcut Nüfus (${baseYear}):`}</span>
+                <span class="text-slate-700">${item.curP.toLocaleString('tr-TR')} ${isEn ? 'Capita' : 'Kişi'}</span>
+              </div>
+              <div class="flex justify-between text-[11px] py-0.5 border-b border-slate-100">
+                <span class="text-slate-500">${isEn ? 'Saturation Rate:' : 'Plan Doygunluk Oranı:'}</span>
+                <span class="font-semibold ${item.satPct > 100 ? 'text-rose-600' : (item.satPct > 80 ? 'text-amber-600' : 'text-emerald-600')}">%${item.satPct.toFixed(1)}</span>
+              </div>
+              <div class="flex justify-between text-[11px] py-0.5 border-b border-slate-100">
+                <span class="text-slate-500">${isEn ? 'Housing Need:' : 'Yeni Konut İhtiyacı:'}</span>
+                <span class="text-slate-700 font-medium">${item.hNeed.toLocaleString('tr-TR')} ${isEn ? 'Dwellings' : 'Konut'}</span>
+              </div>
+              <div class="flex justify-between text-[11px] py-0.5">
                 <span class="text-slate-500">${isEn ? 'Hexagon Area:' : 'Heksagon Alanı:'}</span>
-                <span class="text-slate-700">~${cellAreaKm2} km²</span>
-              </div>
-              <div class="flex justify-between text-[11px]">
-                <span class="text-slate-500">${isEn ? 'Nearest Zone:' : 'İlişkili Mahalle:'}</span>
-                <span class="text-slate-700 font-medium">${item.nearestSzName}</span>
+                <span class="text-slate-600">~${cellAreaKm2} km²</span>
               </div>
             </div>
             <p class="mt-2 pt-1.5 border-t border-slate-100 text-[10px] text-slate-400">
-              ${h3Metric === 'density' ? 'Gaussian KDE Kentsel Nüfus Ayrıştırması (Dasymetric)' : 'Walter Christaller Merkezi Yerler & Hansen Çekim Modeli'}
+              Prof. Dr. K. Mert Çubukçu & Hansen Erişilebilirlik Modeli
             </p>
           </div>
         `);
