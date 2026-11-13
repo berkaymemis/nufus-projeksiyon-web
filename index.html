@@ -31,55 +31,67 @@
       background-color: #f5f5f7;
       color: #1d1d1f;
       -webkit-font-smoothing: antialiased;
-      letter-spacing: -0.011em;
+      -moz-osx-font-smoothing: grayscale;
+      letter-spacing: -0.015em;
     }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #f5f5f7; }
     ::-webkit-scrollbar-thumb { background: #d2d2d7; border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: #86868b; }
-    .tab-active { background-color: #ffffff !important; color: #1d1d1f !important; box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important; font-weight: 600 !important; }
-    .tab-inactive { color: #6e6e73 !important; background-color: transparent !important; }
-    .tab-inactive:hover { color: #1d1d1f !important; background-color: rgba(255,255,255,0.7) !important; }
-    #leafletMap { height: 420px; width: 100%; border-radius: 1.25rem; z-index: 10; }
+    .tab-active { background-color: #ffffff !important; color: #1d1d1f !important; box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important; font-weight: 600 !important; border-radius: 9999px !important; }
+    .tab-inactive { color: #86868b !important; background-color: transparent !important; border-radius: 9999px !important; }
+    .tab-inactive:hover { color: #1d1d1f !important; background-color: rgba(255,255,255,0.6) !important; }
+    .apple-card {
+      background-color: #ffffff;
+      border-radius: 28px;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.03);
+    }
+    #leafletMap { height: 420px; width: 100%; border-radius: 1.5rem; z-index: 10; }
     @media (max-width: 640px) { #leafletMap { height: 320px; } }
   </style>
 </head>
 <body class="bg-[#f5f5f7] text-[#1d1d1f] font-sans min-h-screen flex flex-col pb-16 antialiased">
 
-  <!-- TOP APP BAR (APPLE FROSTED GLASS NAVIGATION) -->
-  <header class="bg-white/80 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-30 transition">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center space-x-3">
+  <!-- TOP APP BAR (AUTHENTIC APPLE FROSTED GLASS BAR) -->
+  <header class="bg-white/85 backdrop-blur-xl border-b border-black/[0.08] sticky top-0 z-50 transition">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4">
+      <div class="flex items-center space-x-6">
         <a href="/" class="flex items-center gap-2.5 group">
-          <div class="w-9 h-9 rounded-2xl bg-[#1d1d1f] group-hover:bg-[#0071e3] text-white flex items-center justify-center font-bold text-lg shadow-sm transition">
-            ?
+          <div class="w-8 h-8 rounded-xl bg-[#1d1d1f] group-hover:bg-[#0071e3] text-white flex items-center justify-center font-bold text-xs tracking-wider shadow-xs transition">
+            NK
           </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="text-base sm:text-lg font-semibold text-[#1d1d1f] tracking-tight" data-i18n="appTitle">NüfusKaç.</span>
-              <span class="bg-[#f5f5f7] text-[#6e6e73] border border-slate-200/80 text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase">TÜİK 2025</span>
-              <span class="hidden sm:inline-block text-[#86868b] text-[11px] font-medium">• K. Mert Çubukçu</span>
-            </div>
+          <div class="flex items-center gap-2">
+            <span class="text-base sm:text-lg font-semibold text-[#1d1d1f] tracking-tight" data-i18n="appTitle">NüfusKaç.</span>
+            <span class="bg-[#f5f5f7] text-[#86868b] border border-black/[0.06] text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase">TÜİK 2025</span>
           </div>
         </a>
+
+        <!-- Apple Store Navigation Links -->
+        <nav class="hidden md:flex items-center gap-5 text-xs font-medium text-[#1d1d1f]/80">
+          <button type="button" onclick="switchTab('curves'); document.getElementById('tabSection').scrollIntoView({behavior:'smooth'})" class="hover:text-[#0071e3] transition">Regresyon Modelleri</button>
+          <button type="button" onclick="switchTab('cohort'); document.getElementById('tabSection').scrollIntoView({behavior:'smooth'})" class="hover:text-[#0071e3] transition">Kuşak & Piramit</button>
+          <button type="button" onclick="switchTab('hansen'); document.getElementById('tabSection').scrollIntoView({behavior:'smooth'})" class="hover:text-[#0071e3] transition">Mekânsal Harita</button>
+          <button type="button" onclick="switchTab('mpyy'); document.getElementById('tabSection').scrollIntoView({behavior:'smooth'})" class="hover:text-[#0071e3] transition">MPYY Donatı</button>
+        </nav>
       </div>
 
       <div class="flex items-center gap-2 flex-wrap">
         <!-- Switch to Classic Mode Button -->
-        <a href="/classic" title="Eski detaylı laboratuvar görünümüne geçin" class="bg-white hover:bg-slate-100 text-[#1d1d1f] border border-slate-200/80 text-xs font-medium px-3.5 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 transition">
+        <a href="/classic" title="Eski detaylı laboratuvar görünümüne geçin" class="bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] border border-black/[0.06] text-xs font-medium px-3.5 py-1.5 rounded-full shadow-2xs flex items-center gap-1.5 transition">
           <span>🏛️</span>
           <span class="hidden md:inline">Klasik Plancı Modu</span>
           <span class="md:hidden">Klasik</span>
         </a>
 
         <!-- Bilingual Switcher -->
-        <button id="btnLangToggle" onclick="toggleLanguage()" class="bg-white hover:bg-slate-100 text-[#1d1d1f] border border-slate-200/80 text-xs font-medium px-3.5 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 transition">
+        <button id="btnLangToggle" onclick="toggleLanguage()" class="bg-[#f5f5f7] hover:bg-[#e8e8ed] text-[#1d1d1f] border border-black/[0.06] text-xs font-medium px-3.5 py-1.5 rounded-full shadow-2xs flex items-center gap-1.5 transition">
           <span class="text-xs">🌐</span>
           <span id="lblLang">English</span>
         </button>
 
         <!-- Excel Export -->
-        <button id="btnExportExcel" class="bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-medium px-3.5 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 transition">
+        <button id="btnExportExcel" class="bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-xs flex items-center gap-1.5 transition">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           <span class="hidden sm:inline" data-i18n="btnExcel">Excel İndir</span>
           <span class="sm:hidden">Excel</span>
@@ -91,45 +103,50 @@
   <!-- MAIN CONTAINER -->
   <main class="max-w-6xl mx-auto px-4 sm:px-6 mt-4 w-full flex-1 space-y-6">
 
-    <!-- HERO HEADLINE & QUICK EXPLORER SHELF -->
-    <div class="pt-2 sm:pt-4 pb-1">
+    <!-- HERO HEADLINE & QUICK EXPLORER SHELF (APPLE STORE STYLE) -->
+    <div class="pt-3 sm:pt-6 pb-2">
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 class="text-3xl sm:text-5xl font-semibold tracking-tight text-[#1d1d1f]">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-[11px] font-semibold uppercase tracking-widest text-[#0071e3] bg-[#0071e3]/10 px-3 py-0.5 rounded-full">
+              KENTSEL PLANLAMA & DEMOGRAFİ PROJEKSİYONU
+            </span>
+          </div>
+          <h1 class="text-3xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-[#1d1d1f]">
             NüfusKaç. <span class="text-[#86868b] font-normal">Türkiye kentlerinin geleceğini öngörün.</span>
           </h1>
-          <p class="text-xs sm:text-sm text-[#6e6e73] mt-2 font-normal">
+          <p class="text-xs sm:text-sm text-[#86868b] mt-2 font-normal max-w-3xl leading-relaxed">
             81 İl ve 973 İlçe Resmi TÜİK Veri Tabanı & Prof. Dr. K. Mert Çubukçu Analitik Modelleriyle 2025–2050 Projeksiyonu
           </p>
         </div>
-        <div class="hidden lg:flex items-center gap-2.5 text-xs text-[#6e6e73] bg-white px-4 py-2.5 rounded-full border border-slate-200/60 shadow-sm">
+        <div class="hidden lg:flex items-center gap-2.5 text-xs text-[#6e6e73] bg-white px-4 py-2.5 rounded-full border border-black/[0.06] shadow-2xs">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           <span class="font-medium text-[#1d1d1f]">Canlı Model:</span>
           <span>TÜİK 2025 ADNKS • Çubukçu (4.30 / 4.39)</span>
         </div>
       </div>
 
-      <!-- Apple Category Shelf: Popular Cities / Quick Selection -->
+      <!-- Apple Store Category Shelf: Popular Cities / Quick Selection -->
       <div class="mt-4 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none text-xs">
         <span class="text-[#86868b] text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap mr-1">
           Hızlı Seçim:
         </span>
-        <button type="button" onclick="quickAsk('İSTANBUL', 'IL_GENELI', 2030)" class="whitespace-nowrap px-4 py-1.5 rounded-full bg-white hover:bg-slate-100 text-[#1d1d1f] font-medium border border-slate-200/80 shadow-sm transition">
+        <button type="button" onclick="quickAsk('İSTANBUL', 'IL_GENELI', 2030)" class="whitespace-nowrap px-4 py-2 rounded-full bg-white hover:bg-[#f5f5f7] text-[#1d1d1f] font-medium border border-black/[0.06] shadow-2xs hover:border-black/[0.15] transition">
           🏛️ İstanbul (15.6M)
         </button>
-        <button type="button" onclick="quickAsk('ANKARA', 'IL_GENELI', 2035)" class="whitespace-nowrap px-4 py-1.5 rounded-full bg-white hover:bg-slate-100 text-[#1d1d1f] font-medium border border-slate-200/80 shadow-sm transition">
+        <button type="button" onclick="quickAsk('ANKARA', 'IL_GENELI', 2035)" class="whitespace-nowrap px-4 py-2 rounded-full bg-white hover:bg-[#f5f5f7] text-[#1d1d1f] font-medium border border-black/[0.06] shadow-2xs hover:border-black/[0.15] transition">
           🏛️ Ankara (5.8M)
         </button>
-        <button type="button" onclick="quickAsk('İZMİR', 'IL_GENELI', 2040)" class="whitespace-nowrap px-4 py-1.5 rounded-full bg-white hover:bg-slate-100 text-[#1d1d1f] font-medium border border-slate-200/80 shadow-sm transition">
+        <button type="button" onclick="quickAsk('İZMİR', 'IL_GENELI', 2040)" class="whitespace-nowrap px-4 py-2 rounded-full bg-white hover:bg-[#f5f5f7] text-[#1d1d1f] font-medium border border-black/[0.06] shadow-2xs hover:border-black/[0.15] transition">
           🏛️ İzmir Geneli (4.4M)
         </button>
-        <button type="button" onclick="quickAsk('İZMİR', 'TİRE', 2030)" class="whitespace-nowrap px-4 py-1.5 rounded-full bg-white hover:bg-blue-50 text-[#0071e3] font-semibold border border-blue-200/80 shadow-sm transition">
+        <button type="button" onclick="quickAsk('İZMİR', 'TİRE', 2030)" class="whitespace-nowrap px-4 py-2 rounded-full bg-white hover:bg-blue-50 text-[#0071e3] font-semibold border border-blue-200/80 shadow-2xs hover:border-[#0071e3] transition">
           📍 İzmir / Tire (87.5k)
         </button>
-        <button type="button" onclick="quickAsk('ANTALYA', 'IL_GENELI', 2030)" class="whitespace-nowrap px-4 py-1.5 rounded-full bg-white hover:bg-slate-100 text-[#1d1d1f] font-medium border border-slate-200/80 shadow-sm transition">
+        <button type="button" onclick="quickAsk('ANTALYA', 'IL_GENELI', 2030)" class="whitespace-nowrap px-4 py-2 rounded-full bg-white hover:bg-[#f5f5f7] text-[#1d1d1f] font-medium border border-black/[0.06] shadow-2xs hover:border-black/[0.15] transition">
           🏛️ Antalya (2.7M)
         </button>
-        <button type="button" onclick="quickAsk('BURSA', 'IL_GENELI', 2050)" class="whitespace-nowrap px-4 py-1.5 rounded-full bg-white hover:bg-slate-100 text-[#1d1d1f] font-medium border border-slate-200/80 shadow-sm transition">
+        <button type="button" onclick="quickAsk('BURSA', 'IL_GENELI', 2050)" class="whitespace-nowrap px-4 py-2 rounded-full bg-white hover:bg-[#f5f5f7] text-[#1d1d1f] font-medium border border-black/[0.06] shadow-2xs hover:border-black/[0.15] transition">
           🏛️ Bursa (3.2M)
         </button>
       </div>
@@ -1099,7 +1116,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v31') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v32') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -2198,9 +2215,9 @@
 
         if (btn) {
           if (t === tabId) {
-            btn.className = "tab-active py-3 px-4 whitespace-nowrap flex items-center gap-1.5 transition";
+            btn.className = "tab-active py-2 px-5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap flex items-center gap-2 transition";
           } else {
-            btn.className = "tab-inactive py-3 px-4 whitespace-nowrap flex items-center gap-1.5 transition";
+            btn.className = "tab-inactive py-2 px-5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap flex items-center gap-2 transition";
           }
         }
 
