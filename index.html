@@ -755,11 +755,11 @@
                     <option value="density">Tahmini Nüfus Yoğunluğu</option>
                   </select>
                 </div>
-                <div class="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium">
-                  <span class="inline-block w-3 h-3 rounded-sm bg-[#3b82f6]"></span> Düşük
-                  <span class="inline-block w-3 h-3 rounded-sm bg-[#10b981]"></span> Orta
-                  <span class="inline-block w-3 h-3 rounded-sm bg-[#f59e0b]"></span> Yüksek
-                  <span class="inline-block w-3 h-3 rounded-sm bg-[#ef4444]"></span> Zirve
+                <div id="h3LegendPills" class="flex items-center gap-2 text-[11px] font-medium transition">
+                  <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#6366f1]"></span> <span class="text-slate-600">Periferi</span></span>
+                  <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#3b82f6]"></span> <span class="text-slate-600">Orta</span></span>
+                  <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#a855f7]"></span> <span class="text-slate-600">Yüksek</span></span>
+                  <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#ec4899]"></span> <span class="text-slate-600">Zirve Çekim</span></span>
                 </div>
               </div>
 
@@ -1151,7 +1151,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v34') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v35') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -3774,11 +3774,32 @@
       }
     }
 
+    function updateH3LegendDisplay() {
+      const legElem = document.getElementById('h3LegendPills');
+      if (!legElem) return;
+      if (h3Metric === 'density') {
+        legElem.innerHTML = `
+          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#10b981]"></span> <span class="text-slate-600">Seyrek (<1.5k)</span></span>
+          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#eab308]"></span> <span class="text-slate-600">Orta (1.5-5k)</span></span>
+          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#f97316]"></span> <span class="text-slate-600">Yoğun (5-10k)</span></span>
+          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#ef4444]"></span> <span class="text-slate-600">Zirve (>10k)</span></span>
+        `;
+      } else {
+        legElem.innerHTML = `
+          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#6366f1]"></span> <span class="text-slate-600">Periferi</span></span>
+          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#3b82f6]"></span> <span class="text-slate-600">Alt Merkez</span></span>
+          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#a855f7]"></span> <span class="text-slate-600">Yüksek Çekim</span></span>
+          <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-sm bg-[#ec4899]"></span> <span class="text-slate-600">Zirve CBD</span></span>
+        `;
+      }
+    }
+
     function onH3ConfigChanged() {
       const selRes = document.getElementById('selH3Resolution');
       const selMet = document.getElementById('selH3Metric');
       if (selRes) h3Resolution = parseInt(selRes.value, 10) || 8;
       if (selMet) h3Metric = selMet.value || 'gravity';
+      updateH3LegendDisplay();
       if (leafletLastSubzones) {
         initLeafletMap(leafletLastSubzones);
       }
@@ -3800,6 +3821,7 @@
 
       leafletMarkersGroup.clearLayers();
       leafletH3Group.clearLayers();
+      updateH3LegendDisplay();
 
       // TÜRKİYE 81 İL RESMİ MERKEZ KOORDİNATLARI (Enlem, Boylam)
       const provCoords = {
@@ -3900,12 +3922,12 @@
           const markerColor = isOver ? '#DC2626' : (satPct > 80 ? '#D97706' : '#059669');
 
           const circle = L.circleMarker([sz._lat, sz._lon], {
-            radius: Math.max(6, Math.min(22, Math.sqrt(curP) * 0.25)),
+            radius: Math.max(7, Math.min(24, Math.sqrt(curP) * 0.25)),
             fillColor: markerColor,
             color: '#FFFFFF',
-            weight: 2,
+            weight: 2.5,
             opacity: 1,
-            fillOpacity: 0.90
+            fillOpacity: 0.95
           });
 
           const isEn = (currentLang === 'en');
@@ -3947,7 +3969,7 @@
       if (isH3Avail) {
         try {
           const centerCell = h3.latLngToCell(baseLoc[0], baseLoc[1], res);
-          const ringRadius = (res === 7) ? 2 : (res === 8 ? 3 : 4);
+          const ringRadius = (res === 7) ? 2 : (res === 8 ? 3 : 5);
           const diskCells = h3.gridDisk(centerCell, ringRadius);
           diskCells.forEach(cid => {
             cellsMap.set(cid, {
@@ -3982,7 +4004,7 @@
         const edgeKm = (res === 7) ? 1.4 : (res === 8 ? 0.53 : 0.20);
         const stepLat = edgeKm * 1.5 / 111.0;
         const stepLng = edgeKm * Math.sqrt(3) / (111.0 * Math.cos(baseLoc[0] * Math.PI / 180));
-        const range = (res === 7) ? 2 : (res === 8 ? 3 : 5);
+        const range = (res === 7) ? 2 : (res === 8 ? 4 : 6);
 
         for (let r = -range; r <= range; r++) {
           for (let c = -range; c <= range; c++) {
@@ -4002,21 +4024,28 @@
         }
       }
 
+      const cellAreaKm2 = (res === 7 ? 5.16 : (res === 8 ? 0.73 : 0.10));
       const cellItems = [];
+
       cellsMap.forEach((cellData, cid) => {
         const cLat = cellData.center[0];
         const cLng = cellData.center[1];
         bounds.push([cLat, cLng]);
 
+        // 1. Hansen Central Distance & Gravity Score (Concentric accessibility from CBD)
         const dCenter = Math.sqrt(
           Math.pow((cLat - baseLoc[0]) * 111.0, 2) +
           Math.pow((cLng - baseLoc[1]) * 111.0 * Math.cos(baseLoc[0] * Math.PI / 180), 2)
         );
+        // Pure inverse distance gravity potential from CBD
+        const gravityPotential = 100.0 / Math.pow(1.0 + (dCenter / 1.8), 1.9);
 
-        const rawGravity = 100.0 / Math.pow(Math.max(0.4, dCenter), 1.8);
-
+        // 2. Real Gaussian Kernel Population Density from all settlements (Multi-cluster distribution)
+        let totalPopContribution = 0;
         let nearestSz = null;
         let minSzDist = Infinity;
+        const kernelSigma = (res === 7 ? 2.5 : (res === 8 ? 1.1 : 0.45)); // km
+
         (subzones || []).forEach(sz => {
           if (sz._lat && sz._lon) {
             const dSz = Math.sqrt(
@@ -4027,84 +4056,129 @@
               minSzDist = dSz;
               nearestSz = sz;
             }
+            const szTargetPop = sz.target_pop_2045 || (sz.current_pop ? sz.current_pop * 1.15 : 4500);
+            // Gaussian influence
+            const kernelWeight = Math.exp(-Math.pow(dSz, 2) / (2 * Math.pow(kernelSigma, 2)));
+            totalPopContribution += (szTargetPop * 0.18) * kernelWeight;
           }
         });
 
-        const szPop = nearestSz ? (nearestSz.target_pop_2045 || nearestSz.current_pop || 3200) : 3200;
-        const popShare = Math.round(szPop * (rawGravity / 140.0) / 3.5);
+        // Add base urban background population density
+        const basePopWeight = Math.exp(-Math.pow(dCenter, 2) / (2 * Math.pow(kernelSigma * 2.5, 2)));
+        const cellEstimatedPop = Math.round(totalPopContribution + (1200 * basePopWeight));
+        const cellDensityKm2 = Math.round(cellEstimatedPop / cellAreaKm2);
 
         cellItems.push({
           cellId: cid,
           boundary: cellData.boundary,
           center: cellData.center,
           dCenter,
-          rawGravity,
-          popShare,
-          nearestSzName: nearestSz ? nearestSz.name : "Merkez Çekim Aksı"
+          gravityPotential,
+          cellEstimatedPop,
+          cellDensityKm2,
+          nearestSzName: nearestSz ? nearestSz.name : "Merkez Aksı"
         });
       });
 
-      const maxGrav = Math.max(...cellItems.map(c => c.rawGravity), 1);
-      const maxPop = Math.max(...cellItems.map(c => c.popShare), 1);
+      // Max values for normalization
+      const maxGrav = Math.max(...cellItems.map(c => c.gravityPotential), 1);
+      const maxDensity = Math.max(...cellItems.map(c => c.cellDensityKm2), 1000);
 
       cellItems.forEach(item => {
-        const gravNorm = Math.min(100, Math.max(5, (item.rawGravity / maxGrav) * 100));
-        const popNorm = Math.min(100, Math.max(5, (item.popShare / maxPop) * 100));
-        const metricVal = (h3Metric === 'density') ? popNorm : gravNorm;
+        let fillColor = '#6366F1';
+        let strokeColor = '#FFFFFF';
+        let fillOpacity = 0.65;
+        let metricDisplayVal = '';
 
-        let fillColor = '#3B82F6';
-        if (metricVal > 75) fillColor = '#EF4444';
-        else if (metricVal > 50) fillColor = '#F59E0B';
-        else if (metricVal > 25) fillColor = '#10B981';
-        else fillColor = '#0284C7';
+        if (h3Metric === 'density') {
+          // --- POPULATION DENSITY PALETTE (EMERALD -> YELLOW -> ORANGE -> CRIMSON RED) ---
+          const dens = item.cellDensityKm2;
+          metricDisplayVal = `${dens.toLocaleString('tr-TR')} kişi/km²`;
+
+          if (dens > 8000) {
+            fillColor = '#EF4444'; // Zirve Yoğun (Kırmızı)
+            fillOpacity = 0.75;
+          } else if (dens > 4500) {
+            fillColor = '#F97316'; // Yüksek Yoğun (Turuncu)
+            fillOpacity = 0.70;
+          } else if (dens > 1800) {
+            fillColor = '#EAB308'; // Orta Yoğun (Sarı)
+            fillOpacity = 0.65;
+          } else {
+            fillColor = '#10B981'; // Seyrek / Kırsal (Yeşil)
+            fillOpacity = 0.55;
+          }
+        } else {
+          // --- HANSEN GRAVITY PALETTE (INDIGO -> BLUE -> PURPLE -> MAGENTA/PINK) ---
+          const gravNorm = Math.min(100, Math.max(5, (item.gravityPotential / maxGrav) * 100));
+          metricDisplayVal = `%${gravNorm.toFixed(1)} / 100`;
+
+          if (gravNorm > 80) {
+            fillColor = '#EC4899'; // Zirve CBD Erişilebilirlik (Parlak Pembe/Macenta)
+            fillOpacity = 0.75;
+          } else if (gravNorm > 55) {
+            fillColor = '#A855F7'; // Yüksek Çekim (Mor)
+            fillOpacity = 0.70;
+          } else if (gravNorm > 30) {
+            fillColor = '#3B82F6'; // Orta Erişilebilirlik (Kraliyet Mavisi)
+            fillOpacity = 0.65;
+          } else {
+            fillColor = '#6366F1'; // Düşük / Periferi (İndigo)
+            fillOpacity = 0.55;
+          }
+        }
 
         const poly = L.polygon(item.boundary, {
           fillColor: fillColor,
-          color: '#FFFFFF',
+          color: strokeColor,
           weight: 1.2,
           opacity: 0.95,
-          fillOpacity: 0.60
+          fillOpacity: fillOpacity
         });
 
         poly.on('mouseover', function() {
-          this.setStyle({ weight: 2.5, color: '#FFFFFF', fillOpacity: 0.85 });
+          this.setStyle({ weight: 2.8, color: '#FFFFFF', fillOpacity: 0.90 });
         });
         poly.on('mouseout', function() {
-          this.setStyle({ weight: 1.2, color: '#FFFFFF', fillOpacity: 0.60 });
+          this.setStyle({ weight: 1.2, color: strokeColor, fillOpacity: fillOpacity });
         });
 
         const isEn = (currentLang === 'en');
-        const areaKm2 = (res === 7 ? '5.16' : (res === 8 ? '0.73' : '0.10'));
+        const gravScoreText = `%${Math.min(100, (item.gravityPotential / maxGrav) * 100).toFixed(1)}`;
 
         poly.bindPopup(`
-          <div class="font-sans text-xs p-1 min-w-[210px]">
+          <div class="font-sans text-xs p-1 min-w-[220px]">
             <div class="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-2">
               <div class="flex items-center gap-1.5 font-bold text-slate-900">
-                <span class="text-blue-600">⬡</span> <span>Uber H3 DGGS</span>
+                <span style="color:${fillColor}">⬡</span> <span>Uber H3 DGGS</span>
               </div>
-              <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">Res ${res}</span>
+              <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full" style="background:${fillColor}22; color:${fillColor};">Res ${res}</span>
             </div>
             <p class="text-[11px] font-mono text-slate-500 mb-1.5 bg-slate-50 p-1 rounded">ID: <strong>${item.cellId}</strong></p>
-            <div class="space-y-1">
-              <div class="flex justify-between">
-                <span class="text-slate-500">${isEn ? 'Hansen Gravity Score:' : 'Hansen Çekim Skoru:'}</span>
-                <strong class="text-blue-600 font-bold">%${gravNorm.toFixed(1)}</strong>
+            <div class="space-y-1.5">
+              <div class="flex justify-between items-center bg-slate-50 p-1 rounded">
+                <span class="text-slate-500 font-medium">${h3Metric === 'density' ? 'Nüfus Yoğunluğu:' : 'Hansen Çekim Skoru:'}</span>
+                <strong class="font-bold text-sm" style="color:${fillColor}">${metricDisplayVal}</strong>
               </div>
-              <div class="flex justify-between">
-                <span class="text-slate-500">${isEn ? 'Est. Target Pop:' : 'Tahmini Nüfus Payı:'}</span>
-                <strong class="text-slate-900">${item.popShare.toLocaleString('tr-TR')} Kişi</strong>
+              <div class="flex justify-between text-[11px]">
+                <span class="text-slate-500">${isEn ? 'Hansen Gravity:' : 'Hansen Çekim Skoru:'}</span>
+                <strong class="text-indigo-600">${gravScoreText}</strong>
               </div>
-              <div class="flex justify-between">
+              <div class="flex justify-between text-[11px]">
+                <span class="text-slate-500">${isEn ? 'Est. Cell Pop:' : 'Tahmini Hücre Nüfusu:'}</span>
+                <strong class="text-slate-900">${item.cellEstimatedPop.toLocaleString('tr-TR')} Kişi</strong>
+              </div>
+              <div class="flex justify-between text-[11px]">
                 <span class="text-slate-500">${isEn ? 'Hexagon Area:' : 'Heksagon Alanı:'}</span>
-                <span class="text-slate-700">~${areaKm2} km²</span>
+                <span class="text-slate-700">~${cellAreaKm2} km²</span>
               </div>
-              <div class="flex justify-between">
+              <div class="flex justify-between text-[11px]">
                 <span class="text-slate-500">${isEn ? 'Nearest Zone:' : 'İlişkili Mahalle:'}</span>
                 <span class="text-slate-700 font-medium">${item.nearestSzName}</span>
               </div>
             </div>
             <p class="mt-2 pt-1.5 border-t border-slate-100 text-[10px] text-slate-400">
-              Walter Christaller Merkezi Yerler & Hansen Çekim Modeli
+              ${h3Metric === 'density' ? 'Gaussian KDE Kentsel Nüfus Ayrıştırması (Dasymetric)' : 'Walter Christaller Merkezi Yerler & Hansen Çekim Modeli'}
             </p>
           </div>
         `);
