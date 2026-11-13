@@ -46,47 +46,113 @@
 </head>
 <body class="bg-[#f5f5f7] text-[#1d1d1f] font-sans min-h-screen flex flex-col pb-16 antialiased">
 
-  <!-- TOP APP BAR (APPLE FROSTED GLASS NAVIGATION) -->
-  <header class="bg-white/80 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-30 transition">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center space-x-3">
-        <a href="/" class="flex items-center gap-2.5 group">
-          <div class="w-9 h-9 rounded-2xl bg-[#1d1d1f] group-hover:bg-[#0071e3] text-white flex items-center justify-center font-bold text-lg shadow-sm transition">
-            ?
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="text-base sm:text-lg font-semibold text-[#1d1d1f] tracking-tight" data-i18n="appTitle">NüfusKaç.</span>
-              <span class="bg-[#f5f5f7] text-[#6e6e73] border border-slate-200/80 text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase">TÜİK 2025</span>
-              <span class="hidden sm:inline-block text-[#86868b] text-[11px] font-medium">• K. Mert Çubukçu</span>
-            </div>
-          </div>
-        </a>
-      </div>
+  <!-- TOP APP BAR (AUTHENTIC APPLE DARK TRANSLUCENT NAVIGATION — apple.com/tr/ STANDARD) -->
+  <header class="bg-[#161617]/90 backdrop-blur-xl border-b border-white/[0.08] sticky top-0 z-50 transition-colors">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-11 flex items-center justify-between text-xs text-[#d2d2d7]">
+      <!-- Left: Apple-Style Brand Mark -->
+      <a href="/" class="flex items-center gap-2 text-white hover:text-[#0071e3] transition group" title="NüfusKaç. Ana Sayfa">
+        <svg class="w-4 h-4 fill-current text-white group-hover:text-[#0071e3] transition" viewBox="0 0 24 24">
+          <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12c0-5.523-4.477-10-10-10z"/>
+        </svg>
+        <span class="font-semibold tracking-tight text-white text-sm" data-i18n="appTitle">NüfusKaç.</span>
+        <span class="text-[10px] text-[#86868b] border border-white/10 rounded px-1.5 py-0.2 hidden sm:inline">2025</span>
+      </a>
 
-      <div class="flex items-center gap-2 flex-wrap">
-        <!-- Switch to Classic Mode Button -->
-        <a href="/classic" title="Eski detaylı laboratuvar görünümüne geçin" class="bg-white hover:bg-slate-100 text-[#1d1d1f] border border-slate-200/80 text-xs font-medium px-3.5 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 transition">
-          <span>🏛️</span>
-          <span class="hidden md:inline">Klasik Plancı Modu</span>
-          <span class="md:hidden">Klasik</span>
+      <!-- Center: Apple Mega Menu Items (Desktop) -->
+      <nav class="hidden md:flex items-center space-x-7 text-[12px] font-normal text-[#d2d2d7]">
+        <button type="button" onclick="toggleAppleMenu('models')" class="hover:text-white transition flex items-center gap-1 focus:outline-none">
+          <span>Modeller</span>
+          <svg class="w-2.5 h-2.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <button type="button" onclick="toggleAppleMenu('cities')" class="hover:text-white transition flex items-center gap-1 focus:outline-none">
+          <span>Şehirler</span>
+          <svg class="w-2.5 h-2.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <button type="button" onclick="jumpToTab('hansen', 'tabContent-hansen')" class="hover:text-white transition">
+          Çubukçu Çarpanı
+        </button>
+        <button type="button" onclick="jumpToTab('cohort', 'tabContent-cohort')" class="hover:text-white transition">
+          Demografi & Piramit
+        </button>
+        <button type="button" onclick="toggleAppleMenu('methodology')" class="hover:text-white transition flex items-center gap-1 focus:outline-none">
+          <span>Metodoloji</span>
+          <svg class="w-2.5 h-2.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+      </nav>
+
+      <!-- Right: Action Icons (Search, Classic, Lang, Excel) -->
+      <div class="flex items-center space-x-3 text-xs">
+        <!-- Search icon (Spotlight) -->
+        <button type="button" onclick="openAppleSearch()" class="text-[#d2d2d7] hover:text-white transition p-1" title="Hızlı İl/İlçe Ara (Ctrl+K)">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </button>
+
+        <!-- Switch to Classic Mode -->
+        <a href="/classic" title="Eski detaylı laboratuvar görünümüne geçin" class="text-[#86868b] hover:text-white transition hidden sm:inline text-[11px]">
+          Klasik Mod
         </a>
 
         <!-- Bilingual Switcher -->
-        <button id="btnLangToggle" onclick="toggleLanguage()" class="bg-white hover:bg-slate-100 text-[#1d1d1f] border border-slate-200/80 text-xs font-medium px-3.5 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 transition">
-          <span class="text-xs">🌐</span>
+        <button id="btnLangToggle" onclick="toggleLanguage()" class="text-[#86868b] hover:text-white text-[11px] font-medium transition">
           <span id="lblLang">English</span>
         </button>
 
         <!-- Excel Export -->
-        <button id="btnExportExcel" class="bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-medium px-3.5 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 transition">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-          <span class="hidden sm:inline" data-i18n="btnExcel">Excel İndir</span>
-          <span class="sm:hidden">Excel</span>
+        <button id="btnExportExcel" class="bg-[#0071e3] hover:bg-[#0077ed] text-white text-[11px] font-medium px-3 py-1 rounded-full shadow-sm flex items-center gap-1 transition">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          <span class="hidden sm:inline" data-i18n="btnExcel">Excel</span>
+        </button>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button type="button" onclick="toggleMobileMenu()" class="md:hidden text-[#d2d2d7] hover:text-white p-1" aria-label="Menü">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
       </div>
     </div>
+
+    <!-- APPLE MEGA MENU EXPANDED DRAWER (Exact apple.com/tr/ layout) -->
+    <div id="appleMegaDrawer" class="hidden border-t border-white/[0.08] bg-[#161617] text-white shadow-2xl py-8 px-6 transition-all duration-200">
+      <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div id="megaCol1"></div>
+        <div id="megaCol2"></div>
+        <div id="megaCol3"></div>
+      </div>
+    </div>
+
+    <!-- MOBILE EXPANDABLE MENU -->
+    <div id="appleMobileMenu" class="hidden md:hidden border-t border-white/[0.08] bg-[#161617] text-white px-6 py-6 space-y-4">
+      <div class="space-y-3">
+        <span class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider block">Projeksiyon Modelleri</span>
+        <button type="button" onclick="jumpToTab('curves'); closeAppleMenu();" class="block text-left text-lg font-semibold text-white hover:text-[#0071e3] transition">1. Curve Fitting (6 Regresyon)</button>
+        <button type="button" onclick="jumpToTab('cohort'); closeAppleMenu();" class="block text-left text-lg font-semibold text-white hover:text-[#0071e3] transition">2. Kuşak-Bileşen & Piramit</button>
+        <button type="button" onclick="jumpToTab('hansen'); closeAppleMenu();" class="block text-left text-lg font-semibold text-white hover:text-[#0071e3] transition">3. Hansen Mekânsal & Çarpan</button>
+        <button type="button" onclick="jumpToTab('mpyy'); closeAppleMenu();" class="block text-left text-lg font-semibold text-white hover:text-[#0071e3] transition">4. MPYY Donatı Standartları</button>
+      </div>
+      <div class="pt-4 border-t border-white/10 flex items-center justify-between text-xs">
+        <a href="/classic" class="text-[#86868b] hover:text-white">Klasik Plancı Görünümü</a>
+        <button type="button" onclick="openAppleSearch(); closeAppleMenu();" class="text-[#0071e3]">🔍 İl/İlçe Ara</button>
+      </div>
+    </div>
   </header>
+
+  <!-- APPLE BACKDROP OVERLAY FOR MEGA MENU -->
+  <div id="appleBackdrop" onclick="closeAppleMenu()" class="hidden fixed inset-0 top-11 bg-black/60 backdrop-blur-md z-40 transition-opacity"></div>
+
+  <!-- APPLE SPOTLIGHT SEARCH MODAL -->
+  <div id="appleSearchModal" class="hidden fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/60 backdrop-blur-md" onclick="if(event.target === this) closeAppleSearch();">
+    <div class="bg-[#1c1c1e] text-white border border-white/10 rounded-[24px] shadow-2xl max-w-xl w-full p-4 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div class="flex items-center gap-3 px-3 py-2 border-b border-white/10">
+        <svg class="w-5 h-5 text-[#86868b]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" id="appleSearchInput" oninput="onAppleSearchInput(this.value)" placeholder="İl veya ilçe arayın (örn. Tire, Kadıköy, Çankaya, Bornova)..." class="w-full bg-transparent text-white placeholder-[#86868b] text-base focus:outline-none" autocomplete="off" />
+        <button type="button" onclick="closeAppleSearch()" class="text-xs text-[#86868b] hover:text-white px-2 py-1 bg-white/10 rounded-md">ESC</button>
+      </div>
+      <div id="appleSearchResults" class="max-h-80 overflow-y-auto mt-2 space-y-1 divide-y divide-white/5 scrollbar-thin">
+        <div class="p-4 text-center text-xs text-[#86868b]">
+          81 İl ve 973 İlçe arasından canlı arama yapın
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- MAIN CONTAINER -->
   <main class="max-w-6xl mx-auto px-4 sm:px-6 mt-4 w-full flex-1 space-y-6">
@@ -1099,7 +1165,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v25') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v26') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -1213,6 +1279,254 @@
         console.error("TÜİK ADNKS fetch failed:", err);
       }
     }
+
+    // ==================== APPLE MEGA MENU & SPOTLIGHT SEARCH ====================
+    let activeAppleMenu = null;
+
+    const APPLE_MENUS = {
+      models: {
+        col1: {
+          title: "Projeksiyon Modelleri",
+          items: [
+            { text: "1. Eğri Uydurma (6 Regresyon)", action: () => { jumpToTab('curves'); closeAppleMenu(); }, big: true },
+            { text: "2. Kuşak-Bileşen & Piramit", action: () => { jumpToTab('cohort'); closeAppleMenu(); }, big: true },
+            { text: "3. Hansen Mekânsal Dağıtım", action: () => { jumpToTab('hansen'); closeAppleMenu(); }, big: true },
+            { text: "4. MPYY Donatı Standartları", action: () => { jumpToTab('mpyy'); closeAppleMenu(); }, big: true },
+            { text: "İktisadi Taban (Mert Çubukçu)", action: () => { jumpToTab('hansen', 'lblCubukcuActiveDist'); closeAppleMenu(); }, big: true }
+          ]
+        },
+        col2: {
+          title: "Hızlı Senaryolar & Parametreler",
+          items: [
+            { text: "Hedef Yıl: 2030 (Kısa Vade)", action: () => { setTargetYear(2030); closeAppleMenu(); } },
+            { text: "Hedef Yıl: 2035 (Orta Vade)", action: () => { setTargetYear(2035); closeAppleMenu(); } },
+            { text: "Hedef Yıl: 2050 (Uzun Vade)", action: () => { setTargetYear(2050); closeAppleMenu(); } },
+            { text: "Demografik Şok Simülatörü", action: () => { openShockModal(); closeAppleMenu(); } },
+            { text: "Bağımlılık Oranı Ayarı (b = 1.96)", action: () => { jumpToTab('cohort', 'inpCohortB'); closeAppleMenu(); } }
+          ]
+        },
+        col3: {
+          title: "Akademik Çerçeve & Kaynakça",
+          items: [
+            { text: "Prof. Dr. K. Mert Çubukçu Metodolojisi", action: () => { toggleModelTable(); closeAppleMenu(); } },
+            { text: "TÜİK 2025 ADNKS Veri Tabanı", action: () => { closeAppleMenu(); } },
+            { text: "Ek-2 Mekânsal Standartlar (19.0 m²/kişi)", action: () => { jumpToTab('mpyy'); closeAppleMenu(); } },
+            { text: "TÜİK Excel Dosyası Yükle (.xlsx / .csv)", action: () => { const f = document.getElementById("fileTuikAdnks"); if (f) f.click(); closeAppleMenu(); } }
+          ]
+        }
+      },
+      cities: {
+        col1: {
+          title: "Büyükşehirler (Hızlı Seçim)",
+          items: [
+            { text: "İstanbul (15.7M)", action: () => { quickAsk('İSTANBUL', 'IL_GENELI', 2030); closeAppleMenu(); }, big: true },
+            { text: "Ankara (5.8M)", action: () => { quickAsk('ANKARA', 'IL_GENELI', 2035); closeAppleMenu(); }, big: true },
+            { text: "İzmir (4.4M)", action: () => { quickAsk('İZMİR', 'IL_GENELI', 2040); closeAppleMenu(); }, big: true },
+            { text: "Bursa (3.2M)", action: () => { quickAsk('BURSA', 'IL_GENELI', 2050); closeAppleMenu(); }, big: true },
+            { text: "Antalya (2.7M)", action: () => { quickAsk('ANTALYA', 'IL_GENELI', 2030); closeAppleMenu(); }, big: true }
+          ]
+        },
+        col2: {
+          title: "Örnek İlçe & Mahalleler",
+          items: [
+            { text: "İzmir / Tire (87.5k)", action: () => { quickAsk('İZMİR', 'TİRE', 2030); closeAppleMenu(); } },
+            { text: "İzmir / Bornova", action: () => { quickAsk('İZMİR', 'BORNOVA', 2030); closeAppleMenu(); } },
+            { text: "İzmir / Karşıyaka", action: () => { quickAsk('İZMİR', 'KARŞIYAKA', 2030); closeAppleMenu(); } },
+            { text: "Ankara / Çankaya", action: () => { quickAsk('ANKARA', 'ÇANKAYA', 2030); closeAppleMenu(); } },
+            { text: "İstanbul / Kadıköy", action: () => { quickAsk('İSTANBUL', 'KADIKÖY', 2030); closeAppleMenu(); } }
+          ]
+        },
+        col3: {
+          title: "TÜİK Kapsamı",
+          items: [
+            { text: "81 İl ve 973 İlçe Tam Kapsam", action: () => { closeAppleMenu(); } },
+            { text: "Mahalle / Köy Bazlı Nüfus Payları", action: () => { closeAppleMenu(); } },
+            { text: "Tarihsel Trend (2015–2025)", action: () => { closeAppleMenu(); } },
+            { text: "Yaş Grubu ve Cinsiyet Piramitleri", action: () => { jumpToTab('cohort'); closeAppleMenu(); } }
+          ]
+        }
+      },
+      methodology: {
+        col1: {
+          title: "Akademik Çerçeve",
+          items: [
+            { text: "Prof. Dr. K. Mert Çubukçu", action: () => { toggleModelTable(); closeAppleMenu(); }, big: true },
+            { text: "Bölgesel Pay Modelleri (F. 4.30)", action: () => { jumpToTab('curves'); closeAppleMenu(); }, big: true },
+            { text: "Shift-Share Modeli (F. 4.39)", action: () => { jumpToTab('curves'); closeAppleMenu(); }, big: true },
+            { text: "İktisadi Taban Çarpanı (LQ & MG)", action: () => { jumpToTab('hansen'); closeAppleMenu(); }, big: true }
+          ]
+        },
+        col2: {
+          title: "Yasal Standartlar & Veri",
+          items: [
+            { text: "MPYY Ek-2 Mekânsal Standartlar (19.0 m²/kişi)", action: () => { jumpToTab('mpyy'); closeAppleMenu(); } },
+            { text: "TÜİK Hayat Tabloları (MEDAS)", action: () => { jumpToTab('cohort'); closeAppleMenu(); } },
+            { text: "En Küçük Kareler Yöntemi (OLS)", action: () => { jumpToTab('curves'); closeAppleMenu(); } },
+            { text: "TFR Doğurganlık Hızları (1.51)", action: () => { jumpToTab('cohort'); closeAppleMenu(); } }
+          ]
+        },
+        col3: {
+          title: "Sistem & Lisans",
+          items: [
+            { text: "GPL-2.0-or-later Açık Kaynak", action: () => { closeAppleMenu(); } },
+            { text: "QGIS 3 (Qt5) & QGIS 4 (Qt6) Uyumlu", action: () => { closeAppleMenu(); } },
+            { text: "Geliştirici: Berkay Memiş", action: () => { closeAppleMenu(); } },
+            { text: "TÜİK Excel Dosyası Yükle", action: () => { const f = document.getElementById("fileTuikAdnks"); if (f) f.click(); closeAppleMenu(); } }
+          ]
+        }
+      }
+    };
+
+    function toggleAppleMenu(menuKey) {
+      const drawer = document.getElementById("appleMegaDrawer");
+      const backdrop = document.getElementById("appleBackdrop");
+      if (!drawer || !backdrop) return;
+
+      if (activeAppleMenu === menuKey && !drawer.classList.contains("hidden")) {
+        closeAppleMenu();
+        return;
+      }
+
+      activeAppleMenu = menuKey;
+      const data = APPLE_MENUS[menuKey];
+      if (!data) return;
+
+      renderMegaCol("megaCol1", data.col1);
+      renderMegaCol("megaCol2", data.col2);
+      renderMegaCol("megaCol3", data.col3);
+
+      drawer.classList.remove("hidden");
+      backdrop.classList.remove("hidden");
+    }
+
+    function renderMegaCol(colId, colData) {
+      const el = document.getElementById(colId);
+      if (!el || !colData) return;
+      let html = `<span class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider block mb-3">${colData.title}</span>`;
+      html += `<div class="space-y-1.5">`;
+      colData.items.forEach((item, idx) => {
+        if (item.big) {
+          html += `<button type="button" onclick="APPLE_MENUS['${activeAppleMenu}']['${colId === 'megaCol1' ? 'col1' : colId === 'megaCol2' ? 'col2' : 'col3'}'].items[${idx}].action()" class="block text-left text-lg sm:text-xl font-semibold text-[#f5f5f7] hover:text-[#0071e3] transition w-full mb-1.5">${item.text}</button>`;
+        } else {
+          html += `<button type="button" onclick="APPLE_MENUS['${activeAppleMenu}']['${colId === 'megaCol1' ? 'col1' : colId === 'megaCol2' ? 'col2' : 'col3'}'].items[${idx}].action()" class="block text-left text-xs sm:text-[13px] text-[#d2d2d7] hover:text-white transition w-full py-0.5">${item.text}</button>`;
+        }
+      });
+      html += `</div>`;
+      el.innerHTML = html;
+    }
+
+    function closeAppleMenu() {
+      const drawer = document.getElementById("appleMegaDrawer");
+      const backdrop = document.getElementById("appleBackdrop");
+      const mobile = document.getElementById("appleMobileMenu");
+      if (drawer) drawer.classList.add("hidden");
+      if (backdrop) backdrop.classList.add("hidden");
+      if (mobile) mobile.classList.add("hidden");
+      activeAppleMenu = null;
+    }
+
+    function toggleMobileMenu() {
+      const m = document.getElementById("appleMobileMenu");
+      if (m) m.classList.toggle("hidden");
+    }
+
+    function jumpToTab(tabId, scrollToId) {
+      switchTab(tabId);
+      if (scrollToId) {
+        setTimeout(() => {
+          const target = document.getElementById(scrollToId);
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    }
+
+    // Spotlight Search
+    function openAppleSearch() {
+      closeAppleMenu();
+      const modal = document.getElementById("appleSearchModal");
+      const inp = document.getElementById("appleSearchInput");
+      if (modal) {
+        modal.classList.remove("hidden");
+        setTimeout(() => { if (inp) { inp.value = ""; inp.focus(); onAppleSearchInput(""); } }, 50);
+      }
+    }
+
+    function closeAppleSearch() {
+      const modal = document.getElementById("appleSearchModal");
+      if (modal) modal.classList.add("hidden");
+    }
+
+    function onAppleSearchInput(query) {
+      const resContainer = document.getElementById("appleSearchResults");
+      if (!resContainer) return;
+      const q = typeof trNorm === "function" ? trNorm(query.trim()) : query.trim().toLocaleLowerCase('tr-TR');
+      if (!q) {
+        resContainer.innerHTML = `
+          <div class="p-3 text-xs text-[#86868b] font-medium uppercase tracking-wider">Popüler Yerleşimler</div>
+          <button type="button" onclick="quickAsk('İSTANBUL', 'IL_GENELI', 2030); closeAppleSearch();" class="w-full text-left p-2.5 rounded-xl hover:bg-white/10 flex items-center justify-between transition">
+            <span class="text-sm font-semibold text-white">🏛️ İstanbul (İl Geneli)</span>
+            <span class="text-xs text-[#86868b]">15.7M Kişi</span>
+          </button>
+          <button type="button" onclick="quickAsk('ANKARA', 'IL_GENELI', 2030); closeAppleSearch();" class="w-full text-left p-2.5 rounded-xl hover:bg-white/10 flex items-center justify-between transition">
+            <span class="text-sm font-semibold text-white">🏛️ Ankara (İl Geneli)</span>
+            <span class="text-xs text-[#86868b]">5.8M Kişi</span>
+          </button>
+          <button type="button" onclick="quickAsk('İZMİR', 'TİRE', 2030); closeAppleSearch();" class="w-full text-left p-2.5 rounded-xl hover:bg-white/10 flex items-center justify-between transition">
+            <span class="text-sm font-semibold text-white">📍 İzmir / Tire</span>
+            <span class="text-xs text-[#86868b]">87.5k Kişi</span>
+          </button>
+        `;
+        return;
+      }
+
+      let matches = [];
+      const data = state.adnksData || {};
+      for (const prov in data) {
+        const normP = typeof trNorm === "function" ? trNorm(prov) : prov.toLocaleLowerCase('tr-TR');
+        if (normP.includes(q)) {
+          matches.push({ prov, dist: "IL_GENELI", label: `${prov} (İl Geneli)`, pop: data[prov]?._pop || "" });
+        }
+        const dists = data[prov] || {};
+        for (const dist in dists) {
+          if (dist.startsWith("_")) continue;
+          const normD = typeof trNorm === "function" ? trNorm(dist) : dist.toLocaleLowerCase('tr-TR');
+          if (normD.includes(q) || `${normP} ${normD}`.includes(q)) {
+            const pVal = dists[dist]?.pop_2025 || dists[dist]?.pop_2024 || "";
+            matches.push({ prov, dist, label: `${prov} / ${dist}`, pop: pVal ? `${Number(pVal).toLocaleString('tr-TR')} Kişi` : "" });
+          }
+          if (matches.length >= 15) break;
+        }
+        if (matches.length >= 15) break;
+      }
+
+      if (matches.length === 0) {
+        resContainer.innerHTML = `<div class="p-6 text-center text-xs text-[#86868b]">"${query}" ile eşleşen il veya ilçe bulunamadı.</div>`;
+        return;
+      }
+
+      let html = "";
+      matches.forEach(m => {
+        html += `
+          <button type="button" onclick="quickAsk('${m.prov}', '${m.dist}', 2030); closeAppleSearch();" class="w-full text-left p-2.5 rounded-xl hover:bg-white/10 flex items-center justify-between transition">
+            <span class="text-sm font-medium text-white">${m.label}</span>
+            <span class="text-xs text-[#86868b]">${m.pop}</span>
+          </button>
+        `;
+      });
+      resContainer.innerHTML = html;
+    }
+
+    // Global keyboard listener for Esc and Ctrl+K
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeAppleMenu();
+        closeAppleSearch();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        openAppleSearch();
+      }
+    });
 
     function setTargetYear(yr) {
       const inp = document.getElementById("inpTargetYear1");
