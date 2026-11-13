@@ -26,56 +26,62 @@
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
   <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f5f5f7;
+      color: #1d1d1f;
+      -webkit-font-smoothing: antialiased;
+      letter-spacing: -0.011em;
+    }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #F1F5F9; }
-    ::-webkit-scrollbar-thumb { background: #94A3B8; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #64748B; }
-    .tab-active { border-bottom: 3px solid #2563EB; color: #1E3A8A; font-weight: 700; }
-    .tab-inactive { color: #64748B; border-bottom: 3px solid transparent; }
-    .tab-inactive:hover { color: #1E293B; }
-    #leafletMap { height: 420px; width: 100%; border-radius: 0.5rem; z-index: 10; }
+    ::-webkit-scrollbar-track { background: #f5f5f7; }
+    ::-webkit-scrollbar-thumb { background: #d2d2d7; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #86868b; }
+    .tab-active { background-color: #ffffff !important; color: #1d1d1f !important; box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important; font-weight: 600 !important; }
+    .tab-inactive { color: #6e6e73 !important; background-color: transparent !important; }
+    .tab-inactive:hover { color: #1d1d1f !important; background-color: rgba(255,255,255,0.7) !important; }
+    #leafletMap { height: 420px; width: 100%; border-radius: 1.25rem; z-index: 10; }
     @media (max-width: 640px) { #leafletMap { height: 320px; } }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col pb-12">
+<body class="bg-[#f5f5f7] text-[#1d1d1f] font-sans min-h-screen flex flex-col pb-16 antialiased">
 
-  <!-- TOP APP BAR (HESAPLAMA.NET SOFT & FERAH STYLE) -->
-  <header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-30">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+  <!-- TOP APP BAR (APPLE FROSTED GLASS NAVIGATION) -->
+  <header class="bg-white/80 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-30 transition">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center space-x-3">
         <a href="/" class="flex items-center gap-2.5 group">
-          <div class="w-10 h-10 rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center font-black text-xl shadow-sm transition">
+          <div class="w-9 h-9 rounded-2xl bg-[#1d1d1f] group-hover:bg-[#0071e3] text-white flex items-center justify-center font-bold text-lg shadow-sm transition">
             ?
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <span class="text-base sm:text-lg font-black text-slate-900 tracking-tight" data-i18n="appTitle">NüfusKaç?</span>
-              <span class="bg-blue-50 text-blue-700 border border-blue-200 text-[10px] px-2 py-0.5 rounded font-black uppercase">BM-GEO</span>
-              <span class="hidden sm:inline-block bg-slate-100 text-slate-600 border border-slate-200 text-[10px] px-1.5 py-0.5 rounded font-semibold">TÜİK 2025</span>
+              <span class="text-base sm:text-lg font-semibold text-[#1d1d1f] tracking-tight" data-i18n="appTitle">NüfusKaç.</span>
+              <span class="bg-[#f5f5f7] text-[#6e6e73] border border-slate-200/80 text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase">TÜİK 2025</span>
+              <span class="hidden sm:inline-block text-[#86868b] text-[11px] font-medium">• K. Mert Çubukçu</span>
             </div>
-            <p class="text-xs text-slate-500 font-medium" data-i18n="appSubtitle">Türkiye 81 İl, İlçe ve Mahalle Gelecek Nüfus Hesaplayıcı (2025–2050)</p>
           </div>
         </a>
       </div>
 
       <div class="flex items-center gap-2 flex-wrap">
-        <!-- Switch to Classic Mode Button (One click return!) -->
-        <a href="/classic" title="Eski detaylı laboratuvar görünümüne geçin" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 transition">
+        <!-- Switch to Classic Mode Button -->
+        <a href="/classic" title="Eski detaylı laboratuvar görünümüne geçin" class="bg-white hover:bg-slate-100 text-[#1d1d1f] border border-slate-200/80 text-xs font-medium px-3.5 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 transition">
           <span>🏛️</span>
           <span class="hidden md:inline">Klasik Plancı Modu</span>
           <span class="md:hidden">Klasik</span>
         </a>
 
         <!-- Bilingual Switcher -->
-        <button id="btnLangToggle" onclick="toggleLanguage()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs sm:text-sm font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 transition">
-          <span class="text-sm">🌐</span>
+        <button id="btnLangToggle" onclick="toggleLanguage()" class="bg-white hover:bg-slate-100 text-[#1d1d1f] border border-slate-200/80 text-xs font-medium px-3.5 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 transition">
+          <span class="text-xs">🌐</span>
           <span id="lblLang">English</span>
         </button>
 
         <!-- Excel Export -->
-        <button id="btnExportExcel" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 transition">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-          <span class="hidden sm:inline" data-i18n="btnExcel">Excel İndir (.xlsx)</span>
+        <button id="btnExportExcel" class="bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-medium px-3.5 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          <span class="hidden sm:inline" data-i18n="btnExcel">Excel İndir</span>
           <span class="sm:hidden">Excel</span>
         </button>
       </div>
@@ -83,84 +89,104 @@
   </header>
 
   <!-- MAIN CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 mt-5 w-full flex-1 space-y-5">
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 mt-4 w-full flex-1 space-y-6">
 
-    <!-- ==================== 1. HERO QUICK EXPLORER (HESAPLAMA.NET SOFT HESAPLAYICI) ==================== -->
-    <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 sm:p-6 transition">
-      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3 mb-4">
+    <!-- HERO HEADLINE & QUICK EXPLORER SHELF -->
+    <div class="pt-2 sm:pt-4 pb-1">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h2 class="text-sm sm:text-base font-extrabold text-slate-800 flex items-center gap-2">
-            <span class="text-blue-600">📍</span> <span data-i18n="quickSearchTitle">Şehir ve Yıl Seçin — Gelecekte Nüfus Kaç Olacak?</span>
+          <h1 class="text-3xl sm:text-5xl font-semibold tracking-tight text-[#1d1d1f]">
+            NüfusKaç. <span class="text-[#86868b] font-normal">Türkiye kentlerinin geleceğini öngörün.</span>
+          </h1>
+          <p class="text-xs sm:text-sm text-[#6e6e73] mt-2 font-normal">
+            81 İl ve 973 İlçe Resmi TÜİK Veri Tabanı & Prof. Dr. K. Mert Çubukçu Analitik Modelleriyle 2025–2050 Projeksiyonu
+          </p>
+        </div>
+        <div class="hidden lg:flex items-center gap-2.5 text-xs text-[#6e6e73] bg-white px-4 py-2.5 rounded-full border border-slate-200/60 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="font-medium text-[#1d1d1f]">Canlı Model:</span>
+          <span>TÜİK 2025 ADNKS • Çubukçu (4.30 / 4.39)</span>
+        </div>
+      </div>
+
+      <!-- Apple Category Shelf: Popular Cities / Quick Selection -->
+      <div class="mt-4 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none text-xs">
+        <span class="text-[#86868b] text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap mr-1">
+          Hızlı Seçim:
+        </span>
+        <button type="button" onclick="quickAsk('İSTANBUL', 'IL_GENELI', 2030)" class="whitespace-nowrap px-4 py-1.5 rounded-full bg-white hover:bg-slate-100 text-[#1d1d1f] font-medium border border-slate-200/80 shadow-sm transition">
+          🏛️ İstanbul (15.6M)
+        </button>
+        <button type="button" onclick="quickAsk('ANKARA', 'IL_GENELI', 2035)" class="whitespace-nowrap px-4 py-1.5 rounded-full bg-white hover:bg-slate-100 text-[#1d1d1f] font-medium border border-slate-200/80 shadow-sm transition">
+          🏛️ Ankara (5.8M)
+        </button>
+        <button type="button" onclick="quickAsk('İZMİR', 'IL_GENELI', 2040)" class="whitespace-nowrap px-4 py-1.5 rounded-full bg-white hover:bg-slate-100 text-[#1d1d1f] font-medium border border-slate-200/80 shadow-sm transition">
+          🏛️ İzmir Geneli (4.4M)
+        </button>
+        <button type="button" onclick="quickAsk('İZMİR', 'TİRE', 2030)" class="whitespace-nowrap px-4 py-1.5 rounded-full bg-white hover:bg-blue-50 text-[#0071e3] font-semibold border border-blue-200/80 shadow-sm transition">
+          📍 İzmir / Tire (87.5k)
+        </button>
+        <button type="button" onclick="quickAsk('ANTALYA', 'IL_GENELI', 2030)" class="whitespace-nowrap px-4 py-1.5 rounded-full bg-white hover:bg-slate-100 text-[#1d1d1f] font-medium border border-slate-200/80 shadow-sm transition">
+          🏛️ Antalya (2.7M)
+        </button>
+        <button type="button" onclick="quickAsk('BURSA', 'IL_GENELI', 2050)" class="whitespace-nowrap px-4 py-1.5 rounded-full bg-white hover:bg-slate-100 text-[#1d1d1f] font-medium border border-slate-200/80 shadow-sm transition">
+          🏛️ Bursa (3.2M)
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== 1. FLOATING BENTO SELECTION CARD ==================== -->
+    <section class="bg-white rounded-[28px] shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 p-6 sm:p-8 transition">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-4 mb-5">
+        <div>
+          <h2 class="text-sm sm:text-base font-semibold text-[#1d1d1f] flex items-center gap-2">
+            <span class="text-[#0071e3]">📍</span> <span data-i18n="quickSearchTitle">Şehir ve Yıl Seçin — Gelecekte Nüfus Kaç Olacak?</span>
           </h2>
-          <p class="text-xs text-slate-500 mt-0.5" data-i18n="quickSearchSub">Türkiye 81 İl ve 973 İlçe Resmi TÜİK ADNKS Veri Tabanı (2015–2025 Gerçek Trend Serisi)</p>
+          <p class="text-xs text-[#6e6e73] mt-0.5" data-i18n="quickSearchSub">Türkiye 81 İl ve 973 İlçe Resmi TÜİK ADNKS Veri Tabanı (2015–2025 Gerçek Trend Serisi)</p>
         </div>
         <div class="flex items-center gap-2">
-          <label for="fileTuikAdnks" class="cursor-pointer bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold py-1.5 px-3 rounded-lg border border-slate-200 transition flex items-center gap-1.5 shadow-sm">
+          <label for="fileTuikAdnks" class="cursor-pointer bg-[#f5f5f7] hover:bg-slate-200/70 text-[#1d1d1f] text-xs font-medium py-1.5 px-3.5 rounded-full border border-slate-200/80 transition flex items-center gap-1.5 shadow-sm">
             <span>📂</span> <span data-i18n="tuikUpload">Özel Tablo Yükle</span>
           </label>
           <input type="file" id="fileTuikAdnks" accept=".csv,.xlsx,.xls" class="hidden" onchange="handleTuikFileUpload(event)">
         </div>
       </div>
 
-      <!-- Popüler Sorular (SEO & Hızlı Keşif) -->
-      <div class="mb-4 bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 flex flex-wrap items-center gap-2">
-        <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5 whitespace-nowrap">
-          <span class="text-blue-600">🔥</span> <span data-i18n="quickQuestionsTitle">Popüler Sorular:</span>
-        </span>
-        <div class="flex items-center gap-1.5 flex-wrap text-xs">
-          <button type="button" onclick="quickAsk('İSTANBUL', 'IL_GENELI', 2030)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
-            2030'da İstanbul kaç olur?
-          </button>
-          <button type="button" onclick="quickAsk('ANKARA', 'IL_GENELI', 2035)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
-            2035'te Ankara kaç olur?
-          </button>
-          <button type="button" onclick="quickAsk('İZMİR', 'IL_GENELI', 2040)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
-            2040'ta İzmir kaç olur?
-          </button>
-          <button type="button" onclick="quickAsk('ANTALYA', 'IL_GENELI', 2030)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
-            2030'da Antalya kaç olur?
-          </button>
-          <button type="button" onclick="quickAsk('BURSA', 'IL_GENELI', 2050)" class="px-2.5 py-1 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-medium border border-slate-200 shadow-sm transition">
-            2050'de Bursa kaç olur?
-          </button>
-        </div>
-      </div>
-
       <!-- Search Controls (İl - İlçe - Mahalle - Yıl) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="tuikProvLabel">1. İl Seçin (81 İl):</label>
-          <select id="selAdnksProv" onchange="onAdnksProvChanged()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs sm:text-sm text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 shadow-sm">
+          <label class="block text-xs font-semibold text-[#1d1d1f] mb-1.5" data-i18n="tuikProvLabel">1. İl Seçin (81 İl):</label>
+          <select id="selAdnksProv" onchange="onAdnksProvChanged()" class="w-full bg-[#f5f5f7] border border-slate-200/80 rounded-2xl p-3 text-xs sm:text-sm text-[#1d1d1f] font-semibold focus:ring-2 focus:ring-[#0071e3] focus:bg-white shadow-sm transition">
             <option value="">-- İl Seçiniz (81 İl) --</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="tuikDistLabel">2. İlçe Seçin:</label>
-          <select id="selAdnksDist" onchange="onAdnksDistChanged(true)" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs sm:text-sm text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 shadow-sm">
+          <label class="block text-xs font-semibold text-[#1d1d1f] mb-1.5" data-i18n="tuikDistLabel">2. İlçe Seçin:</label>
+          <select id="selAdnksDist" onchange="onAdnksDistChanged(true)" class="w-full bg-[#f5f5f7] border border-slate-200/80 rounded-2xl p-3 text-xs sm:text-sm text-[#1d1d1f] font-semibold focus:ring-2 focus:ring-[#0071e3] focus:bg-white shadow-sm transition">
             <option value="">-- Önce İl Seçiniz --</option>
           </select>
         </div>
         <div>
-          <div class="flex items-center justify-between mb-1">
-            <label class="block text-xs font-bold text-slate-700">3. Mahalle / Alt Bölge (İsteğe Bağlı):</label>
-            <button type="button" onclick="document.getElementById('fileTuikAdnks').click()" class="text-[11px] font-bold text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1" title="TÜİK MEDAS Excel (.xlsx) veya CSV tablonuzu yükleyerek tüm mahalleleri tek tıkla listeleyin">
-              <span>📂</span> <span>TÜİK Excel Yükle</span>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block text-xs font-semibold text-[#1d1d1f]">3. Mahalle / Alt Bölge (İsteğe Bağlı):</label>
+            <button type="button" onclick="document.getElementById('fileTuikAdnks').click()" class="text-[11px] font-semibold text-[#0071e3] hover:underline inline-flex items-center gap-1" title="TÜİK MEDAS Excel (.xlsx) veya CSV tablonuzu yükleyerek tüm mahalleleri tek tıkla listeleyin">
+              <span>📂</span> <span>TÜİK Excel</span>
             </button>
           </div>
-          <select id="selAdnksZone" onchange="onAdnksZoneChanged()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs sm:text-sm text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 shadow-sm">
+          <select id="selAdnksZone" onchange="onAdnksZoneChanged()" class="w-full bg-[#f5f5f7] border border-slate-200/80 rounded-2xl p-3 text-xs sm:text-sm text-[#1d1d1f] font-semibold focus:ring-2 focus:ring-[#0071e3] focus:bg-white shadow-sm transition">
             <option value="">-- Önce İl ve İlçe Seçiniz --</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1" data-i18n="targetYearLabel">4. Hedef Projeksiyon Yılı:</label>
-          <div class="flex items-center gap-1.5">
-            <input type="number" id="inpTargetYear1" oninput="onYearsChanged()" onchange="onYearsChanged(true)" value="2030" class="w-20 bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs sm:text-sm font-black text-blue-700 focus:ring-2 focus:ring-blue-500 shadow-sm">
-            <div class="flex items-center gap-1 flex-1">
-              <button type="button" onclick="setTargetYear(2027)" class="btn-yr flex-1 py-2 text-[11px] font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition">2027</button>
-              <button type="button" onclick="setTargetYear(2030)" class="btn-yr flex-1 py-2 text-[11px] font-bold rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition">2030</button>
-              <button type="button" onclick="setTargetYear(2035)" class="btn-yr flex-1 py-2 text-[11px] font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition">2035</button>
-              <button type="button" onclick="setTargetYear(2040)" class="btn-yr flex-1 py-2 text-[11px] font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition">2040</button>
-              <button type="button" onclick="setTargetYear(2050)" class="btn-yr flex-1 py-2 text-[11px] font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition">2050</button>
+          <label class="block text-xs font-semibold text-[#1d1d1f] mb-1.5" data-i18n="targetYearLabel">4. Hedef Projeksiyon Yılı:</label>
+          <div class="flex items-center gap-2">
+            <input type="number" id="inpTargetYear1" oninput="onYearsChanged()" onchange="onYearsChanged(true)" value="2030" class="w-20 bg-[#f5f5f7] border border-slate-200/80 rounded-2xl p-2.5 text-xs sm:text-sm font-bold text-[#0071e3] focus:ring-2 focus:ring-[#0071e3] focus:bg-white text-center shadow-sm transition">
+            <div class="flex items-center gap-1 flex-1 bg-[#f5f5f7] p-1 rounded-2xl border border-slate-200/60">
+              <button type="button" onclick="setTargetYear(2027)" class="btn-yr flex-1 py-1.5 text-[11px] font-semibold rounded-xl text-[#6e6e73] hover:text-[#1d1d1f] hover:bg-white/60 transition">2027</button>
+              <button type="button" onclick="setTargetYear(2030)" class="btn-yr flex-1 py-1.5 text-[11px] font-semibold rounded-xl bg-white text-[#0071e3] shadow-sm transition">2030</button>
+              <button type="button" onclick="setTargetYear(2035)" class="btn-yr flex-1 py-1.5 text-[11px] font-semibold rounded-xl text-[#6e6e73] hover:text-[#1d1d1f] hover:bg-white/60 transition">2035</button>
+              <button type="button" onclick="setTargetYear(2040)" class="btn-yr flex-1 py-1.5 text-[11px] font-semibold rounded-xl text-[#6e6e73] hover:text-[#1d1d1f] hover:bg-white/60 transition">2040</button>
+              <button type="button" onclick="setTargetYear(2050)" class="btn-yr flex-1 py-1.5 text-[11px] font-semibold rounded-xl text-[#6e6e73] hover:text-[#1d1d1f] hover:bg-white/60 transition">2050</button>
             </div>
             <input type="hidden" id="inpBaseYear" value="2025">
             <input type="hidden" id="inpTargetYear2" value="2050">
@@ -175,85 +201,85 @@
       </div>
 
       <!-- Action Button -->
-      <div class="mt-4">
-        <button type="button" onclick="applyAdnksDistrictToModel(true)" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-3 px-6 rounded-xl shadow-sm transition flex items-center justify-center gap-2 text-sm sm:text-base">
+      <div class="mt-5">
+        <button type="button" onclick="applyAdnksDistrictToModel(true)" class="w-full bg-[#0071e3] hover:bg-[#0077ed] text-white font-medium py-3.5 px-6 rounded-2xl shadow-sm transition flex items-center justify-center gap-2 text-sm sm:text-base">
           <span>⚡</span> <span>Gelecek Nüfusu Hesapla</span>
         </button>
       </div>
 
       <!-- Live Demographic Overview Bar -->
-      <div id="adnksOverviewBar" class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div class="flex items-center gap-2 text-slate-700 font-semibold">
-          <span id="adnksMetaText" class="bg-blue-50 text-blue-900 py-1 px-2.5 rounded-lg border border-blue-200">📍 Seçim Yapın: Yukarıdan bir il ve ilçe seçip "Hesapla" butonuna basın</span>
-          <span id="badgeCohortTfr" class="bg-amber-50 text-amber-900 py-1 px-2.5 rounded-lg border border-amber-200 hidden">👶 TFR: <strong id="lblCohortTfrBadge">1.51</strong></span>
+      <div id="adnksOverviewBar" class="mt-5 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-2 text-[#1d1d1f] font-medium">
+          <span id="adnksMetaText" class="bg-[#f5f5f7] text-[#1d1d1f] py-1.5 px-3 rounded-full border border-slate-200/80">📍 Seçim Yapın: Yukarıdan bir il ve ilçe seçip "Hesapla" butonuna basın</span>
+          <span id="badgeCohortTfr" class="bg-amber-50 text-amber-900 py-1 px-3 rounded-full border border-amber-200 hidden">👶 TFR: <strong id="lblCohortTfrBadge">1.51</strong></span>
         </div>
-        <div id="adnksGenderStats" class="flex items-center gap-3 text-slate-600 text-xs hidden">
-          <span>👥 Toplam: <strong id="lblAdnksTotPop" class="text-slate-900 font-bold">-</strong></span>
-          <span>👨 Erkek: <strong id="lblAdnksMale" class="text-blue-700">-</strong></span>
-          <span>👩 Kadın: <strong id="lblAdnksFemale" class="text-pink-700">-</strong></span>
+        <div id="adnksGenderStats" class="flex items-center gap-3 text-[#6e6e73] text-xs hidden">
+          <span>👥 Toplam: <strong id="lblAdnksTotPop" class="text-[#1d1d1f] font-semibold">-</strong></span>
+          <span>👨 Erkek: <strong id="lblAdnksMale" class="text-[#0071e3] font-semibold">-</strong></span>
+          <span>👩 Kadın: <strong id="lblAdnksFemale" class="text-pink-600 font-semibold">-</strong></span>
         </div>
       </div>
     </section>
 
-    <!-- ==================== 2. FOUR CORE KPI CARDS (HESAPLAMA.NET SOFT KARTLAR) ==================== -->
+    <!-- ==================== 2. FOUR CORE BENTO KPI CARDS ==================== -->
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <!-- 1. Mevcut Nüfus -->
-      <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
+      <div class="bg-white rounded-[24px] p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 hover:shadow-md transition flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-700 uppercase tracking-wide" data-i18n="kpi1Title">1. MEVCUT NÜFUS</span>
-            <span class="text-base text-blue-600">📍</span>
+            <span class="text-xs font-semibold text-[#86868b] uppercase tracking-wider" data-i18n="kpi1Title">1. Mevcut Nüfus</span>
+            <span class="text-sm text-[#0071e3]">📍</span>
           </div>
-          <p id="kpiBasePop" class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">-</p>
+          <p id="kpiBasePop" class="text-3xl sm:text-4xl font-semibold tracking-tight text-[#1d1d1f] mt-2">-</p>
         </div>
-        <p class="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+        <p class="text-xs text-[#6e6e73] mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
           <span id="kpiBaseSubtitle"><span data-yr="base">2025</span> Başlangıç</span>
-          <span id="kpiBaseTag" class="text-blue-600 font-bold">TÜİK ADNKS</span>
+          <span id="kpiBaseTag" class="text-[#0071e3] font-semibold">TÜİK ADNKS</span>
         </p>
       </div>
 
       <!-- 2. Gelecek Hedef Nüfus -->
-      <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
+      <div class="bg-white rounded-[24px] p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 hover:shadow-md transition flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-700 uppercase tracking-wide" data-i18n="kpiTargetPop">2. GELECEK HEDEF NÜFUS</span>
-            <span class="text-base text-emerald-600">📈</span>
+            <span class="text-xs font-semibold text-[#86868b] uppercase tracking-wider" data-i18n="kpiTargetPop">2. Gelecek Hedef Nüfus</span>
+            <span class="text-sm text-emerald-600">📈</span>
           </div>
-          <p id="kpiHighPop" class="text-2xl sm:text-3xl font-black text-emerald-600 mt-2">-</p>
+          <p id="kpiHighPop" class="text-3xl sm:text-4xl font-semibold tracking-tight text-emerald-600 mt-2">-</p>
         </div>
-        <p class="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
-          <span id="kpiHighSubtitle">Hedef Yıl: <strong class="text-slate-800" data-yr="t1">2030</strong></span>
-          <span id="kpiHighTag" class="text-emerald-600 font-bold">Projeksiyon</span>
+        <p class="text-xs text-[#6e6e73] mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+          <span id="kpiHighSubtitle">Hedef Yıl: <strong class="text-[#1d1d1f]" data-yr="t1">2030</strong></span>
+          <span id="kpiHighTag" class="text-emerald-600 font-semibold">Projeksiyon</span>
         </p>
       </div>
 
       <!-- 3. Model Uyumu & Trend -->
-      <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
+      <div class="bg-white rounded-[24px] p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 hover:shadow-md transition flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-700 uppercase tracking-wide" data-i18n="kpi5Title">3. MODEL UYUMU</span>
-            <span class="text-base text-indigo-600">⭐</span>
+            <span class="text-xs font-semibold text-[#86868b] uppercase tracking-wider" data-i18n="kpi5Title">3. Model Uyumu</span>
+            <span class="text-sm text-purple-600">⭐</span>
           </div>
-          <p id="kpiBestModel" class="text-xl sm:text-2xl font-black text-indigo-600 mt-2">-</p>
+          <p id="kpiBestModel" class="text-xl sm:text-2xl font-semibold tracking-tight text-purple-700 mt-2">-</p>
         </div>
-        <p class="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
-          <span id="kpiBestModelR2" class="font-mono font-bold text-slate-700">R² = -</span>
-          <span class="text-indigo-600 font-semibold">En Küçük Hata</span>
+        <p class="text-xs text-[#6e6e73] mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+          <span id="kpiBestModelR2" class="font-mono font-semibold text-[#1d1d1f]">R² = -</span>
+          <span class="text-purple-600 font-medium">En Küçük Hata</span>
         </p>
       </div>
 
       <!-- 4. MPYY İlave Donatı -->
-      <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
+      <div class="bg-white rounded-[24px] p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 hover:shadow-md transition flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-700 uppercase tracking-wide" data-i18n="kpi6Title">4. MPYY DONATI</span>
-            <span class="text-base text-rose-600">📐</span>
+            <span class="text-xs font-semibold text-[#86868b] uppercase tracking-wider" data-i18n="kpi6Title">4. MPYY Donatı</span>
+            <span class="text-sm text-rose-500">📐</span>
           </div>
-          <p id="kpiMpyyHa" class="text-2xl sm:text-3xl font-black text-rose-600 mt-2">-</p>
+          <p id="kpiMpyyHa" class="text-3xl sm:text-4xl font-semibold tracking-tight text-rose-600 mt-2">-</p>
         </div>
-        <p class="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+        <p class="text-xs text-[#6e6e73] mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
           <span>Ek-2 Standart</span>
-          <span class="text-rose-600 font-bold">19.0 m² / Kişi</span>
+          <span class="text-rose-600 font-semibold">19.0 m² / Kişi</span>
         </p>
       </div>
     </section>
@@ -270,170 +296,172 @@
     </div>
 
     <!-- ==================== 3. FOUR STREAMLINED TABS (SADELEŞTİRİLMİŞ 4 ANA SEKME) ==================== -->
-    <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
-      <!-- Tab Navigation -->
-      <div class="bg-slate-50/80 border-b border-slate-200 px-4 flex overflow-x-auto text-xs sm:text-sm font-semibold">
-        <button onclick="switchTab('curves')" id="tabBtn-curves" class="tab-active py-3.5 px-4 whitespace-nowrap flex items-center gap-2 transition">
-          <span data-i18n="tabCurves">📈 1. Curve Fitting (6 Regresyon Modeli)</span>
-        </button>
-        <button onclick="switchTab('cohort')" id="tabBtn-cohort" class="tab-inactive py-3.5 px-4 whitespace-nowrap flex items-center gap-2 transition">
-          <span data-i18n="tabCohort">👥 2. Kuşak-Bileşen & Piramit</span>
-        </button>
-        <button onclick="switchTab('hansen')" id="tabBtn-hansen" class="tab-inactive py-3.5 px-4 whitespace-nowrap flex items-center gap-2 transition">
-          <span data-i18n="tabHansen">🗺️ 3. Hansen Mekânsal & Harita</span>
-        </button>
-        <button onclick="switchTab('mpyy')" id="tabBtn-mpyy" class="tab-inactive py-3.5 px-4 whitespace-nowrap flex items-center gap-2 transition">
-          <span data-i18n="tabMpyy">📐 4. MPYY Standartları</span>
-        </button>
+    <section class="bg-white rounded-[28px] shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 overflow-hidden">
+      <!-- Apple-style Segmented Tab Control -->
+      <div class="p-3 sm:p-4 border-b border-slate-100 flex items-center justify-start sm:justify-center overflow-x-auto">
+        <div class="bg-[#f5f5f7] p-1.5 rounded-full flex items-center gap-1 shadow-inner">
+          <button onclick="switchTab('curves')" id="tabBtn-curves" class="tab-active py-2 px-4 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap flex items-center gap-2 transition">
+            <span data-i18n="tabCurves">📈 1. Curve Fitting</span>
+          </button>
+          <button onclick="switchTab('cohort')" id="tabBtn-cohort" class="tab-inactive py-2 px-4 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap flex items-center gap-2 transition">
+            <span data-i18n="tabCohort">👥 2. Kuşak-Bileşen & Piramit</span>
+          </button>
+          <button onclick="switchTab('hansen')" id="tabBtn-hansen" class="tab-inactive py-2 px-4 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap flex items-center gap-2 transition">
+            <span data-i18n="tabHansen">🗺️ 3. Hansen Mekânsal & Harita</span>
+          </button>
+          <button onclick="switchTab('mpyy')" id="tabBtn-mpyy" class="tab-inactive py-2 px-4 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap flex items-center gap-2 transition">
+            <span data-i18n="tabMpyy">📐 4. MPYY Standartları</span>
+          </button>
+        </div>
       </div>
 
       <!-- TAB CONTENT AREA -->
-      <div class="p-5 sm:p-6">
+      <div class="p-6 sm:p-8">
 
         <!-- ===== TAB 1: CURVE FITTING (6 REGRESYON MODELİ) & ÇUBUKÇU PAY MODELLERİ ===== -->
-        <div id="tabContent-curves" class="space-y-5">
-          <div class="flex flex-wrap items-center justify-between gap-2">
+        <div id="tabContent-curves" class="space-y-6">
+          <div class="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 class="text-sm sm:text-base font-extrabold text-slate-800" data-i18n="curvesTitle">Matematiksel Eğri Uydurma ve Regresyon Modelleri (6 Model)</h3>
-              <p class="text-xs text-slate-500" data-i18n="curvesSub">En küçük kareler yöntemi (OLS) ile yerleşimin geçmiş trendine analitik eğri uyumu</p>
+              <h3 class="text-base sm:text-lg font-semibold tracking-tight text-[#1d1d1f]" data-i18n="curvesTitle">Matematiksel Eğri Uydurma ve Regresyon Modelleri (6 Model)</h3>
+              <p class="text-xs text-[#6e6e73] mt-0.5" data-i18n="curvesSub">En küçük kareler yöntemi (OLS) ile yerleşimin geçmiş trendine analitik eğri uyumu</p>
             </div>
-            <span class="text-xs bg-blue-50 text-blue-800 font-bold px-3 py-1 rounded-full border border-blue-200">
+            <span class="text-xs bg-[#f5f5f7] text-[#1d1d1f] font-semibold px-3.5 py-1.5 rounded-full border border-slate-200/80 shadow-xs">
               <span id="curveRangeLabel">2015 - 2050</span> Projeksiyon Aralığı
             </span>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-            <div class="lg:col-span-2 bg-slate-50/60 p-4 rounded-xl border border-slate-200">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-[#f5f5f7] p-5 rounded-[24px] border border-slate-200/60">
               <div class="h-80 w-full">
                 <canvas id="curveChart"></canvas>
               </div>
             </div>
-            <div class="bg-slate-50/60 p-4 rounded-xl border border-slate-200 flex flex-col justify-between space-y-3">
+            <div class="bg-white p-6 rounded-[24px] border border-slate-200/60 shadow-sm flex flex-col justify-between space-y-4">
               <div>
-                <h4 class="text-xs font-bold text-purple-900 uppercase mb-2">⭐ En Yüksek Uyuma Sahip Model</h4>
-                <div class="bg-white p-3 rounded-xl border border-purple-200 shadow-sm">
-                  <p class="text-xs font-bold text-purple-950" id="bestModelTitle">Doğrusal Trend</p>
-                  <p class="text-2xl font-black text-purple-700 mt-1" id="bestModelR2Display">R² = 0.9986</p>
+                <h4 class="text-xs font-semibold text-purple-900 uppercase tracking-wider mb-2.5">⭐ En Yüksek Uyuma Sahip Model</h4>
+                <div class="bg-[#f5f5f7] p-4 rounded-2xl border border-slate-200/80">
+                  <p class="text-xs font-bold text-[#1d1d1f]" id="bestModelTitle">Doğrusal Trend</p>
+                  <p class="text-2xl sm:text-3xl font-semibold tracking-tight text-purple-700 mt-1" id="bestModelR2Display">R² = 0.9986</p>
                   <p class="text-xs text-purple-900 font-mono mt-1" id="bestModelFormula">y = a + b*x</p>
                 </div>
-                <p class="text-xs text-slate-600 leading-relaxed mt-3">
-                  <strong>Planlama Notu:</strong> Tek modele bağlı kalınmaz; Düşük (doğal artış), Orta (geçmiş trend) ve Yüksek (plan kabulü) senaryoları birlikte değerlendirilir.
+                <p class="text-xs text-[#6e6e73] leading-relaxed mt-4">
+                  <strong class="text-[#1d1d1f]">Planlama Notu:</strong> Tek modele bağlı kalınmaz; Düşük (doğal artış), Orta (geçmiş trend) ve Yüksek (plan kabulü) senaryoları birlikte değerlendirilir.
                 </p>
               </div>
-              <div class="pt-3 border-t border-slate-200 text-xs text-slate-600">
-                Hedef <strong data-yr="t1">2035</strong> Projeksiyon Aralığı: <span id="curveMinMaxRange" class="font-extrabold text-slate-800">85.000 - 110.000</span>
+              <div class="pt-4 border-t border-slate-100 text-xs text-[#6e6e73]">
+                Hedef <strong class="text-[#1d1d1f]" data-yr="t1">2035</strong> Projeksiyon Aralığı: <span id="curveMinMaxRange" class="font-semibold text-[#1d1d1f]">85.000 - 110.000</span>
               </div>
             </div>
           </div>
 
           <!-- Table -->
-          <div class="overflow-x-auto rounded-xl border border-slate-200">
-            <table class="w-full text-left text-xs text-slate-700">
-              <thead class="bg-slate-100 text-slate-600 font-bold uppercase border-b border-slate-200">
+          <div class="overflow-x-auto rounded-2xl border border-slate-200/60 bg-white">
+            <table class="w-full text-left text-xs text-[#1d1d1f]">
+              <thead class="bg-[#f5f5f7] text-[#6e6e73] font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200/80">
                 <tr>
-                  <th class="py-2.5 px-3" data-i18n="thModel">Model Türü</th>
-                  <th class="py-2.5 px-3" data-i18n="thFormula">Matematiksel Formül</th>
-                  <th class="py-2.5 px-3 text-right" data-i18n="thR2">R² (Uyum)</th>
-                  <th class="py-2.5 px-3 text-right" data-i18n="thMape">SSE Hata</th>
-                  <th class="py-2.5 px-3 text-right" id="thProjCol1"><span data-yr="t1">2035</span> Projeksiyonu</th>
-                  <th class="py-2.5 px-3 text-right" id="thProjCol2"><span data-yr="t2">2050</span> Projeksiyonu</th>
-                  <th class="py-2.5 px-3" data-i18n="thEval">Değerlendirme</th>
+                  <th class="py-3 px-4" data-i18n="thModel">Model Türü</th>
+                  <th class="py-3 px-4" data-i18n="thFormula">Matematiksel Formül</th>
+                  <th class="py-3 px-4 text-right" data-i18n="thR2">R² (Uyum)</th>
+                  <th class="py-3 px-4 text-right" data-i18n="thMape">SSE Hata</th>
+                  <th class="py-3 px-4 text-right" id="thProjCol1"><span data-yr="t1">2035</span> Projeksiyonu</th>
+                  <th class="py-3 px-4 text-right" id="thProjCol2"><span data-yr="t2">2050</span> Projeksiyonu</th>
+                  <th class="py-3 px-4" data-i18n="thEval">Değerlendirme</th>
                 </tr>
               </thead>
-              <tbody id="curveModelsTableBody" class="divide-y divide-slate-200 bg-white"></tbody>
+              <tbody id="curveModelsTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
             </table>
           </div>
 
           <!-- ===== PROF. DR. K. MERT ÇUBUKÇU BÖLGESEL PAY MODELLERİ (SHARE APPROACH) ===== -->
-          <div class="mt-6 bg-gradient-to-br from-slate-50 to-blue-50/50 rounded-2xl p-5 border border-blue-200/80 shadow-sm">
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-              <div class="flex items-center gap-2">
+          <div class="mt-6 bg-[#f5f5f7] rounded-[24px] p-6 sm:p-7 border border-slate-200/60">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+              <div class="flex items-center gap-2.5">
                 <span class="text-xl">🏛️</span>
                 <div>
-                  <h4 class="text-xs sm:text-sm font-black text-slate-900 tracking-tight">Prof. Dr. K. Mert Çubukçu — Bölgesel Pay ve Makro Dağıtım Modelleri (Bölüm 4.3)</h4>
-                  <p class="text-[11px] text-slate-600">Üst bölge (İl / Ülke) nüfus hareketlerinin yerel ölçekle ilişkilendirilmesi (Pay Yaklaşımı / Share Approach)</p>
+                  <h4 class="text-sm font-semibold text-[#1d1d1f] tracking-tight">Prof. Dr. K. Mert Çubukçu — Bölgesel Pay ve Makro Dağıtım Modelleri (Bölüm 4.3)</h4>
+                  <p class="text-xs text-[#6e6e73]">Üst bölge (İl / Ülke) nüfus hareketlerinin yerel ölçekle ilişkilendirilmesi (Pay Yaklaşımı / Share Approach)</p>
                 </div>
               </div>
-              <span class="bg-blue-100 text-blue-800 font-extrabold text-[10px] px-2.5 py-1 rounded-full border border-blue-300">
+              <span class="bg-white text-[#0071e3] font-semibold text-xs px-3.5 py-1.5 rounded-full border border-slate-200/80 shadow-xs">
                 Makro-Bölgesel Yaklaşım
               </span>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
               <!-- 1. Sabit Pay -->
-              <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+              <div class="bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm flex flex-col justify-between">
                 <div>
                   <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <span class="text-xs font-semibold text-[#1d1d1f] flex items-center gap-1.5">
                       <span class="w-2.5 h-2.5 rounded-full bg-sky-500 inline-block"></span>
                       4.3.1. Sabit Pay Tekniği (Constant Share)
                     </span>
-                    <span class="text-[10px] font-mono bg-sky-50 text-sky-700 px-2 py-0.5 rounded font-bold border border-sky-200">Formül (4.30)</span>
+                    <span class="text-[10px] font-mono bg-sky-50 text-sky-700 px-2 py-0.5 rounded-md font-semibold border border-sky-200">Formül (4.30)</span>
                   </div>
-                  <p class="text-[11px] text-slate-500 mb-3" id="shareConstReview">
+                  <p class="text-xs text-[#6e6e73] mb-3" id="shareConstReview">
                     Yerleşimin üst bölgedeki payının sabit kalacağı kabulüyle üst kademe yıllık bileşik artış oranında büyümesi.
                   </p>
-                  <div class="bg-slate-50 rounded-lg p-2.5 font-mono text-[11px] text-slate-700 mb-3 border border-slate-100" id="shareConstFormula">
+                  <div class="bg-[#f5f5f7] rounded-xl p-2.5 font-mono text-[11px] text-[#1d1d1f] mb-3 border border-slate-200/60" id="shareConstFormula">
                     e^(t+k) = e^t × (1 + R₁)^k
                   </div>
                   <div class="grid grid-cols-2 gap-2 text-xs mb-3">
-                    <div class="bg-sky-50/50 p-2.5 rounded-lg border border-sky-100">
-                      <span class="text-[10px] text-slate-500 block">Üst Kademe Artışı (R₁)</span>
-                      <span class="font-black text-sky-800" id="shareConstUpperRate">%1.64 / yıl</span>
+                    <div class="bg-[#f5f5f7] p-2.5 rounded-xl border border-slate-200/60">
+                      <span class="text-[10px] text-[#86868b] block font-medium">Üst Kademe Artışı (R₁)</span>
+                      <span class="font-semibold text-sky-800" id="shareConstUpperRate">%1.64 / yıl</span>
                     </div>
-                    <div class="bg-sky-50/50 p-2.5 rounded-lg border border-sky-100">
-                      <span class="text-[10px] text-slate-500 block">İlçe / Yerel Pay (c)</span>
-                      <span class="font-black text-sky-800" id="shareConstLocalShare">%2.46</span>
+                    <div class="bg-[#f5f5f7] p-2.5 rounded-xl border border-slate-200/60">
+                      <span class="text-[10px] text-[#86868b] block font-medium">İlçe / Yerel Pay (c)</span>
+                      <span class="font-semibold text-sky-800" id="shareConstLocalShare">%2.46</span>
                     </div>
                   </div>
                 </div>
                 <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
                   <div>
-                    <span class="text-[10px] text-slate-400 uppercase font-bold block" id="shareConstTarget1Year">Hedef Yıl 1</span>
-                    <span class="text-base sm:text-lg font-black text-slate-900" id="shareConstTarget1Val">-</span>
+                    <span class="text-[10px] text-[#86868b] uppercase font-semibold block" id="shareConstTarget1Year">Hedef Yıl 1</span>
+                    <span class="text-base sm:text-lg font-semibold text-[#1d1d1f]" id="shareConstTarget1Val">-</span>
                   </div>
                   <div class="text-right">
-                    <span class="text-[10px] text-slate-400 uppercase font-bold block" id="shareConstTarget2Year">Hedef Yıl 2</span>
-                    <span class="text-sm sm:text-base font-extrabold text-slate-700" id="shareConstTarget2Val">-</span>
+                    <span class="text-[10px] text-[#86868b] uppercase font-semibold block" id="shareConstTarget2Year">Hedef Yıl 2</span>
+                    <span class="text-sm sm:text-base font-semibold text-[#6e6e73]" id="shareConstTarget2Val">-</span>
                   </div>
                 </div>
               </div>
 
               <!-- 2. Değişken Pay -->
-              <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+              <div class="bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm flex flex-col justify-between">
                 <div>
                   <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <span class="text-xs font-semibold text-[#1d1d1f] flex items-center gap-1.5">
                       <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
                       4.3.2. Değişken Pay Tekniği (Shift-Share)
                     </span>
-                    <span class="text-[10px] font-mono bg-amber-50 text-amber-700 px-2 py-0.5 rounded font-bold border border-amber-200">Formül (4.39)</span>
+                    <span class="text-[10px] font-mono bg-amber-50 text-amber-700 px-2 py-0.5 rounded-md font-semibold border border-amber-200">Formül (4.39)</span>
                   </div>
-                  <p class="text-[11px] text-slate-500 mb-3" id="shareVarReview">
+                  <p class="text-xs text-[#6e6e73] mb-3" id="shareVarReview">
                     Üst kademe büyüme hızına, yerleşimin geçmiş 10 yıllık ayrışma dinamizmi (shift terimi s₁) eklenerek hesaplanan diferansiyel senaryo.
                   </p>
-                  <div class="bg-slate-50 rounded-lg p-2.5 font-mono text-[11px] text-slate-700 mb-3 border border-slate-100" id="shareVarFormula">
+                  <div class="bg-[#f5f5f7] rounded-xl p-2.5 font-mono text-[11px] text-[#1d1d1f] mb-3 border border-slate-200/60" id="shareVarFormula">
                     e^(t+k) = e^t × (1 + R₁ + s₁)^k
                   </div>
                   <div class="grid grid-cols-2 gap-2 text-xs mb-3">
-                    <div class="bg-amber-50/50 p-2.5 rounded-lg border border-amber-100">
-                      <span class="text-[10px] text-slate-500 block">Değişim Terimi (s₁)</span>
-                      <span class="font-black text-amber-800" id="shareVarShiftRate">+%2.85 / yıl</span>
+                    <div class="bg-[#f5f5f7] p-2.5 rounded-xl border border-slate-200/60">
+                      <span class="text-[10px] text-[#86868b] block font-medium">Değişim Terimi (s₁)</span>
+                      <span class="font-semibold text-amber-800" id="shareVarShiftRate">+%2.85 / yıl</span>
                     </div>
-                    <div class="bg-amber-50/50 p-2.5 rounded-lg border border-amber-100">
-                      <span class="text-[10px] text-slate-500 block">Net Bileşik Büyüme</span>
-                      <span class="font-black text-amber-800" id="shareVarNetRate">%4.49 / yıl</span>
+                    <div class="bg-[#f5f5f7] p-2.5 rounded-xl border border-slate-200/60">
+                      <span class="text-[10px] text-[#86868b] block font-medium">Net Bileşik Büyüme</span>
+                      <span class="font-semibold text-amber-800" id="shareVarNetRate">%4.49 / yıl</span>
                     </div>
                   </div>
                 </div>
                 <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
                   <div>
-                    <span class="text-[10px] text-slate-400 uppercase font-bold block" id="shareVarTarget1Year">Hedef Yıl 1</span>
-                    <span class="text-base sm:text-lg font-black text-slate-900" id="shareVarTarget1Val">-</span>
+                    <span class="text-[10px] text-[#86868b] uppercase font-semibold block" id="shareVarTarget1Year">Hedef Yıl 1</span>
+                    <span class="text-base sm:text-lg font-semibold text-[#1d1d1f]" id="shareVarTarget1Val">-</span>
                   </div>
                   <div class="text-right">
-                    <span class="text-[10px] text-slate-400 uppercase font-bold block" id="shareVarTarget2Year">Hedef Yıl 2</span>
-                    <span class="text-sm sm:text-base font-extrabold text-slate-700" id="shareVarTarget2Val">-</span>
+                    <span class="text-[10px] text-[#86868b] uppercase font-semibold block" id="shareVarTarget2Year">Hedef Yıl 2</span>
+                    <span class="text-sm sm:text-base font-semibold text-[#6e6e73]" id="shareVarTarget2Val">-</span>
                   </div>
                 </div>
               </div>
@@ -442,84 +470,84 @@
         </div>
 
         <!-- ===== TAB 2: COHORT & PYRAMID (KUŞAK-BİLEŞEN) ===== -->
-        <div id="tabContent-cohort" class="hidden space-y-5">
+        <div id="tabContent-cohort" class="hidden space-y-6">
 
           <!-- İktisadi Taban & Göç Senaryosu İşaretleme Kutucuğu -->
-          <div class="bg-gradient-to-r from-blue-50/90 via-indigo-50/50 to-slate-50 border border-blue-200 rounded-2xl p-4 shadow-sm transition">
+          <div class="bg-[#f5f5f7] border border-slate-200/60 rounded-[24px] p-6 shadow-xs transition">
             <div class="flex items-center justify-between flex-wrap gap-3">
               <label class="flex items-center gap-3 cursor-pointer select-none">
-                <input type="checkbox" id="chkEnableEconMigration" onchange="onToggleEconMigration()" class="w-5 h-5 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer">
+                <input type="checkbox" id="chkEnableEconMigration" onchange="onToggleEconMigration()" class="w-5 h-5 text-[#0071e3] rounded-md border-slate-300 focus:ring-[#0071e3] cursor-pointer">
                 <div class="flex flex-col">
-                  <span class="text-xs sm:text-sm font-extrabold text-slate-800 flex items-center gap-2">
+                  <span class="text-xs sm:text-sm font-semibold text-[#1d1d1f] flex items-center gap-2">
                     <span>🏭</span>
                     <span>İktisadi Taban, İstihdam & Net Göç Modeli (Çarpan & Yıllık Göç Hızı)</span>
                   </span>
-                  <span class="text-[11px] text-slate-500 font-medium">İşaretlendiğinde baz çarpanı, bağımlılık oranı, istihdam ve yıllık net göç hızı aktifleşir; piramit ve senaryolar canlı güncellenir.</span>
+                  <span class="text-[11px] text-[#6e6e73] font-normal">İşaretlendiğinde baz çarpanı, bağımlılık oranı, istihdam ve yıllık net göç hızı aktifleşir; piramit ve senaryolar canlı güncellenir.</span>
                 </div>
               </label>
-              <span id="badgeEconStatus" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-200 text-slate-700">🌱 Doğal Yaşlanma (Sıfır Göç)</span>
+              <span id="badgeEconStatus" class="text-xs font-semibold px-3.5 py-1 rounded-full bg-white text-[#1d1d1f] border border-slate-200/80 shadow-xs">🌱 Doğal Yaşlanma (Sıfır Göç)</span>
             </div>
 
             <!-- Tek ve Sade Kontrol Paneli (Evrensel, Granüler Tik Seçimli) -->
-            <div id="econControlPanel" class="hidden mt-4 pt-4 border-t border-blue-200/80 space-y-3">
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+            <div id="econControlPanel" class="hidden mt-5 pt-5 border-t border-slate-200/80 space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 text-xs">
                 <!-- 1. Baz Çarpanı k -->
-                <div id="cardCohortK" class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm transition">
-                  <div class="flex items-center justify-between mb-1.5">
-                    <label for="inpCohortK" class="text-[11px] font-bold text-slate-700 cursor-pointer select-none">Baz Çarpanı (k):</label>
-                    <input type="checkbox" id="chkUseCohortK" checked onchange="onToggleParamCard('k')" title="Baz Çarpanını dahil et / çıkar" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer">
+                <div id="cardCohortK" class="bg-white p-4 rounded-2xl border border-slate-200/60 shadow-sm transition">
+                  <div class="flex items-center justify-between mb-2">
+                    <label for="inpCohortK" class="text-[11px] font-semibold text-[#1d1d1f] cursor-pointer select-none">Baz Çarpanı (k):</label>
+                    <input type="checkbox" id="chkUseCohortK" checked onchange="onToggleParamCard('k')" title="Baz Çarpanını dahil et / çıkar" class="w-4 h-4 text-[#0071e3] rounded border-slate-300 focus:ring-[#0071e3] cursor-pointer">
                   </div>
-                  <input type="number" id="inpCohortK" step="0.01" min="1.0" max="15.0" value="4.90" onchange="onCohortParamChanged()" class="w-full font-black text-slate-900 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 transition">
-                  <span id="subCohortK" class="block text-[10px] text-slate-400 mt-1">1 temel çalışan başına toplam iş</span>
+                  <input type="number" id="inpCohortK" step="0.01" min="1.0" max="15.0" value="4.90" onchange="onCohortParamChanged()" class="w-full font-bold text-[#1d1d1f] text-sm bg-[#f5f5f7] border border-slate-200/80 rounded-xl p-2.5 focus:ring-2 focus:ring-[#0071e3] focus:bg-white transition">
+                  <span id="subCohortK" class="block text-[10px] text-[#86868b] mt-1.5 font-medium">1 temel çalışan başına toplam iş</span>
                 </div>
 
                 <!-- 2. Bağımlılık Oranı b -->
-                <div id="cardCohortB" class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm transition">
-                  <div class="flex items-center justify-between mb-1.5">
-                    <label for="inpCohortB" class="text-[11px] font-bold text-slate-700 cursor-pointer select-none">Bağımlılık Oranı (b):</label>
-                    <input type="checkbox" id="chkUseCohortB" checked onchange="onToggleParamCard('b')" title="Bağımlılık Oranını dahil et / çıkar" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer">
+                <div id="cardCohortB" class="bg-white p-4 rounded-2xl border border-slate-200/60 shadow-sm transition">
+                  <div class="flex items-center justify-between mb-2">
+                    <label for="inpCohortB" class="text-[11px] font-semibold text-[#1d1d1f] cursor-pointer select-none">Bağımlılık Oranı (b):</label>
+                    <input type="checkbox" id="chkUseCohortB" checked onchange="onToggleParamCard('b')" title="Bağımlılık Oranını dahil et / çıkar" class="w-4 h-4 text-[#0071e3] rounded border-slate-300 focus:ring-[#0071e3] cursor-pointer">
                   </div>
-                  <input type="number" id="inpCohortB" step="0.01" min="0.5" max="10.0" value="1.96" onchange="onCohortParamChanged()" class="w-full font-black text-slate-900 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 transition">
-                  <span id="subCohortB" class="block text-[10px] text-slate-400 mt-1">1 çalışan başına nüfus yükü</span>
+                  <input type="number" id="inpCohortB" step="0.01" min="0.5" max="10.0" value="1.96" onchange="onCohortParamChanged()" class="w-full font-bold text-[#1d1d1f] text-sm bg-[#f5f5f7] border border-slate-200/80 rounded-xl p-2.5 focus:ring-2 focus:ring-[#0071e3] focus:bg-white transition">
+                  <span id="subCohortB" class="block text-[10px] text-[#86868b] mt-1.5 font-medium">1 çalışan başına nüfus yükü</span>
                 </div>
 
                 <!-- 3. Mevcut İstihdam -->
-                <div id="cardCohortCurEmp" class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm transition">
-                  <div class="flex items-center justify-between mb-1.5">
-                    <label for="inpCohortCurEmp" class="text-[11px] font-bold text-slate-700 cursor-pointer select-none">Mevcut İstihdam:</label>
-                    <input type="checkbox" id="chkUseCohortCurEmp" checked onchange="onToggleParamCard('curEmp')" title="Mevcut İstihdamı dahil et / çıkar" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer">
+                <div id="cardCohortCurEmp" class="bg-white p-4 rounded-2xl border border-slate-200/60 shadow-sm transition">
+                  <div class="flex items-center justify-between mb-2">
+                    <label for="inpCohortCurEmp" class="text-[11px] font-semibold text-[#1d1d1f] cursor-pointer select-none">Mevcut İstihdam:</label>
+                    <input type="checkbox" id="chkUseCohortCurEmp" checked onchange="onToggleParamCard('curEmp')" title="Mevcut İstihdamı dahil et / çıkar" class="w-4 h-4 text-[#0071e3] rounded border-slate-300 focus:ring-[#0071e3] cursor-pointer">
                   </div>
-                  <input type="number" id="inpCohortCurEmp" step="500" min="1000" value="32000" onchange="onCohortParamChanged()" class="w-full font-black text-slate-900 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 transition">
-                  <span id="subCohortCurEmp" class="block text-[10px] text-slate-400 mt-1">Başlangıç yılı mevcut istihdamı</span>
+                  <input type="number" id="inpCohortCurEmp" step="500" min="1000" value="32000" onchange="onCohortParamChanged()" class="w-full font-bold text-[#1d1d1f] text-sm bg-[#f5f5f7] border border-slate-200/80 rounded-xl p-2.5 focus:ring-2 focus:ring-[#0071e3] focus:bg-white transition">
+                  <span id="subCohortCurEmp" class="block text-[10px] text-[#86868b] mt-1.5 font-medium">Başlangıç yılı mevcut istihdamı</span>
                 </div>
 
                 <!-- 4. Hedef Yıl İstihdamı -->
-                <div id="cardCohortTargetEmp" class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm transition">
-                  <div class="flex items-center justify-between mb-1.5">
-                    <label for="inpCohortTargetEmp" class="text-[11px] font-bold text-slate-700 cursor-pointer select-none">Hedef Yıl İstihdamı:</label>
-                    <input type="checkbox" id="chkUseCohortTargetEmp" checked onchange="onToggleParamCard('targetEmp')" title="Hedef İstihdamı dahil et / çıkar" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer">
+                <div id="cardCohortTargetEmp" class="bg-white p-4 rounded-2xl border border-slate-200/60 shadow-sm transition">
+                  <div class="flex items-center justify-between mb-2">
+                    <label for="inpCohortTargetEmp" class="text-[11px] font-semibold text-[#1d1d1f] cursor-pointer select-none">Hedef Yıl İstihdamı:</label>
+                    <input type="checkbox" id="chkUseCohortTargetEmp" checked onchange="onToggleParamCard('targetEmp')" title="Hedef İstihdamı dahil et / çıkar" class="w-4 h-4 text-[#0071e3] rounded border-slate-300 focus:ring-[#0071e3] cursor-pointer">
                   </div>
-                  <input type="number" id="inpCohortTargetEmp" step="500" min="1000" value="45000" onchange="onCohortParamChanged()" class="w-full font-black text-blue-700 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 transition">
-                  <span id="subCohortTargetEmp" class="block text-[10px] text-blue-600 font-bold mt-1">Net Yeni İş: <strong id="lblCohortNetJobs">+13.000</strong></span>
+                  <input type="number" id="inpCohortTargetEmp" step="500" min="1000" value="45000" onchange="onCohortParamChanged()" class="w-full font-bold text-[#0071e3] text-sm bg-[#f5f5f7] border border-slate-200/80 rounded-xl p-2.5 focus:ring-2 focus:ring-[#0071e3] focus:bg-white transition">
+                  <span id="subCohortTargetEmp" class="block text-[10px] text-[#0071e3] font-semibold mt-1.5">Net Yeni İş: <strong id="lblCohortNetJobs">+13.000</strong></span>
                 </div>
 
                 <!-- 5. Yıllık Net Göç Hızı (%) -->
-                <div id="cardCohortMigRate" class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm transition">
-                  <div class="flex items-center justify-between mb-1.5">
-                    <label for="inpCohortMigRate" class="text-[11px] font-bold text-slate-700 cursor-pointer select-none">Yıllık Net Göç Hızı (%):</label>
+                <div id="cardCohortMigRate" class="bg-white p-4 rounded-2xl border border-slate-200/60 shadow-sm transition">
+                  <div class="flex items-center justify-between mb-2">
+                    <label for="inpCohortMigRate" class="text-[11px] font-semibold text-[#1d1d1f] cursor-pointer select-none">Yıllık Net Göç Hızı (%):</label>
                     <input type="checkbox" id="chkUseCohortMigRate" checked onchange="onToggleParamCard('migRate')" title="Yıllık Net Göç Hızını dahil et / çıkar" class="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500 cursor-pointer">
                   </div>
-                  <input type="number" id="inpCohortMigRate" step="0.05" min="-5.0" max="10.0" value="1.82" oninput="onMigRateOnlyChanged()" class="w-full font-black text-emerald-700 text-sm bg-slate-50 border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 transition">
-                  <span id="subCohortMigRate" class="block text-[10px] text-emerald-600 font-bold mt-1">Toplam Göç: <strong id="lblCohortTotalMig">+25.480</strong></span>
+                  <input type="number" id="inpCohortMigRate" step="0.05" min="-5.0" max="10.0" value="1.82" oninput="onMigRateOnlyChanged()" class="w-full font-bold text-emerald-700 text-sm bg-[#f5f5f7] border border-slate-200/80 rounded-xl p-2.5 focus:ring-2 focus:ring-[#0071e3] focus:bg-white transition">
+                  <span id="subCohortMigRate" class="block text-[10px] text-emerald-600 font-semibold mt-1.5">Toplam Göç: <strong id="lblCohortTotalMig">+25.480</strong></span>
                 </div>
               </div>
 
               <!-- Alt Bilgi ve Güncelle Butonu -->
-              <div class="flex items-center justify-between flex-wrap gap-2 pt-1">
-                <span id="lblEmpEquivBadge" class="text-[11px] font-bold text-slate-700 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+              <div class="flex items-center justify-between flex-wrap gap-3 pt-2">
+                <span id="lblEmpEquivBadge" class="text-xs font-medium text-[#1d1d1f] bg-white px-4 py-2 rounded-xl border border-slate-200/80 shadow-xs">
                   📊 Net Yeni İstihdam: +13.000 | Göç ile Gelecek Nüfus: +25.480 Kişi
                 </span>
-                <button type="button" onclick="onCohortParamChanged(true)" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold py-2 px-4 rounded-xl shadow-sm transition flex items-center gap-1.5">
+                <button type="button" onclick="onCohortParamChanged(true)" class="bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-semibold py-2 px-5 rounded-full shadow-sm transition flex items-center gap-1.5">
                   <span>🚀</span> <span>İstihdam ve Göç Projeksiyonunu Güncelle</span>
                 </button>
               </div>
@@ -527,33 +555,33 @@
           </div>
 
           <!-- 4 Dependency Badges -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-              <p class="text-[11px] font-bold text-slate-500 uppercase" data-i18n="kpiChildDep">Çocuk Bağımlılığı (0-14)</p>
-              <p id="indChildDep" class="text-xl font-black text-blue-700 mt-1">%24.57</p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="bg-[#f5f5f7] p-4 rounded-2xl border border-slate-200/60 flex flex-col justify-between">
+              <p class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider" data-i18n="kpiChildDep">Çocuk Bağımlılığı (0-14)</p>
+              <p id="indChildDep" class="text-xl sm:text-2xl font-semibold tracking-tight text-[#0071e3] mt-2">%24.57</p>
             </div>
-            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-              <p class="text-[11px] font-bold text-slate-500 uppercase" data-i18n="kpiOldDep">Yaşlı Bağımlılığı (65+)</p>
-              <p id="indOldDep" class="text-xl font-black text-amber-700 mt-1">%15.65</p>
+            <div class="bg-[#f5f5f7] p-4 rounded-2xl border border-slate-200/60 flex flex-col justify-between">
+              <p class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider" data-i18n="kpiOldDep">Yaşlı Bağımlılığı (65+)</p>
+              <p id="indOldDep" class="text-xl sm:text-2xl font-semibold tracking-tight text-amber-700 mt-2">%15.65</p>
             </div>
-            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-              <p class="text-[11px] font-bold text-slate-500 uppercase" data-i18n="kpiTotDep">Toplam Bağımlılık Oranı</p>
-              <p id="indTotalDep" class="text-xl font-black text-purple-700 mt-1">%40.23</p>
+            <div class="bg-[#f5f5f7] p-4 rounded-2xl border border-slate-200/60 flex flex-col justify-between">
+              <p class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider" data-i18n="kpiTotDep">Toplam Bağımlılık Oranı</p>
+              <p id="indTotalDep" class="text-xl sm:text-2xl font-semibold tracking-tight text-purple-700 mt-2">%40.23</p>
             </div>
-            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-              <p class="text-[11px] font-bold text-slate-500 uppercase" data-i18n="kpiAgingIdx">Yaşlanma İndeksi</p>
-              <p id="indAgingIdx" class="text-xl font-black text-rose-700 mt-1">63.71</p>
+            <div class="bg-[#f5f5f7] p-4 rounded-2xl border border-slate-200/60 flex flex-col justify-between">
+              <p class="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider" data-i18n="kpiAgingIdx">Yaşlanma İndeksi</p>
+              <p id="indAgingIdx" class="text-xl sm:text-2xl font-semibold tracking-tight text-rose-600 mt-2">63.71</p>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Pyramid Chart -->
-            <div class="bg-slate-50/60 p-4 rounded-xl border border-slate-200">
-              <div class="flex items-center justify-between mb-3">
-                <h4 class="text-xs font-bold text-slate-800" data-i18n="pyramidTitle">Demografik Yaş-Cinsiyet Nüfus Piramidi (<span id="pyramidYearLabel">2025</span>)</h4>
+            <div class="bg-[#f5f5f7] p-5 sm:p-6 rounded-[24px] border border-slate-200/60">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-xs font-semibold text-[#1d1d1f]" data-i18n="pyramidTitle">Demografik Yaş-Cinsiyet Nüfus Piramidi (<span id="pyramidYearLabel">2025</span>)</h4>
                 <div class="flex items-center gap-2">
-                  <select id="selPyramidYear" onchange="onPyramidYearChanged()" class="text-xs border border-slate-300 rounded-lg px-2 py-1 bg-white font-bold"></select>
-                  <span class="text-[11px] text-slate-500">Mavi: Erkek | Pembe: Kadın</span>
+                  <select id="selPyramidYear" onchange="onPyramidYearChanged()" class="text-xs border border-slate-200/80 rounded-xl px-2.5 py-1 bg-white font-semibold text-[#1d1d1f] shadow-xs"></select>
+                  <span class="text-[11px] text-[#6e6e73]">Mavi: Erkek | Pembe: Kadın</span>
                 </div>
               </div>
               <div class="h-80 w-full">
@@ -562,121 +590,121 @@
             </div>
 
             <!-- 5-Year Cohort Table -->
-            <div class="bg-slate-50/60 p-4 rounded-xl border border-slate-200 flex flex-col">
-              <div class="flex items-center justify-between mb-3">
-                <h4 class="text-xs font-bold text-slate-800 uppercase" data-i18n="cohortTableTitle">5'er Yıllık Yaş Grupları ve TÜİK Yaşam Oranları</h4>
-                <span class="text-[11px] text-slate-500 font-mono">TÜİK TD-10 Hayat Tablosu</span>
+            <div class="bg-[#f5f5f7] p-5 sm:p-6 rounded-[24px] border border-slate-200/60 flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider" data-i18n="cohortTableTitle">5'er Yıllık Yaş Grupları ve TÜİK Yaşam Oranları</h4>
+                <span class="text-[11px] text-[#6e6e73] font-mono">TÜİK TD-10 Hayat Tablosu</span>
               </div>
-              <div class="overflow-y-auto max-h-80 rounded-lg border border-slate-200 bg-white">
-                <table class="w-full text-left text-xs text-slate-700">
-                  <thead class="bg-slate-100 text-slate-600 font-bold uppercase border-b border-slate-200 sticky top-0">
+              <div class="overflow-y-auto max-h-80 rounded-2xl border border-slate-200/60 bg-white">
+                <table class="w-full text-left text-xs text-[#1d1d1f]">
+                  <thead class="bg-[#f5f5f7] text-[#6e6e73] font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200/80 sticky top-0">
                     <tr>
-                      <th class="py-2 px-3">Yaş Grubu</th>
-                      <th class="py-2 px-3 text-right"><span data-yr="base">2025</span> Erkek</th>
-                      <th class="py-2 px-3 text-right"><span data-yr="base">2025</span> Kadın</th>
-                      <th class="py-2 px-3 text-right"><span data-yr="base">2025</span> Toplam</th>
-                      <th class="py-2 px-3 text-right"><span data-yr="t1">2035</span> Hedef</th>
-                      <th class="py-2 px-3 text-right">Sx (Erkek)</th>
-                      <th class="py-2 px-3 text-right">Sx (Kadın)</th>
+                      <th class="py-2.5 px-3">Yaş Grubu</th>
+                      <th class="py-2.5 px-3 text-right"><span data-yr="base">2025</span> Erkek</th>
+                      <th class="py-2.5 px-3 text-right"><span data-yr="base">2025</span> Kadın</th>
+                      <th class="py-2.5 px-3 text-right"><span data-yr="base">2025</span> Toplam</th>
+                      <th class="py-2.5 px-3 text-right"><span data-yr="t1">2035</span> Hedef</th>
+                      <th class="py-2.5 px-3 text-right">Sx (Erkek)</th>
+                      <th class="py-2.5 px-3 text-right">Sx (Kadın)</th>
                     </tr>
                   </thead>
-                  <tbody id="cohortTableBody" class="divide-y divide-slate-200"></tbody>
+                  <tbody id="cohortTableBody" class="divide-y divide-slate-100"></tbody>
                 </table>
               </div>
             </div>
           </div>
 
           <!-- İktisadi Temel ve Göç Projeksiyon Özeti Tablosu -->
-          <div id="cohortSummaryCard" class="hidden bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-            <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between flex-wrap gap-2">
-              <h4 class="text-xs sm:text-sm font-extrabold text-slate-800 flex items-center gap-2">
+          <div id="cohortSummaryCard" class="hidden bg-white rounded-2xl border border-slate-200/60 overflow-hidden shadow-sm">
+            <div class="bg-[#f5f5f7] px-5 py-3.5 border-b border-slate-200/80 flex items-center justify-between flex-wrap gap-2">
+              <h4 class="text-xs sm:text-sm font-semibold text-[#1d1d1f] flex items-center gap-2">
                 <span>📊</span> <span>İktisadi Temel ve Göç Projeksiyon Özeti (<span id="lblSummaryYear">2040</span>)</span>
               </h4>
-              <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">Planlama Eşiği Nüfusu = Doğal Nüfus + Göç</span>
+              <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">Planlama Eşiği Nüfusu = Doğal Nüfus + Göç</span>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs">
-                <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                <thead class="bg-white text-[#6e6e73] font-semibold uppercase text-[11px] border-b border-slate-100">
                   <tr>
                     <th class="py-2.5 px-4 w-1/4">Gösterge</th>
                     <th class="py-2.5 px-4 text-right w-1/4">Değer</th>
                     <th class="py-2.5 px-4 w-1/2">Açıklama</th>
                   </tr>
                 </thead>
-                <tbody id="cohortSummaryTableBody" class="divide-y divide-slate-100 font-medium"></tbody>
+                <tbody id="cohortSummaryTableBody" class="divide-y divide-slate-100 font-medium text-[#1d1d1f]"></tbody>
               </table>
             </div>
           </div>
 
           <!-- 3 Alternatif Planlama Senaryosu -->
-          <div id="cohortScenariosCard" class="hidden space-y-3">
+          <div id="cohortScenariosCard" class="hidden space-y-4">
             <div class="flex items-center justify-between flex-wrap gap-2">
-              <h4 class="text-xs sm:text-sm font-extrabold text-slate-800 flex items-center gap-2">
+              <h4 class="text-xs sm:text-sm font-semibold text-[#1d1d1f] flex items-center gap-2">
                 <span>🛡️</span> <span>3 Alternatif Planlama Senaryosu (What-If Analizi)</span>
               </h4>
-              <span class="text-[11px] text-slate-500">Jüride hocaya farklı büyüme koşullarını sunmak için tasarlanmıştır.</span>
+              <span class="text-xs text-[#6e6e73]">Jüride hocaya farklı büyüme koşullarını sunmak için tasarlanmıştır.</span>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
               <!-- DÜŞÜK -->
-              <div id="cardScenLow" class="p-4 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col justify-between transition">
+              <div id="cardScenLow" class="p-5 rounded-2xl border border-slate-200/60 bg-white shadow-sm flex flex-col justify-between transition">
                 <div>
                   <div class="flex items-center gap-2">
-                    <span class="w-3 h-3 rounded-full bg-slate-500"></span>
-                    <span class="text-xs font-bold text-slate-700 uppercase">DÜŞÜK (DURGUNLUK)</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                    <span class="text-xs font-semibold text-[#6e6e73] uppercase tracking-wider">DÜŞÜK (DURGUNLUK)</span>
                   </div>
-                  <p id="scenLowPop" class="text-2xl font-black text-slate-800 mt-2">-</p>
-                  <p id="scenLowDiff" class="text-xs font-bold text-slate-500 mt-1">Değişim: -</p>
-                  <p class="text-[11px] text-slate-500 mt-2 bg-slate-50 p-2 rounded border border-slate-100">Sıfır göç, sadece demografik doğal yaşlanma (Kuşak-Bileşen kapalı model)</p>
+                  <p id="scenLowPop" class="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1d1d1f] mt-2">-</p>
+                  <p id="scenLowDiff" class="text-xs font-medium text-[#6e6e73] mt-1">Değişim: -</p>
+                  <p class="text-xs text-[#6e6e73] mt-3 bg-[#f5f5f7] p-3 rounded-xl border border-slate-200/60">Sıfır göç, sadece demografik doğal yaşlanma (Kuşak-Bileşen kapalı model)</p>
                 </div>
-                <button type="button" onclick="selectPlanningScenario('low')" id="btnScenLow" class="mt-3 w-full py-1.5 px-3 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+                <button type="button" onclick="selectPlanningScenario('low')" id="btnScenLow" class="mt-4 w-full py-2 px-4 rounded-full text-xs font-semibold bg-[#f5f5f7] hover:bg-slate-200 text-[#1d1d1f] transition">
                   ✓ Bu Senaryoyu Seç (DÜŞÜK)
                 </button>
               </div>
 
               <!-- ORTA -->
-              <div id="cardScenMid" class="p-4 rounded-xl border border-blue-200 bg-white shadow-sm flex flex-col justify-between transition">
+              <div id="cardScenMid" class="p-5 rounded-2xl border border-slate-200/60 bg-white shadow-sm flex flex-col justify-between transition">
                 <div>
                   <div class="flex items-center gap-2">
-                    <span class="w-3 h-3 rounded-full bg-blue-500"></span>
-                    <span class="text-xs font-bold text-blue-700 uppercase">ORTA (TREND / REGRESYON)</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                    <span class="text-xs font-semibold text-[#0071e3] uppercase tracking-wider">ORTA (TREND / REGRESYON)</span>
                   </div>
-                  <p id="scenMidPop" class="text-2xl font-black text-blue-700 mt-2">-</p>
-                  <p id="scenMidDiff" class="text-xs font-bold text-blue-600 mt-1">Değişim: -</p>
-                  <p id="scenMidDesc" class="text-[11px] text-slate-500 mt-2 bg-blue-50/50 p-2 rounded border border-blue-100">Geçmiş eğilimin analitik devamı (En yüksek uyumlu regresyon modeli)</p>
+                  <p id="scenMidPop" class="text-2xl sm:text-3xl font-semibold tracking-tight text-[#0071e3] mt-2">-</p>
+                  <p id="scenMidDiff" class="text-xs font-medium text-[#0071e3] mt-1">Değişim: -</p>
+                  <p id="scenMidDesc" class="text-xs text-[#6e6e73] mt-3 bg-[#f5f5f7] p-3 rounded-xl border border-slate-200/60">Geçmiş eğilimin analitik devamı (En yüksek uyumlu regresyon modeli)</p>
                 </div>
-                <button type="button" onclick="selectPlanningScenario('mid')" id="btnScenMid" class="mt-3 w-full py-1.5 px-3 rounded-lg text-xs font-bold bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 transition">
+                <button type="button" onclick="selectPlanningScenario('mid')" id="btnScenMid" class="mt-4 w-full py-2 px-4 rounded-full text-xs font-semibold bg-blue-50 hover:bg-blue-100 text-[#0071e3] border border-blue-200 transition">
                   ✓ Bu Senaryoyu Seç (ORTA)
                 </button>
               </div>
 
               <!-- YÜKSEK -->
-              <div id="cardScenHigh" class="p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50/20 shadow-sm flex flex-col justify-between transition">
+              <div id="cardScenHigh" class="p-5 rounded-2xl border-2 border-[#0071e3] bg-white shadow-md flex flex-col justify-between transition">
                 <div>
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                      <span class="w-3 h-3 rounded-full bg-emerald-600"></span>
-                      <span class="text-xs font-extrabold text-emerald-800 uppercase">YÜKSEK (SANAYİ / VİZYON)</span>
+                      <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                      <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">YÜKSEK (SANAYİ / VİZYON)</span>
                     </div>
-                    <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Önerilen</span>
+                    <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">Önerilen</span>
                   </div>
-                  <p id="scenHighPop" class="text-2xl font-black text-emerald-600 mt-2">-</p>
-                  <p id="scenHighDiff" class="text-xs font-bold text-emerald-600 mt-1">Değişim: -</p>
-                  <p id="scenHighDesc" class="text-[11px] text-slate-600 mt-2 bg-emerald-50 p-2 rounded border border-emerald-100">İktisadi Taban ve İstihdam Çarpanı ile gelen işgücü ve aile göçü</p>
+                  <p id="scenHighPop" class="text-2xl sm:text-3xl font-semibold tracking-tight text-emerald-600 mt-2">-</p>
+                  <p id="scenHighDiff" class="text-xs font-semibold text-emerald-600 mt-1">Değişim: -</p>
+                  <p id="scenHighDesc" class="text-xs text-[#6e6e73] mt-3 bg-[#f5f5f7] p-3 rounded-xl border border-slate-200/60">İktisadi Taban ve İstihdam Çarpanı ile gelen işgücü ve aile göçü</p>
                 </div>
-                <button type="button" onclick="selectPlanningScenario('high')" id="btnScenHigh" class="mt-3 w-full py-1.5 px-3 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition shadow-sm">
+                <button type="button" onclick="selectPlanningScenario('high')" id="btnScenHigh" class="mt-4 w-full py-2 px-4 rounded-full text-xs font-semibold bg-[#0071e3] hover:bg-[#0077ed] text-white transition shadow-sm">
                   ✓ Bu Senaryoyu Seç (YÜKSEK)
                 </button>
               </div>
             </div>
 
             <!-- Karşılaştırmalı Analiz Tablosu -->
-            <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm mt-3">
-              <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex items-center justify-between">
-                <h5 class="text-xs font-bold text-slate-700">📑 Planlama Senaryolarının Karşılaştırmalı Analizi (<span id="lblAnalysisYear">2045</span>)</h5>
+            <div class="bg-white rounded-2xl border border-slate-200/60 overflow-hidden shadow-sm mt-4">
+              <div class="bg-[#f5f5f7] px-5 py-3 border-b border-slate-200/80 flex items-center justify-between">
+                <h5 class="text-xs font-semibold text-[#1d1d1f]">📑 Planlama Senaryolarının Karşılaştırmalı Analizi (<span id="lblAnalysisYear">2045</span>)</h5>
               </div>
               <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                  <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                <table class="w-full text-left text-xs text-[#1d1d1f]">
+                  <thead class="bg-white text-[#6e6e73] font-semibold uppercase text-[11px] border-b border-slate-100">
                     <tr>
                       <th class="py-2.5 px-3">Senaryo Adı</th>
                       <th class="py-2.5 px-3 text-right">Öngörülen Nüfus</th>
@@ -694,22 +722,22 @@
         </div>
 
         <!-- ===== TAB 3: HANSEN & MAP (MEKÂNSAL DAĞITIM VE HARİTA) ===== -->
-        <div id="tabContent-hansen" class="hidden space-y-5">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div id="tabContent-hansen" class="hidden space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Map -->
-            <div class="bg-slate-50/60 p-4 rounded-xl border border-slate-200">
-              <div class="flex items-center justify-between mb-2">
-                <h3 class="text-xs font-bold text-slate-800" data-i18n="hansenMapTitle">İnteraktif Kentsel Mekânsal Harita (Leaflet)</h3>
-                <span class="text-xs text-slate-500" data-i18n="hansenMapLegend">Yeşil: Uygun | Kırmızı: Kapasite Aşımı</span>
+            <div class="bg-[#f5f5f7] p-5 sm:p-6 rounded-[24px] border border-slate-200/60">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-xs font-semibold text-[#1d1d1f]" data-i18n="hansenMapTitle">İnteraktif Kentsel Mekânsal Harita (Leaflet)</h3>
+                <span class="text-xs text-[#6e6e73]" data-i18n="hansenMapLegend">Yeşil: Uygun | Kırmızı: Kapasite Aşımı</span>
               </div>
               <div id="leafletMap"></div>
             </div>
 
             <!-- Hansen Chart -->
-            <div class="bg-slate-50/60 p-4 rounded-xl border border-slate-200">
-              <div class="flex items-center justify-between mb-2">
-                <h3 class="text-xs font-bold text-slate-800" data-i18n="hansenChartTitle">Hansen Modeli Alt Bölge Nüfus Dağıtımı</h3>
-                <span class="text-xs text-teal-700 font-mono">Gi = ΔP × (Ai · di^-α) / Σ(...)</span>
+            <div class="bg-[#f5f5f7] p-5 sm:p-6 rounded-[24px] border border-slate-200/60">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-xs font-semibold text-[#1d1d1f]" data-i18n="hansenChartTitle">Hansen Modeli Alt Bölge Nüfus Dağıtımı</h3>
+                <span class="text-xs text-teal-700 font-mono font-medium">Gi = ΔP × (Ai · di^-α) / Σ(...)</span>
               </div>
               <div class="h-80 w-full">
                 <canvas id="hansenChart"></canvas>
@@ -718,44 +746,44 @@
           </div>
 
           <!-- Saturation Table -->
-          <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-            <table class="w-full text-left text-xs text-slate-700">
-              <thead class="bg-slate-100 text-slate-600 font-bold uppercase border-b border-slate-200">
+          <div class="overflow-x-auto rounded-2xl border border-slate-200/60 bg-white">
+            <table class="w-full text-left text-xs text-[#1d1d1f]">
+              <thead class="bg-[#f5f5f7] text-[#6e6e73] font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200/80">
                 <tr>
-                  <th class="py-2.5 px-3">Mahalle / Alt Bölge</th>
-                  <th class="py-2.5 px-3 text-right">Mevcut (<span data-yr="base">2025</span>)</th>
-                  <th class="py-2.5 px-3 text-right">Dağıtılan İlave (Gi)</th>
-                  <th class="py-2.5 px-3 text-right">Hedef Nüfus (<span data-yr="t1">2035</span>)</th>
-                  <th class="py-2.5 px-3 text-right" data-i18n="thHouseNeed">Konut İhtiyacı</th>
-                  <th class="py-2.5 px-3 text-right" data-i18n="thSaturation">Doygunluk (%)</th>
-                  <th class="py-2.5 px-3" data-i18n="thCapStatus">Kapasite Durumu</th>
+                  <th class="py-3 px-3.5">Mahalle / Alt Bölge</th>
+                  <th class="py-3 px-3.5 text-right">Mevcut (<span data-yr="base">2025</span>)</th>
+                  <th class="py-3 px-3.5 text-right">Dağıtılan İlave (Gi)</th>
+                  <th class="py-3 px-3.5 text-right">Hedef Nüfus (<span data-yr="t1">2035</span>)</th>
+                  <th class="py-3 px-3.5 text-right" data-i18n="thHouseNeed">Konut İhtiyacı</th>
+                  <th class="py-3 px-3.5 text-right" data-i18n="thSaturation">Doygunluk (%)</th>
+                  <th class="py-3 px-3.5" data-i18n="thCapStatus">Kapasite Durumu</th>
                 </tr>
               </thead>
-              <tbody id="hansenTableBody" class="divide-y divide-slate-200"></tbody>
+              <tbody id="hansenTableBody" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
 
         <!-- ===== TAB 4: MPYY STANDARTS ===== -->
-        <div id="tabContent-mpyy" class="hidden space-y-4">
-          <div class="flex items-center justify-between">
+        <div id="tabContent-mpyy" class="hidden space-y-5">
+          <div class="flex items-center justify-between flex-wrap gap-3">
             <div>
-              <h3 class="text-sm sm:text-base font-extrabold text-slate-800" data-i18n="mpyyTitle">Mekânsal Planlar Yapım Yönetmeliği (Ek-2) Donatı Standartları</h3>
-              <p class="text-xs text-slate-500">Hedef <span data-yr="t1">2035</span> Nüfus Artışı İçin Zorunlu Asgari Sosyal ve Teknik Altyapı Alanları</p>
+              <h3 class="text-base sm:text-lg font-semibold tracking-tight text-[#1d1d1f]" data-i18n="mpyyTitle">Mekânsal Planlar Yapım Yönetmeliği (Ek-2) Donatı Standartları</h3>
+              <p class="text-xs text-[#6e6e73] mt-0.5">Hedef <span data-yr="t1">2035</span> Nüfus Artışı İçin Zorunlu Asgari Sosyal ve Teknik Altyapı Alanları</p>
             </div>
-            <span class="text-xs font-black bg-rose-100 text-rose-800 py-1 px-3 rounded-full">Kişi Başı 19.0 m² Standart</span>
+            <span class="text-xs font-semibold bg-rose-50 text-rose-700 py-1.5 px-4 rounded-full border border-rose-200/80">Kişi Başı 19.0 m² Standart</span>
           </div>
-          <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-            <table class="w-full text-left text-xs text-slate-700">
-              <thead class="bg-slate-100 text-slate-600 font-bold uppercase border-b border-slate-200">
+          <div class="overflow-x-auto rounded-2xl border border-slate-200/60 bg-white">
+            <table class="w-full text-left text-xs text-[#1d1d1f]">
+              <thead class="bg-[#f5f5f7] text-[#6e6e73] font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200/80">
                 <tr>
-                  <th class="py-2.5 px-3">Donatı Türü</th>
-                  <th class="py-2.5 px-3 text-right">Yasal Standart (m²/kişi)</th>
-                  <th class="py-2.5 px-3 text-right">Gereken Alan (m²)</th>
-                  <th class="py-2.5 px-3 text-right">Gereken Alan (Hektar)</th>
+                  <th class="py-3 px-4">Donatı Türü</th>
+                  <th class="py-3 px-4 text-right">Yasal Standart (m²/kişi)</th>
+                  <th class="py-3 px-4 text-right">Gereken Alan (m²)</th>
+                  <th class="py-3 px-4 text-right">Gereken Alan (Hektar)</th>
                 </tr>
               </thead>
-              <tbody id="mpyyTableBody" class="divide-y divide-slate-200"></tbody>
+              <tbody id="mpyyTableBody" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
@@ -764,21 +792,21 @@
     </section>
 
     <!-- ==================== 4. COLLAPSIBLE ADVANCED SETTINGS (GELİŞMİŞ AYARLAR ÇEKMECESİ) ==================== -->
-    <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
-      <button onclick="toggleAdvancedDrawer()" class="w-full p-4 bg-slate-50/80 hover:bg-slate-100/80 text-left flex items-center justify-between text-xs sm:text-sm font-bold text-slate-700 transition">
-        <span class="flex items-center gap-2">
+    <section class="bg-white rounded-[28px] shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-slate-200/60 overflow-hidden">
+      <button onclick="toggleAdvancedDrawer()" class="w-full p-5 bg-white hover:bg-slate-50/80 text-left flex items-center justify-between text-xs sm:text-sm font-semibold text-[#1d1d1f] transition">
+        <span class="flex items-center gap-2.5">
           <span>⚙️</span>
           <span>Gelişmiş Plan Parametreleri, Mahalle Verileri ve İktisadi Çarpanları Düzenle (İsteğe Bağlı)</span>
         </span>
-        <span id="drawerToggleIcon" class="text-slate-400 font-mono text-sm">▼ Göster</span>
+        <span id="drawerToggleIcon" class="text-[#86868b] font-mono text-sm">▼ Göster</span>
       </button>
 
-      <div id="advancedDrawer" class="hidden p-5 sm:p-6 border-t border-slate-200 space-y-5 bg-white">
+      <div id="advancedDrawer" class="hidden p-6 sm:p-8 border-t border-slate-100 space-y-6 bg-white">
         <!-- Ready Templates & File Upload -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end bg-[#f5f5f7] p-5 rounded-2xl border border-slate-200/60">
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Hazır Plan Şablonu:</label>
-            <select id="selectTemplate" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-semibold">
+            <label class="block text-xs font-semibold text-[#1d1d1f] mb-1.5">Hazır Plan Şablonu:</label>
+            <select id="selectTemplate" class="w-full bg-white border border-slate-200/80 rounded-xl p-2.5 text-xs font-semibold text-[#1d1d1f] shadow-xs">
               <option id="optSelectedAdnks" value="tuik_adnks_selected" selected>🏛️ Seçili İl / İlçe Mahalle Dağılımı (Yukarıdaki Seçim)</option>
               <option value="metropoliten_alt_bolge">🏙️ Metropoliten & Çok Merkezli Kent Şablonu (290.000 Nüfus)</option>
               <option value="hizli_buyuyen_sanayi">🏭 Hızlı Büyüyen Ağır Sanayi & OSB Kenti Şablonu (200.000 Nüfus)</option>
@@ -789,54 +817,54 @@
             </select>
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Excel (.xlsx) / CSV Dosyası Yükle:</label>
-            <input type="file" id="fileUploader" accept=".xlsx,.xls,.csv" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+            <label class="block text-xs font-semibold text-[#1d1d1f] mb-1.5">Excel (.xlsx) / CSV Dosyası Yükle:</label>
+            <input type="file" id="fileUploader" accept=".xlsx,.xls,.csv" class="w-full text-xs text-[#6e6e73] file:mr-2 file:py-1.5 file:px-3.5 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-white file:text-[#0071e3] hover:file:bg-blue-50 cursor-pointer">
           </div>
           <div class="flex gap-2">
-            <button onclick="downloadTemplate('settlement')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg border border-slate-300">
-              📥 Boş Şablon İndir
+            <button onclick="downloadTemplate('settlement')" class="flex-1 bg-white hover:bg-slate-100 text-[#1d1d1f] text-xs font-medium py-2.5 px-3 rounded-full border border-slate-200/80 shadow-xs transition">
+              📥 Boş Şablon
             </button>
-            <button onclick="downloadTemplate('cohort')" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg border border-slate-300">
-              👥 Yaş Şablonu İndir
+            <button onclick="downloadTemplate('cohort')" class="flex-1 bg-white hover:bg-slate-100 text-[#1d1d1f] text-xs font-medium py-2.5 px-3 rounded-full border border-slate-200/80 shadow-xs transition">
+              👥 Yaş Şablonu
             </button>
           </div>
         </div>
 
         <!-- Editable Settlements Table -->
-        <div class="rounded-xl border border-slate-200 overflow-hidden">
-          <div class="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-            <h4 class="text-xs font-bold text-slate-800">Alt Bölge & Mahalle Parametreleri (İstihdam, Boş Alan, Mesafe, Kapasite)</h4>
+        <div class="rounded-2xl border border-slate-200/60 overflow-hidden bg-white">
+          <div class="p-4 bg-[#f5f5f7] border-b border-slate-200/80 flex items-center justify-between flex-wrap gap-2">
+            <h4 class="text-xs font-semibold text-[#1d1d1f]">Alt Bölge & Mahalle Parametreleri (İstihdam, Boş Alan, Mesafe, Kapasite)</h4>
             <div class="flex items-center gap-2">
-              <button onclick="addSubzoneRow()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-1 px-2.5 rounded">➕ Mahalle Ekle</button>
-              <button id="btnRecalculate" onclick="recalculate()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-1 px-2.5 rounded">💾 Değişiklikleri Kaydet & Hesapla</button>
+              <button onclick="addSubzoneRow()" class="bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-medium py-1.5 px-3 rounded-full shadow-xs transition">➕ Mahalle Ekle</button>
+              <button id="btnRecalculate" onclick="recalculate()" class="bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-semibold py-1.5 px-3.5 rounded-full shadow-xs transition">💾 Değişiklikleri Kaydet</button>
             </div>
           </div>
           <div class="overflow-x-auto max-h-60">
-            <table class="w-full text-left text-xs text-slate-700">
-              <thead class="bg-slate-100 text-slate-600 font-bold uppercase sticky top-0 border-b border-slate-200">
+            <table class="w-full text-left text-xs text-[#1d1d1f]">
+              <thead class="bg-[#f5f5f7] text-[#6e6e73] font-semibold uppercase text-[11px] sticky top-0 border-b border-slate-200/80">
                 <tr>
-                  <th class="py-2 px-2 text-center">#</th>
-                  <th class="py-2 px-2">Mahalle Adı</th>
-                  <th class="py-2 px-2 text-right">Mevcut</th>
-                  <th class="py-2 px-2 text-right">İstihdam</th>
-                  <th class="py-2 px-2 text-right">Boş Alan (Ha)</th>
-                  <th class="py-2 px-2 text-right">Mesafe (Dk)</th>
-                  <th class="py-2 px-2 text-right">Kapasite</th>
-                  <th class="py-2 px-2 text-center">Sil</th>
+                  <th class="py-2.5 px-3 text-center">#</th>
+                  <th class="py-2.5 px-3">Mahalle Adı</th>
+                  <th class="py-2.5 px-3 text-right">Mevcut</th>
+                  <th class="py-2.5 px-3 text-right">İstihdam</th>
+                  <th class="py-2.5 px-3 text-right">Boş Alan (Ha)</th>
+                  <th class="py-2.5 px-3 text-right">Mesafe (Dk)</th>
+                  <th class="py-2.5 px-3 text-right">Kapasite</th>
+                  <th class="py-2.5 px-3 text-center">Sil</th>
                 </tr>
               </thead>
-              <tbody id="settlementsTableBody" class="divide-y divide-slate-200 bg-white"></tbody>
+              <tbody id="settlementsTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
             </table>
           </div>
         </div>
 
         <!-- Economic Base Multiplier & Shocks -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <!-- Mert Çubukçu Çarpanları -->
-          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5 text-xs">
+          <div class="p-5 bg-[#f5f5f7] rounded-2xl border border-slate-200/60 space-y-3 text-xs">
             <div class="flex items-center justify-between gap-2 flex-wrap">
-              <h4 class="font-bold text-slate-800">🏛️ Prof. Dr. Mert Çubukçu Resmi Çarpanı (İktisadi Taban)</h4>
-              <span id="lblCubukcuActiveDist" class="text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">📍 Yukarıdaki Seçime Bağlı</span>
+              <h4 class="font-semibold text-[#1d1d1f]">🏛️ Prof. Dr. Mert Çubukçu Resmi Çarpanı (İktisadi Taban)</h4>
+              <span id="lblCubukcuActiveDist" class="text-[11px] font-semibold text-[#0071e3] bg-white px-2.5 py-0.5 rounded-full border border-blue-200/60">📍 Yukarıdaki Seçime Bağlı</span>
             </div>
             <!-- Hidden legacy selects for backward compatibility -->
             <div class="hidden">
@@ -844,60 +872,60 @@
               <select id="selDistrict" onchange="onDistrictChanged()"></select>
             </div>
             <div class="flex items-center gap-2">
-              <button type="button" id="btnMethodLQ" onclick="selectMultiplierMethod('LQ')" class="flex-1 py-2 px-2.5 rounded-lg border text-xs font-extrabold transition bg-blue-600 border-blue-600 text-white shadow-sm">
+              <button type="button" id="btnMethodLQ" onclick="selectMultiplierMethod('LQ')" class="flex-1 py-2 px-3 rounded-full border text-xs font-semibold transition bg-[#0071e3] border-[#0071e3] text-white shadow-xs">
                 Konum Katsayısı (LQ): <span id="badgeLQVal">2.850</span>
               </button>
-              <button type="button" id="btnMethodMG" onclick="selectMultiplierMethod('MG')" class="flex-1 py-2 px-2.5 rounded-lg border text-xs font-bold transition bg-white border-slate-300 text-slate-700 hover:bg-slate-100">
+              <button type="button" id="btnMethodMG" onclick="selectMultiplierMethod('MG')" class="flex-1 py-2 px-3 rounded-full border text-xs font-semibold transition bg-white border-slate-200/80 text-[#1d1d1f] hover:bg-slate-100 shadow-xs">
                 Min. Gereksinim (MG): <span id="badgeMGVal">2.150</span>
               </button>
             </div>
-            <div class="grid grid-cols-3 gap-2 pt-1">
-              <div class="bg-white p-2 rounded-lg border border-slate-200">
-                <span class="block text-[10px] font-semibold text-slate-500">Yeni Yatırım İşi (ΔEb)</span>
-                <input type="number" id="inpNewBasicJobsVisible" value="3545" min="0" step="100" oninput="onVisibleBasicJobsChanged(this.value)" onchange="onVisibleBasicJobsChanged(this.value)" class="w-full font-extrabold text-slate-800 text-xs bg-transparent border-b border-slate-300 focus:outline-none focus:border-blue-600 mt-0.5" />
+            <div class="grid grid-cols-3 gap-2.5 pt-1">
+              <div class="bg-white p-3 rounded-xl border border-slate-200/60 shadow-xs">
+                <span class="block text-[10px] font-medium text-[#86868b]">Yeni Yatırım İşi (ΔEb)</span>
+                <input type="number" id="inpNewBasicJobsVisible" value="3545" min="0" step="100" oninput="onVisibleBasicJobsChanged(this.value)" onchange="onVisibleBasicJobsChanged(this.value)" class="w-full font-bold text-[#1d1d1f] text-xs bg-transparent border-b border-slate-200 focus:outline-none focus:border-[#0071e3] mt-1" />
               </div>
-              <div class="bg-white p-2 rounded-lg border border-slate-200">
-                <span class="block text-[10px] font-semibold text-slate-500">Toplam Yeni İş (ΔEt)</span>
-                <span id="econNewTotalJobs" class="block font-extrabold text-blue-700 text-xs mt-0.5">-</span>
+              <div class="bg-white p-3 rounded-xl border border-slate-200/60 shadow-xs">
+                <span class="block text-[10px] font-medium text-[#86868b]">Toplam Yeni İş (ΔEt)</span>
+                <span id="econNewTotalJobs" class="block font-bold text-[#0071e3] text-xs mt-1">-</span>
                 <span class="hidden" id="econMultiplierK"></span>
               </div>
-              <div class="bg-white p-2 rounded-lg border border-slate-200">
-                <span class="block text-[10px] font-semibold text-slate-500">Çarpan Göç Etkisi (ΔP)</span>
-                <span id="econMigrantPop" class="block font-extrabold text-emerald-700 text-xs mt-0.5">-</span>
+              <div class="bg-white p-3 rounded-xl border border-slate-200/60 shadow-xs">
+                <span class="block text-[10px] font-medium text-[#86868b]">Çarpan Göç Etkisi (ΔP)</span>
+                <span id="econMigrantPop" class="block font-bold text-emerald-600 text-xs mt-1">-</span>
               </div>
             </div>
           </div>
 
           <!-- Demografik Şok & Yatırım Simülatörü -->
-          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2.5 text-xs">
+          <div class="p-5 bg-[#f5f5f7] rounded-2xl border border-slate-200/60 space-y-3 text-xs">
             <div class="flex items-center justify-between gap-2 flex-wrap">
               <div class="flex items-center gap-1.5">
                 <span class="text-amber-500 text-sm">⚡</span>
-                <h4 class="font-bold text-slate-800">Demografik Şok & Yatırım Simülatörü</h4>
+                <h4 class="font-semibold text-[#1d1d1f]">Demografik Şok & Yatırım Simülatörü</h4>
               </div>
-              <div class="flex items-center gap-1.5">
-                <button type="button" onclick="openShockModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-2.5 rounded-lg text-[11px] shadow-sm flex items-center gap-1 transition">
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="openShockModal()" class="bg-[#0071e3] hover:bg-[#0077ed] text-white font-medium py-1.5 px-3 rounded-full text-[11px] shadow-xs flex items-center gap-1 transition">
                   <span>➕</span> <span>Şok Ekle</span>
                 </button>
-                <button type="button" onclick="clearAllShocks()" id="btnClearShocks" class="text-slate-400 hover:text-rose-600 font-medium py-1 px-2 rounded text-[11px] hover:bg-rose-50 transition hidden" title="Tüm şokları temizle">
+                <button type="button" onclick="clearAllShocks()" id="btnClearShocks" class="text-[#86868b] hover:text-rose-600 font-medium py-1 px-2.5 rounded-full text-[11px] hover:bg-rose-50 transition hidden" title="Tüm şokları temizle">
                   <span>🗑️</span> <span>Temizle</span>
                 </button>
               </div>
             </div>
 
             <!-- Net Etki & Durum Göstergesi (KPI Banner) -->
-            <div id="shockSummaryBanner" class="py-1.5 px-2.5 rounded-lg border text-[11px] flex items-center justify-between bg-slate-100/70 border-slate-200 text-slate-600">
-              <span class="flex items-center gap-1.5 font-medium">
+            <div id="shockSummaryBanner" class="py-2 px-3 rounded-xl border text-[11px] flex items-center justify-between bg-white border-slate-200/60 text-[#6e6e73] shadow-xs">
+              <span class="flex items-center gap-2 font-medium">
                 <span class="w-2 h-2 rounded-full bg-slate-400" id="shockStatusDot"></span>
                 <span id="shockStatusText">Şoksuz Doğal / Trend Projeksiyon (Müdahale Yok)</span>
               </span>
-              <span id="shockNetBadge" class="font-bold text-slate-500">Net Etki: 0</span>
+              <span id="shockNetBadge" class="font-semibold text-[#1d1d1f]">Net Etki: 0</span>
             </div>
 
             <!-- Şoklar Tablosu -->
-            <div class="overflow-x-auto max-h-48 bg-white rounded-lg border border-slate-200 shadow-sm">
-              <table class="w-full text-left text-[11px]">
-                <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+            <div class="overflow-x-auto max-h-48 bg-white rounded-xl border border-slate-200/60 shadow-xs">
+              <table class="w-full text-left text-[11px] text-[#1d1d1f]">
+                <thead class="bg-[#f5f5f7] text-[#6e6e73] font-semibold border-b border-slate-200/80">
                   <tr>
                     <th class="py-2 px-2.5 text-center w-14">Yıl</th>
                     <th class="py-2 px-2.5">Şok / Yatırım Adı</th>
@@ -918,66 +946,66 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="mt-8 py-6 border-t border-slate-200/80 text-center text-xs text-slate-500 space-y-1">
-    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+  <footer class="mt-12 py-8 border-t border-slate-200/60 text-center text-xs text-[#86868b] space-y-1">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
       <div class="flex items-center gap-2">
-        <span class="w-6 h-6 rounded-lg bg-gradient-to-br from-amber-400 to-rose-500 text-white font-bold text-xs flex items-center justify-center shadow-sm">?</span>
-        <span class="font-extrabold text-slate-800">NüfusKaç?</span>
-        <span class="text-slate-400">•</span>
-        <span class="text-slate-600 font-medium">BM-GEO Demografi & Kentsel Bilişim</span>
+        <span class="w-5 h-5 rounded-md bg-[#1d1d1f] text-white font-bold text-[10px] flex items-center justify-center">?</span>
+        <span class="font-semibold text-[#1d1d1f]">NüfusKaç.</span>
+        <span class="text-slate-300">•</span>
+        <span class="text-[#6e6e73] font-normal">BM-GEO Demografi & Kentsel Bilişim</span>
       </div>
-      <p class="text-slate-500">
-        Resmi Veriler: <strong>TÜİK ADNKS (2025)</strong> • Metodoloji: <strong>Prof. Dr. K. Mert Çubukçu</strong> • Geliştirici: <strong>Berkay Memiş</strong>
+      <p class="text-[#86868b]">
+        Resmi Veriler: <strong class="text-[#1d1d1f]">TÜİK ADNKS (2025)</strong> • Metodoloji: <strong class="text-[#1d1d1f]">Prof. Dr. K. Mert Çubukçu</strong> • Geliştirici: <strong class="text-[#1d1d1f]">Berkay Memiş</strong>
       </p>
     </div>
   </footer>
 
   <!-- QR CODE MODAL FOR PHONE CONNECTION -->
-  <div id="qrModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl">
-      <div class="flex items-center justify-between border-b pb-2">
-        <h3 class="text-base font-bold text-slate-800 flex items-center gap-1.5">
+  <div id="qrModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-[28px] max-w-sm w-full p-6 text-center space-y-4 shadow-2xl border border-slate-200/60">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="text-base font-semibold text-[#1d1d1f] flex items-center gap-2">
           <span>📱 Telefondan Bağlan</span>
         </h3>
-        <button onclick="closeQRModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+        <button onclick="closeQRModal()" class="text-[#86868b] hover:text-[#1d1d1f] text-lg font-bold">&times;</button>
       </div>
-      <p class="text-xs text-slate-600 text-left">
+      <p class="text-xs text-[#6e6e73] text-left">
         <strong>1.</strong> Bilgisayarınız ve cep telefonunuz aynı Wi-Fi ağına bağlıyken kameranızla okutun:<br>
       </p>
-      <div class="flex justify-center p-2 bg-slate-50 rounded-lg border border-slate-200">
+      <div class="flex justify-center p-3 bg-[#f5f5f7] rounded-2xl border border-slate-200/60">
         <div id="qrCodeContainer"></div>
       </div>
-      <div class="bg-slate-100 p-2.5 rounded text-xs font-mono text-slate-800 break-all select-all">
+      <div class="bg-[#f5f5f7] p-3 rounded-xl text-xs font-mono text-[#1d1d1f] break-all select-all">
         <span id="qrLanUrl">http://...</span>
       </div>
-      <button onclick="closeQRModal()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded-lg text-xs transition">
+      <button onclick="closeQRModal()" class="w-full bg-[#0071e3] hover:bg-[#0077ed] text-white font-medium py-2.5 rounded-full text-xs shadow-sm transition">
         Anladım, Kapat
       </button>
     </div>
   </div>
 
   <!-- DEMOGRAFİK ŞOK & YATIRIM MODALI -->
-  <div id="shockModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-5 text-left space-y-4 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95">
-      <div class="flex items-center justify-between border-b pb-3">
-        <h3 class="text-sm font-extrabold text-slate-800 flex items-center gap-2">
+  <div id="shockModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-[28px] max-w-lg w-full p-6 text-left space-y-4 shadow-2xl border border-slate-200/60 animate-in fade-in zoom-in-95">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="text-sm font-semibold text-[#1d1d1f] flex items-center gap-2">
           <span class="text-amber-500 text-lg">⚡</span>
           <span id="shockModalTitle">Demografik Şok / Yatırım Müdahalesi Ekle</span>
         </h3>
-        <button type="button" onclick="closeShockModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold p-1 leading-none">&times;</button>
+        <button type="button" onclick="closeShockModal()" class="text-[#86868b] hover:text-[#1d1d1f] text-xl font-bold p-1 leading-none">&times;</button>
       </div>
       
       <!-- Hızlı Şablon Seçici (Hazır Senaryolar) -->
       <div class="space-y-1.5">
-        <label class="block text-[11px] font-bold text-slate-600">✨ Hızlı Şablon Seçimi (İsteğe Bağlı):</label>
-        <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-1.5 bg-slate-50 rounded-lg border border-slate-200 text-[10px]">
-          <button type="button" onclick="applyShockPreset('osb')" class="py-1 px-2 rounded-md bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-700 font-semibold transition flex items-center gap-1 shadow-2xs">🏭 Yeni OSB / Sanayi (+10.000)</button>
-          <button type="button" onclick="applyShockPreset('campus')" class="py-1 px-2 rounded-md bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-700 font-semibold transition flex items-center gap-1 shadow-2xs">🎓 Üniversite Kampüsü (+5.000)</button>
-          <button type="button" onclick="applyShockPreset('train')" class="py-1 px-2 rounded-md bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-700 font-semibold transition flex items-center gap-1 shadow-2xs">🚄 Hızlı Tren / Lojistik (+7.500)</button>
-          <button type="button" onclick="applyShockPreset('hospital')" class="py-1 px-2 rounded-md bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-700 font-semibold transition flex items-center gap-1 shadow-2xs">🏥 Şehir Hastanesi (+3.500)</button>
-          <button type="button" onclick="applyShockPreset('tourism')" class="py-1 px-2 rounded-md bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-700 font-semibold transition flex items-center gap-1 shadow-2xs">🏖️ Turizm & Kıyı Çekimi (+6.000)</button>
-          <button type="button" onclick="applyShockPreset('disaster')" class="py-1 px-2 rounded-md bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 font-semibold transition flex items-center gap-1 shadow-2xs">🚨 Afet / Tahliye Göçü (-4.000)</button>
-          <button type="button" onclick="applyShockPreset('closure')" class="py-1 px-2 rounded-md bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 font-semibold transition flex items-center gap-1 shadow-2xs">📉 Tesis Kapanışı (-3.000)</button>
+        <label class="block text-[11px] font-semibold text-[#86868b]">✨ Hızlı Şablon Seçimi (İsteğe Bağlı):</label>
+        <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-2 bg-[#f5f5f7] rounded-2xl border border-slate-200/60 text-[10px]">
+          <button type="button" onclick="applyShockPreset('osb')" class="py-1 px-2.5 rounded-full bg-white border border-slate-200 hover:border-[#0071e3] hover:text-[#0071e3] font-medium transition flex items-center gap-1 shadow-2xs">🏭 Yeni OSB / Sanayi (+10.000)</button>
+          <button type="button" onclick="applyShockPreset('campus')" class="py-1 px-2.5 rounded-full bg-white border border-slate-200 hover:border-[#0071e3] hover:text-[#0071e3] font-medium transition flex items-center gap-1 shadow-2xs">🎓 Üniversite Kampüsü (+5.000)</button>
+          <button type="button" onclick="applyShockPreset('train')" class="py-1 px-2.5 rounded-full bg-white border border-slate-200 hover:border-[#0071e3] hover:text-[#0071e3] font-medium transition flex items-center gap-1 shadow-2xs">🚄 Hızlı Tren / Lojistik (+7.500)</button>
+          <button type="button" onclick="applyShockPreset('hospital')" class="py-1 px-2.5 rounded-full bg-white border border-slate-200 hover:border-[#0071e3] hover:text-[#0071e3] font-medium transition flex items-center gap-1 shadow-2xs">🏥 Şehir Hastanesi (+3.500)</button>
+          <button type="button" onclick="applyShockPreset('tourism')" class="py-1 px-2.5 rounded-full bg-white border border-slate-200 hover:border-[#0071e3] hover:text-[#0071e3] font-medium transition flex items-center gap-1 shadow-2xs">🏖️ Turizm & Kıyı Çekimi (+6.000)</button>
+          <button type="button" onclick="applyShockPreset('disaster')" class="py-1 px-2.5 rounded-full bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 font-medium transition flex items-center gap-1 shadow-2xs">🚨 Afet / Tahliye Göçü (-4.000)</button>
+          <button type="button" onclick="applyShockPreset('closure')" class="py-1 px-2.5 rounded-full bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 font-medium transition flex items-center gap-1 shadow-2xs">📉 Tesis Kapanışı (-3.000)</button>
         </div>
       </div>
 
@@ -985,20 +1013,20 @@
       <input type="hidden" id="shockEditIndex" value="-1">
       <div class="grid grid-cols-2 gap-3 text-xs">
         <div class="col-span-2">
-          <label class="block font-bold text-slate-700 mb-1">Şok / Proje Adı:</label>
-          <input type="text" id="shockInpTitle" placeholder="Örnek: 2. Etap Organize Sanayi Bölgesi Yatırımı" class="w-full p-2 border border-slate-300 rounded-lg font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          <label class="block font-semibold text-[#1d1d1f] mb-1">Şok / Proje Adı:</label>
+          <input type="text" id="shockInpTitle" placeholder="Örnek: 2. Etap Organize Sanayi Bölgesi Yatırımı" class="w-full p-2.5 border border-slate-200/80 rounded-xl bg-[#f5f5f7] font-medium focus:ring-2 focus:ring-[#0071e3] focus:bg-white focus:outline-none transition">
         </div>
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Gerçekleşeceği Yıl:</label>
-          <input type="number" id="shockInpYear" value="2030" min="2025" max="2050" class="w-full p-2 border border-slate-300 rounded-lg font-bold text-slate-800 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          <label class="block font-semibold text-[#1d1d1f] mb-1">Gerçekleşeceği Yıl:</label>
+          <input type="number" id="shockInpYear" value="2030" min="2025" max="2050" class="w-full p-2.5 border border-slate-200/80 rounded-xl bg-[#f5f5f7] font-bold text-[#1d1d1f] focus:ring-2 focus:ring-[#0071e3] focus:bg-white focus:outline-none transition">
         </div>
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Nüfus Etkisi (+/- Kişi):</label>
-          <input type="number" id="shockInpDelta" value="10000" step="500" class="w-full p-2 border border-slate-300 rounded-lg font-bold text-emerald-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          <label class="block font-semibold text-[#1d1d1f] mb-1">Nüfus Etkisi (+/- Kişi):</label>
+          <input type="number" id="shockInpDelta" value="10000" step="500" class="w-full p-2.5 border border-slate-200/80 rounded-xl bg-[#f5f5f7] font-bold text-emerald-600 focus:ring-2 focus:ring-[#0071e3] focus:bg-white focus:outline-none transition">
         </div>
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Hedef Yaş Grubu:</label>
-          <select id="shockInpAgeBias" class="w-full p-2 border border-slate-300 rounded-lg bg-white font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          <label class="block font-semibold text-[#1d1d1f] mb-1">Hedef Yaş Grubu:</label>
+          <select id="shockInpAgeBias" class="w-full p-2.5 border border-slate-200/80 rounded-xl bg-[#f5f5f7] font-medium text-[#1d1d1f] focus:ring-2 focus:ring-[#0071e3] focus:bg-white focus:outline-none transition">
             <option value="working_age">💼 Çalışma Çağı (20-39 Yaş)</option>
             <option value="family">👨‍👩‍👧 Genel Aile (Dengeli Yaş Dağılımı)</option>
             <option value="student">🎓 Genç & Öğrenci (15-24 Yaş)</option>
@@ -1006,8 +1034,8 @@
           </select>
         </div>
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Müdahale Türü:</label>
-          <select id="shockInpType" class="w-full p-2 border border-slate-300 rounded-lg bg-white font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          <label class="block font-semibold text-[#1d1d1f] mb-1">Müdahale Türü:</label>
+          <select id="shockInpType" class="w-full p-2.5 border border-slate-200/80 rounded-xl bg-[#f5f5f7] font-medium text-[#1d1d1f] focus:ring-2 focus:ring-[#0071e3] focus:bg-white focus:outline-none transition">
             <option value="industrial">🏭 Sanayi / OSB Genişlemesi</option>
             <option value="positive_mig">📈 Pozitif Yatırım & Cazibe</option>
             <option value="negative_mig">📉 Sektörel Daralma / Negatif Göç</option>
@@ -1018,9 +1046,9 @@
       </div>
 
       <!-- Modal Footer -->
-      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-200">
-        <button type="button" onclick="closeShockModal()" class="py-2 px-4 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100 text-xs transition">İptal</button>
-        <button type="button" onclick="saveShockFromModal()" class="py-2 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow transition flex items-center gap-1.5">
+      <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+        <button type="button" onclick="closeShockModal()" class="py-2 px-4 rounded-full border border-slate-200/80 text-[#1d1d1f] font-medium hover:bg-slate-100 text-xs transition">İptal</button>
+        <button type="button" onclick="saveShockFromModal()" class="py-2 px-5 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white font-medium text-xs shadow-sm transition flex items-center gap-1.5">
           <span>💾</span> <span>Kaydet & Simüle Et</span>
         </button>
       </div>
@@ -1067,7 +1095,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v22') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v23') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
