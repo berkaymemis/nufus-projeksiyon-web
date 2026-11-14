@@ -863,6 +863,8 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
             cohort_results = req.get("cohort_results", {})
             econ_results = req.get("economic_base", {})
             shock_results = req.get("demographic_shocks", {})
+            hansen_results = req.get("hansen_results", {})
+            mpyy_standards = req.get("mpyy_standards", {})
 
             with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
                 tmp_path = tmp.name
@@ -874,7 +876,9 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
                     curve_results=curve_results,
                     cohort_results=cohort_results,
                     econ_results=econ_results,
-                    shock_results=shock_results
+                    shock_results=shock_results,
+                    hansen_results=hansen_results,
+                    mpyy_standards=mpyy_standards
                 )
                 data = Path(tmp_path).read_bytes()
                 self.send_response(200)

@@ -107,7 +107,7 @@
         </button>
 
         <!-- Excel Export -->
-        <button id="btnExportExcel" class="bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-xs flex items-center gap-1.5 transition">
+        <button id="btnExportExcel" type="button" onclick="exportExcel()" class="bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-xs flex items-center gap-1.5 transition cursor-pointer">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           <span class="hidden sm:inline" data-i18n="btnExcel">Excel İndir</span>
           <span class="sm:hidden">Excel</span>
@@ -1146,7 +1146,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v44') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v45') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -2263,28 +2263,34 @@
     }
 
     function setupEventListeners() {
-      document.getElementById("selectTemplate").addEventListener("change", (e) => {
-        const k = e.target.value;
-        if (k === "tuik_adnks_selected") {
-          applyAdnksDistrictToModel(true);
-        } else if (k === "uploaded_custom") {
-          state.currentTemplateKey = k;
-          recalculate();
-        } else {
-          loadTemplate(k);
-        }
-      });
+      const selTmpl = document.getElementById("selectTemplate");
+      if (selTmpl) {
+        selTmpl.addEventListener("change", (e) => {
+          const k = e.target.value;
+          if (k === "tuik_adnks_selected") {
+            applyAdnksDistrictToModel(true);
+          } else if (k === "uploaded_custom") {
+            state.currentTemplateKey = k;
+            recalculate();
+          } else {
+            loadTemplate(k);
+          }
+        });
+      }
 
-      document.getElementById("btnRecalculate").addEventListener("click", recalculate);
+      const btnRecalc = document.getElementById("btnRecalculate");
+      if (btnRecalc) btnRecalc.addEventListener("click", recalculate);
 
-      document.getElementById("btnOpenQR").addEventListener("click", () => {
-        document.getElementById("qrModal").classList.remove("hidden");
-      });
+      const btnQR = document.getElementById("btnOpenQR");
+      if (btnQR) {
+        btnQR.addEventListener("click", () => {
+          const qrM = document.getElementById("qrModal");
+          if (qrM) qrM.classList.remove("hidden");
+        });
+      }
 
-      document.getElementById("btnExportExcel").addEventListener("click", exportExcel);
-
-      // File Uploader
-      document.getElementById("fileUploader").addEventListener("change", handleFileUpload);
+      const fileUp = document.getElementById("fileUploader");
+      if (fileUp) fileUp.addEventListener("change", handleFileUpload);
     }
 
     function closeQRModal() {
@@ -4736,26 +4742,85 @@
 
 
     async function exportExcel() {
+      const selP = document.getElementById("selAdnksProv");
+      const selD = document.getElementById("selAdnksDist");
+      const selZ = document.getElementById("selAdnksZone");
+      const provVal = selP ? selP.value : "";
+      const distVal = selD ? selD.value : "";
+      const zoneVal = selZ ? selZ.value : "all";
+
+      if (!state.calculationResult && provVal) {
+        await recalculate();
+      }
+
       if (!state.calculationResult) {
-        alert("Lütfen önce hesaplama yapın.");
+        alert(currentLang === "en"
+          ? "Please select a Province and District first to download the Excel report."
+          : "İndirilecek veri bulunamadı. Lütfen önce yukarıdan bir İl ve İlçe seçiniz.");
         return;
       }
 
+      let distLabel = distVal;
+      if (distVal === "IL_GENELI") {
+        distLabel = "İL GENELİ";
+      } else if (selD && selD.selectedIndex >= 0) {
+        distLabel = (selD.options[selD.selectedIndex]?.text || distVal).replace(/^[^\w\sğüşıöçİĞÜŞÖÇ]+/i, "").split(/[()]/)[0].trim();
+      }
+
+      let zoneLabel = distVal === "IL_GENELI" ? "Tüm İlçeler" : "Tüm Mahalleler";
+      const isSingleZone = zoneVal && zoneVal !== "all" && zoneVal !== "upload";
+      if (isSingleZone && selZ && selZ.selectedIndex >= 0) {
+        zoneLabel = (selZ.options[selZ.selectedIndex]?.text || "")
+          .replace(/^[^\w\sğüşıöçİĞÜŞÖÇ0-9]+/i, "")
+          .replace(/^\d+\.\s*/, "")
+          .split(/[()]/)[0]
+          .trim() || zoneLabel;
+      }
+
+      let areaTitle = document.getElementById("heroCityTitle")?.innerText?.trim() || "";
+      if (!areaTitle || areaTitle === "İl ve İlçe Seçiniz" || areaTitle === "Select a Province or District") {
+        if (provVal) {
+          areaTitle = `${provVal} / ${distLabel}`;
+          if (isSingleZone) areaTitle += ` / ${zoneLabel}`;
+        } else {
+          areaTitle = state.templates[state.currentTemplateKey]?.name || "Seçili Kentsel Çalışma Alanı";
+        }
+      }
+
+      const kpis = state.calculationResult.kpis || {};
+      const yrs = getYears();
+      const baseYear = parseInt(document.getElementById("inpBaseYear")?.value) || 2025;
+      const basePop = kpis.base_pop || parseInt(document.getElementById("inpBasePop")?.value) || 0;
+
       const payload = {
         template_data: {
-          name: state.templates[state.currentTemplateKey]?.name || "Kentsel Çalışma Alanı",
-          base_year: parseInt(document.getElementById("inpBaseYear").value) || 2025,
-          base_pop: parseInt(document.getElementById("inpBasePop").value) || 65395,
-          target_year_1: getYears().t1,
-          target_year_2: getYears().t2,
-          target_pop_1: (state.calculationResult.kpis.high_t1 !== undefined ? state.calculationResult.kpis.high_t1 : state.calculationResult.kpis.high_2045),
-          target_pop_2: (state.calculationResult.kpis.high_t2 !== undefined ? state.calculationResult.kpis.high_t2 : Math.round(state.calculationResult.kpis.high_2045 * 1.055))
+          name: areaTitle,
+          province: provVal || "-",
+          district: distLabel || "-",
+          zone_name: zoneLabel,
+          upper_region_name: state.calculationResult.upper_region_name || "Türkiye Geneli",
+          multiplier_method: state.activeMultiplierMethod || "LQ",
+          tfr: state.currentTfr || 1.51,
+          base_year: baseYear,
+          base_pop: basePop,
+          target_year_1: yrs.t1,
+          target_year_2: yrs.t2,
+          target_pop_1: (kpis.high_t1 !== undefined ? kpis.high_t1 : kpis.high_2045),
+          target_pop_2: (kpis.high_t2 !== undefined ? kpis.high_t2 : Math.round((kpis.high_2045 || basePop) * 1.055))
         },
         curve_results: state.calculationResult.curve_results,
         cohort_results: state.calculationResult.cohort_results,
         economic_base: state.calculationResult.economic_base,
-        demographic_shocks: state.calculationResult.demographic_shocks
+        demographic_shocks: state.calculationResult.demographic_shocks,
+        hansen_results: state.calculationResult.hansen_results,
+        mpyy_standards: state.calculationResult.mpyy_standards
       };
+
+      const slugParts = [provVal || "KENT", distVal === "IL_GENELI" ? "IL_GENELI" : (distVal || "GENEL")];
+      if (isSingleZone) slugParts.push(zoneLabel);
+      slugParts.push(String(yrs.t1));
+      const cleanSlug = trNorm(slugParts.join("_")).replace(/[^A-Z0-9_]+/g, "_").replace(/^_+|_+$/g, "");
+      const fileName = `NufusKac_${cleanSlug || "Secili_Alan"}_Projeksiyon_Raporu.xlsx`;
 
       try {
         const res = await fetch("/api/export-report", {
@@ -4769,10 +4834,11 @@
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
-          a.download = `Kentsel_Projeksiyon_Raporu_${state.currentTemplateKey}.xlsx`;
+          a.download = fileName;
           document.body.appendChild(a);
           a.click();
           a.remove();
+          setTimeout(() => window.URL.revokeObjectURL(url), 3000);
         } else {
           alert("Excel raporu üretilemedi: " + (await res.text()));
         }
