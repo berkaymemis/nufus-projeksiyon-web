@@ -737,14 +737,19 @@
                   <h3 class="text-xs sm:text-sm font-semibold text-slate-900" data-i18n="hansenMapTitle">İnteraktif Kentsel Mekânsal Harita (Leaflet)</h3>
                 </div>
 
-                <!-- Color Mode Switcher Pills -->
-                <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-full border border-slate-200 text-xs">
-                  <button type="button" id="btnMapMetricGravity" onclick="setMapMetricMode('gravity')" class="py-1 px-3 rounded-full font-semibold transition bg-white text-blue-600 shadow-xs">
-                    🎯 Hansen Çekim Gücü (Gi)
+                <!-- Color Mode Switcher Pills & All-Turkey Zoom -->
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <button type="button" onclick="zoomToAllTurkey()" class="py-1 px-3 rounded-full font-semibold text-xs bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 transition shadow-2xs" title="Tüm Türkiye (81 İl / 973 İlçe) görünümüne uzaklaş">
+                    🇹🇷 Tüm Türkiye (973 İlçe)
                   </button>
-                  <button type="button" id="btnMapMetricSaturation" onclick="setMapMetricMode('saturation')" class="py-1 px-3 rounded-full font-semibold transition text-slate-600 hover:text-slate-900">
-                    🏠 Kapasite Doygunluğu (%)
-                  </button>
+                  <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-full border border-slate-200 text-xs">
+                    <button type="button" id="btnMapMetricGravity" onclick="setMapMetricMode('gravity')" class="py-1 px-3 rounded-full font-semibold transition bg-white text-blue-600 shadow-xs">
+                      🎯 Hansen Çekim Gücü (Gi)
+                    </button>
+                    <button type="button" id="btnMapMetricSaturation" onclick="setMapMetricMode('saturation')" class="py-1 px-3 rounded-full font-semibold transition text-slate-600 hover:text-slate-900">
+                      🏠 Kapasite Doygunluğu (%)
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -763,8 +768,8 @@
               <div id="leafletMap" class="w-full rounded-2xl shadow-inner"></div>
 
               <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1 flex-wrap gap-2">
-                <span>💡 <em>Mahalle dairelerinin veya ilçe sınırlarının <strong>üzerine fareyle gelerek</strong> nüfus, çekim payı (Gi) ve konut ihtiyacını anında görebilirsiniz.</em></span>
-                <span class="font-mono text-slate-600 font-semibold">Resmi Mülki Sınırlar & TÜİK ADNKS</span>
+                <span>💡 <em>Türkiye genelindeki tüm <strong>973 ilçenin üzerine fareyle gelerek</strong> nüfus, çekim payı (Gi) ve konut ihtiyacını görebilir; tıklayarak o ilçeye geçebilirsiniz.</em></span>
+                <span class="font-mono text-slate-600 font-semibold">81 İl • 973 İlçe Resmi Mülki Sınırlar</span>
               </div>
             </div>
 
@@ -1146,7 +1151,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v41') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v42') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -3770,9 +3775,18 @@
       }
     }
 
-    // Global cache for per-province district GeoJSON boundaries
+    function zoomToAllTurkey() {
+      if (!leafletMapInstance) return;
+      leafletMapInstance.fitBounds([[35.80, 25.65], [42.15, 44.85]], { padding: [15, 15] });
+    }
+
+    // Global caches for per-province & all-Turkey 973-district GeoJSON boundaries
     let districtGeoCache = {};
+    let turkiyeAllGeoCache = null;
+    let turkiyeAllFetching = false;
     let leafletDistrictBoundariesGroup = null;
+    let nationalStatsCacheKey = "";
+    let nationalStatsByProv = {};
 
     function updateH3LegendDisplay() {
       const legElem = document.getElementById('h3LegendPills');
@@ -3793,55 +3807,89 @@
       }
     }
 
-    // Ray-casting point-in-polygon check for GeoJSON Polygon / MultiPolygon
-    function isPointInRing(lat, lng, ring) {
-      let inside = false;
-      for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-        const xi = ring[i][0], yi = ring[i][1];
-        const xj = ring[j][0], yj = ring[j][1];
-        const intersect = ((yi > lat) !== (yj > lat)) && (lng < (xj - xi) * (lat - yi) / ((yj - yi) || 1e-12) + xi);
-        if (intersect) inside = !inside;
+    // Compute & cache Hansen district stats for all 81 provinces (973 districts) from state.adnksData
+    function ensureNationalDistrictStats() {
+      const t1Year = parseInt(document.getElementById("inpTargetYear1")?.value) || 2030;
+      const cacheKey = `${t1Year}_${Object.keys(state.adnksData || {}).length}`;
+      if (nationalStatsCacheKey === cacheKey && Object.keys(nationalStatsByProv).length > 0) {
+        return nationalStatsByProv;
       }
-      return inside;
-    }
+      nationalStatsByProv = {};
+      const yearsDiff = Math.max(1, t1Year - 2025);
 
-    function isPointInGeoJSON(lat, lng, geom) {
-      if (!geom || !geom.coordinates) return true;
-      if (geom.type === 'Polygon') {
-        return isPointInRing(lat, lng, geom.coordinates[0]);
-      } else if (geom.type === 'MultiPolygon') {
-        for (let p = 0; p < geom.coordinates.length; p++) {
-          if (isPointInRing(lat, lng, geom.coordinates[p][0])) return true;
-        }
-        return false;
-      }
-      return true;
-    }
+      Object.keys(state.adnksData || {}).forEach(provKey => {
+        const dMap = state.adnksData[provKey] || {};
+        const dKeys = Object.keys(dMap);
+        if (dKeys.length === 0) return;
 
-    function getGeoJSONCentroid(geom) {
-      if (!geom || !geom.coordinates) return null;
-      let ring = null;
-      if (geom.type === 'Polygon') {
-        ring = geom.coordinates[0];
-      } else if (geom.type === 'MultiPolygon') {
-        let maxLen = 0;
-        geom.coordinates.forEach(poly => {
-          if (poly[0] && poly[0].length > maxLen) {
-            maxLen = poly[0].length;
-            ring = poly[0];
+        // Sort districts by 2025 population descending
+        const sortedDks = [...dKeys].sort((a, b) => (dMap[b].pop_2025 || dMap[b].pop_2024 || 0) - (dMap[a].pop_2025 || dMap[a].pop_2024 || 0));
+        const nDists = sortedDks.length;
+
+        let provTotalPop = 0;
+        const rawItems = sortedDks.map((dk, idx) => {
+          const dObj = dMap[dk];
+          const curP = dObj.pop_2025 || dObj.pop_2024 || 10000;
+          provTotalPop += curP;
+          // Estimate annual growth rate from history or TFR
+          const hist = dObj.pop_history || [];
+          let annualRate = 0.0125;
+          if (hist.length >= 2 && hist[0] > 0) {
+            const rawRate = Math.pow(hist[hist.length - 1] / hist[0], 1 / Math.max(1, hist.length - 1)) - 1;
+            annualRate = Math.max(0.003, Math.min(0.028, rawRate));
           }
+          const distMin = Math.min(24.0, 4.0 + idx * 0.65);
+          const hansenWeight = (curP * Math.pow(curP, 0.15)) / Math.pow(distMin, 1.35);
+          return { dk, dObj, curP, annualRate, hansenWeight, rank: idx };
         });
-      }
-      if (!ring || ring.length === 0) return null;
-      let sumLat = 0, sumLng = 0;
-      ring.forEach(pt => {
-        sumLng += pt[0];
-        sumLat += pt[1];
+
+        const totalWeight = rawItems.reduce((acc, it) => acc + it.hansenWeight, 0) || 1;
+        const avgRate = rawItems.reduce((acc, it) => acc + it.annualRate * it.curP, 0) / Math.max(1, provTotalPop);
+        const provAddPop = Math.max(Math.round(provTotalPop * 0.04), Math.round(provTotalPop * (Math.pow(1 + avgRate, yearsDiff) - 1)));
+
+        const distStatsMap = {};
+        rawItems.forEach(it => {
+          const addP = Math.round(provAddPop * (it.hansenWeight / totalWeight));
+          const tgtP = it.curP + addP;
+          const capP = Math.round(it.curP * (1.16 + (it.rank % 5) * 0.04));
+          const satPct = (tgtP / Math.max(1, capP)) * 100;
+          const hNeed = Math.round(addP / 2.85);
+          const dName = it.dObj.display_name || it.dk;
+          const szObj = {
+            name: `${dName} İlçesi`,
+            districtKey: it.dk,
+            provinceName: provKey,
+            current_pop: it.curP,
+            base_pop: it.curP,
+            additional_pop_Gi: addP,
+            target_pop_Pi: tgtP,
+            saturation_pct: satPct,
+            housing_need: hNeed,
+            _rank: it.rank,
+            _totalZones: nDists,
+            _provTotalGi: provAddPop
+          };
+          distStatsMap[trNorm(dName)] = szObj;
+          distStatsMap[trNorm(it.dk)] = szObj;
+        });
+
+        const normP = trNorm(provKey);
+        nationalStatsByProv[normP] = {
+          provName: provKey,
+          totalZones: nDists,
+          provTotalGi: provAddPop,
+          districts: distStatsMap
+        };
+        if (normP === "AFYON") {
+          nationalStatsByProv["AFYONKARAHISAR"] = nationalStatsByProv[normP];
+        }
       });
-      return [sumLat / ring.length, sumLng / ring.length];
+
+      nationalStatsCacheKey = cacheKey;
+      return nationalStatsByProv;
     }
 
-    function getZoneColor(sz, maxGi, totalCount) {
+    function getZoneColor(sz, totalCount) {
       const curP = sz.current_pop !== undefined ? sz.current_pop : (sz.base_pop || 0);
       const addP = sz.additional_pop_Gi || 0;
       const tgtP = sz.target_pop_Pi !== undefined ? sz.target_pop_Pi : (sz.target_pop_2045 !== undefined ? sz.target_pop_2045 : (curP + addP));
@@ -3853,7 +3901,7 @@
         return '#10B981';
       } else {
         const rank = (sz._rank !== undefined) ? sz._rank : 999;
-        const n = Math.max(4, totalCount || 10);
+        const n = Math.max(4, totalCount || sz._totalZones || 10);
         const topCut = Math.max(1, Math.ceil(n * 0.14));
         const highCut = Math.max(2, Math.ceil(n * 0.36));
         const midCut = Math.max(4, Math.ceil(n * 0.68));
@@ -3865,21 +3913,28 @@
       }
     }
 
-    function buildZoneCardHtml(sz, totalGiAll, badgeColor) {
+    function buildZoneCardHtml(sz, totalGiAll, badgeColor, includeModelBtn = false) {
       const curP = sz.current_pop !== undefined ? sz.current_pop : (sz.base_pop || 0);
       const addP = sz.additional_pop_Gi || 0;
       const tgtP = sz.target_pop_Pi !== undefined ? sz.target_pop_Pi : (sz.target_pop_2045 !== undefined ? sz.target_pop_2045 : (curP + addP));
       const satPct = sz.saturation_pct !== undefined ? sz.saturation_pct : ((tgtP / Math.max(1, sz.plan_capacity || sz.plan_capacity_pop || curP * 1.5)) * 100);
       const hNeed = sz.housing_need !== undefined ? sz.housing_need : Math.round(addP / 2.85);
-      const sharePct = totalGiAll > 0 ? (addP / totalGiAll) * 100 : 0;
+      const denomGi = totalGiAll || sz._provTotalGi || 1;
+      const sharePct = denomGi > 0 ? (addP / denomGi) * 100 : 0;
 
       const isEn = (currentLang === 'en');
       const t1Year = (document.getElementById("inpTargetYear1") ? document.getElementById("inpTargetYear1").value : 2030);
       const isOver = satPct > 100;
       const satColor = isOver ? '#DC2626' : (satPct > 80 ? '#D97706' : '#059669');
+      const provPrefix = sz.provinceName ? `<span class="text-[10px] font-semibold text-slate-400 uppercase block">${sz.provinceName}</span>` : '';
+
+      const actionBtn = (includeModelBtn && sz.provinceName && sz.districtKey)
+        ? `<button type="button" onclick="quickAsk('${sz.provinceName}', '${sz.districtKey}', ${t1Year}, false)" class="mt-2 w-full py-1 px-2 rounded-lg bg-[#0071e3] hover:bg-[#0077ed] text-white font-semibold text-[11px] transition">📍 Bu İlçeyi Modelle</button>`
+        : '';
 
       return `
         <div class="font-sans text-[11px] leading-snug">
+          ${provPrefix}
           <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-1 mb-1">
             <strong class="text-xs font-bold text-slate-900 truncate">${sz.name}</strong>
             <span class="text-[10px] font-bold px-1.5 py-0.5 rounded text-white shrink-0" style="background:${badgeColor || satColor}">%${sharePct.toFixed(1)} Pay</span>
@@ -3898,6 +3953,7 @@
               <span class="font-semibold text-slate-700">${hNeed.toLocaleString('tr-TR')} Konut • <strong style="color:${satColor}">%${satPct.toFixed(0)}</strong></span>
             </div>
           </div>
+          ${actionBtn}
         </div>
       `;
     }
@@ -3907,7 +3963,7 @@
       if (!mapElem || typeof L === "undefined") return;
 
       if (!leafletMapInstance) {
-        leafletMapInstance = L.map('leafletMap', { preferCanvas: true }).setView([38.0886, 27.7344], 11);
+        leafletMapInstance = L.map('leafletMap', { preferCanvas: true }).setView([39.0, 35.0], 6);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 18,
           attribution: '© OpenStreetMap contributors'
@@ -3920,105 +3976,6 @@
       if (leafletMarkersGroup) leafletMarkersGroup.clearLayers();
       updateH3LegendDisplay();
 
-      const provCoords = {
-        "ADANA": [37.0000, 35.3213], "ADIYAMAN": [37.7648, 38.2786], "AFYON": [38.7507, 30.5567],
-        "AFYONKARAHISAR": [38.7507, 30.5567], "AFYONKARAHİSAR": [38.7507, 30.5567],
-        "AGRI": [39.7191, 43.0503], "AĞRI": [39.7191, 43.0503], "AMASYA": [40.6501, 35.8353],
-        "ANKARA": [39.9334, 32.8597], "ANTALYA": [36.8969, 30.7133], "ARTVIN": [41.1828, 41.8183],
-        "ARTVİN": [41.1828, 41.8183], "AYDIN": [37.8560, 27.8416], "BALIKESIR": [39.6484, 27.8826],
-        "BALIKESİR": [39.6484, 27.8826], "BILECIK": [40.1451, 29.9799], "BİLECİK": [40.1451, 29.9799],
-        "BINGOL": [38.8853, 40.4983], "BİNGÖL": [38.8853, 40.4983], "BITLIS": [38.4006, 42.1095],
-        "BİTLİS": [38.4006, 42.1095], "BOLU": [40.7358, 31.6061], "BURDUR": [37.7203, 30.2908],
-        "BURSA": [40.1885, 29.0610], "CANAKKALE": [40.1553, 26.4142], "ÇANAKKALE": [40.1553, 26.4142],
-        "CANKIRI": [40.6013, 33.6134], "ÇANKIRI": [40.6013, 33.6134], "CORUM": [40.5506, 34.9556],
-        "ÇORUM": [40.5506, 34.9556], "DENIZLI": [37.7765, 29.0864], "DENİZLİ": [37.7765, 29.0864],
-        "DIYARBAKIR": [37.9144, 40.2306], "DİYARBAKIR": [37.9144, 40.2306], "EDIRNE": [41.6768, 26.5603],
-        "EDİRNE": [41.6768, 26.5603], "ELAZIG": [38.6810, 39.2264], "ELAZIĞ": [38.6810, 39.2264],
-        "ERZINCAN": [39.7500, 39.5000], "ERZİNCAN": [39.7500, 39.5000], "ERZURUM": [39.9043, 41.2679],
-        "ESKISEHIR": [39.7767, 30.5206], "ESKİŞEHİR": [39.7767, 30.5206], "GAZIANTEP": [37.0662, 37.3833],
-        "GAZİANTEP": [37.0662, 37.3833], "GIRESUN": [40.9128, 38.3895], "GİRESUN": [40.9128, 38.3895],
-        "GUMUSHANE": [40.4600, 39.4700], "GÜMÜŞHANE": [40.4600, 39.4700], "HAKKARI": [37.5833, 43.7333],
-        "HAKKARİ": [37.5833, 43.7333], "HATAY": [36.2023, 36.1606], "ISPARTA": [37.7648, 30.5566],
-        "MERSIN": [36.8121, 34.6415], "MERSİN": [36.8121, 34.6415], "ISTANBUL": [41.0082, 28.9784],
-        "İSTANBUL": [41.0082, 28.9784], "IZMIR": [38.4237, 27.1428], "İZMİR": [38.4237, 27.1428],
-        "KARS": [40.6167, 43.1000], "KASTAMONU": [41.3887, 33.7827], "KAYSERI": [38.7312, 35.4787],
-        "KAYSERİ": [38.7312, 35.4787], "KIRKLARELI": [41.7333, 27.2167], "KIRKLARELİ": [41.7333, 27.2167],
-        "KIRSEHIR": [39.1425, 34.1709], "KIRŞEHİR": [39.1425, 34.1709], "KOCAELI": [40.8533, 29.8815],
-        "KOCAELİ": [40.8533, 29.8815], "KONYA": [37.8667, 32.4833], "KUTAHYA": [39.4167, 29.9833],
-        "KÜTAHYA": [39.4167, 29.9833], "MALATYA": [38.3552, 38.3095], "MANISA": [38.6191, 27.4289],
-        "MANİSA": [38.6191, 27.4289], "KAHRAMANMARAS": [37.5858, 36.9371], "KAHRAMANMARAŞ": [37.5858, 37.9371],
-        "MARDIN": [37.3212, 40.7245], "MARDİN": [37.3212, 40.7245], "MUGLA": [37.2153, 28.3636],
-        "MUĞLA": [37.2153, 28.3636], "MUS": [38.7432, 41.5064], "MUŞ": [38.7432, 41.5064],
-        "NEVSEHIR": [38.6244, 34.7142], "NEVŞEHİR": [38.6244, 34.7142], "NIGDE": [37.9667, 34.6833],
-        "NİĞDE": [37.9667, 34.6833], "ORDU": [40.9839, 37.8764], "RIZE": [41.0201, 40.5234],
-        "RİZE": [41.0201, 40.5234], "SAKARYA": [40.7569, 30.3783], "SAMSUN": [41.2928, 36.3313],
-        "SIIRT": [37.9333, 41.9500], "SİİRT": [37.9333, 41.9500], "SINOP": [42.0231, 35.1531],
-        "SİNOP": [42.0231, 35.1531], "SIVAS": [39.7477, 37.0179], "SİVAS": [39.7477, 37.0179],
-        "TEKIRDAG": [40.9833, 27.5167], "TEKİRDAĞ": [40.9833, 27.5167], "TOKAT": [40.3167, 36.5500],
-        "TRABZON": [41.0027, 39.7168], "TUNCELI": [39.1079, 39.5401], "TUNCELİ": [39.1079, 39.5401],
-        "SANLIURFA": [37.1674, 38.7955], "ŞANLIURFA": [37.1674, 38.7955], "USAK": [38.6823, 29.4082],
-        "UŞAK": [38.6823, 29.4082], "VAN": [38.4891, 43.4089], "YOZGAT": [39.8181, 34.8147],
-        "ZONGULDAK": [41.4564, 31.7987], "AKSARAY": [38.3687, 34.0370], "BAYBURT": [40.2552, 40.2249],
-        "KARAMAN": [37.1759, 33.2287], "KIRIKKALE": [39.8468, 33.5153], "BATMAN": [37.8812, 41.1294],
-        "SIRNAK": [37.4187, 42.4918], "ŞIRNAK": [37.4187, 42.4918], "BARTIN": [41.6344, 32.3375],
-        "ARDAHAN": [41.1105, 42.7022], "IGDIR": [39.9196, 44.0450], "IĞDIR": [39.9196, 44.0450],
-        "YALOVA": [40.6550, 29.2769], "KARABUK": [41.2061, 32.6204], "KARABÜK": [41.2061, 32.6204],
-        "KILIS": [36.7184, 37.1212], "KİLİS": [36.7184, 37.1212], "OSMANIYE": [37.0742, 36.2478],
-        "OSMANİYE": [37.0742, 36.2478], "DUZCE": [40.8438, 31.1565], "DÜZCE": [40.8438, 31.1565]
-      };
-
-      const distCoords = {
-        "VAN/İPEKYOLU": [38.4980, 43.3950], "VAN/IPEKYOLU": [38.4980, 43.3950],
-        "VAN/TUŞBA": [38.5420, 43.3880], "VAN/TUSBA": [38.5420, 43.3880],
-        "VAN/EDREMİT": [38.4189, 43.2578], "VAN/EDREMIT": [38.4189, 43.2578],
-        "VAN/ERCİŞ": [39.0278, 43.3597], "VAN/ERCIS": [39.0278, 43.3597],
-        "VAN/MURADİYE": [38.9850, 43.7550], "VAN/MURADIYE": [38.9850, 43.7550],
-        "VAN/ÖZALP": [38.6550, 44.0200], "VAN/OZALP": [38.6550, 44.0200],
-        "VAN/ÇALDIRAN": [39.1450, 44.9100], "VAN/CALDIRAN": [39.1450, 44.9100],
-        "VAN/GEVAŞ": [38.2950, 43.1000], "VAN/GEVAS": [38.2950, 43.1000],
-        "VAN/GÜRPINAR": [38.3200, 43.4150], "VAN/GURPINAR": [38.3200, 43.4150],
-        "VAN/BAŞKALE": [37.9650, 44.0150], "VAN/BASKALE": [37.9650, 44.0150],
-        "VAN/BAHÇESARAY": [38.0967, 42.7933], "VAN/BAHCESARAY": [38.0967, 42.7933],
-        "VAN/ÇATAK": [38.0100, 43.0600], "VAN/CATAK": [38.0100, 43.0600],
-        "VAN/SARAY": [38.6500, 44.1800],
-        "İZMİR/TİRE": [38.0886, 27.7344], "IZMIR/TIRE": [38.0886, 27.7344],
-        "İZMİR/ÖDEMİŞ": [38.2317, 27.9719], "IZMIR/ODEMIS": [38.2317, 27.9719],
-        "İZMİR/TORBALI": [38.1517, 27.3622], "IZMIR/TORBALI": [38.1517, 27.3622],
-        "İZMİR/ALİAĞA": [38.7989, 26.9722], "IZMIR/ALIAGA": [38.7989, 26.9722],
-        "İZMİR/KONAK": [38.4189, 27.1287], "IZMIR/KONAK": [38.4189, 27.1287],
-        "İZMİR/KARŞIYAKA": [38.4556, 27.1139], "IZMIR/KARSIYAKA": [38.4556, 27.1139],
-        "İZMİR/BORNOVA": [38.4697, 27.2189], "IZMIR/BORNOVA": [38.4697, 27.2189],
-        "İZMİR/BUCA": [38.3881, 27.1764], "IZMIR/BUCA": [38.3881, 27.1764],
-        "İZMİR/ÇİĞLİ": [38.4986, 27.0603], "IZMIR/CIGLI": [38.4986, 27.0603],
-        "İZMİR/GAZİEMİR": [38.3242, 27.1328], "IZMIR/GAZIEMIR": [38.3242, 27.1328],
-        "İZMİR/KARABAĞLAR": [38.3739, 27.1256], "IZMIR/KARABAGLAR": [38.3739, 27.1256],
-        "İZMİR/BAYRAKLI": [38.4631, 27.1681], "IZMIR/BAYRAKLI": [38.4631, 27.1681],
-        "İZMİR/MENEMEN": [38.6083, 27.0683], "IZMIR/MENEMEN": [38.6083, 27.0683],
-        "İZMİR/BERGAMA": [39.1239, 27.1803], "IZMIR/BERGAMA": [39.1239, 27.1803],
-        "İZMİR/URLA": [38.3228, 26.7639], "IZMIR/URLA": [38.3228, 26.7639],
-        "İZMİR/ÇEŞME": [38.3236, 26.3042], "IZMIR/CESME": [38.3236, 26.3042],
-        "İZMİR/SEFERİHİSAR": [38.1978, 26.8389], "IZMIR/SEFERIHISAR": [38.1978, 26.8389],
-        "İZMİR/KEMALPAŞA": [38.4264, 27.4172], "IZMIR/KEMALPASA": [38.4264, 27.4172],
-        "İZMİR/MENDERES": [38.2536, 27.1350], "IZMIR/MENDERES": [38.2536, 27.1350],
-        "İZMİR/SELÇUK": [37.9489, 27.3683], "IZMIR/SELCUK": [37.9489, 27.3683],
-        "İZMİR/DİKİLİ": [39.0719, 26.8897], "IZMIR/DIKILI": [39.0719, 26.8897],
-        "İZMİR/FOÇA": [38.6708, 26.7583], "IZMIR/FOCA": [38.6708, 26.7583],
-        "İZMİR/KINIK": [39.0889, 27.3828], "IZMIR/KINIK": [39.0889, 27.3828],
-        "İZMİR/KİRAZ": [38.2306, 28.2042], "IZMIR/KIRAZ": [38.2306, 28.2042],
-        "İZMİR/BEYDAĞ": [38.1528, 28.2111], "IZMIR/BEYDAG": [38.1528, 28.2111],
-        "İZMİR/KARABURUN": [38.6369, 26.5117], "IZMIR/KARABURUN": [38.6369, 26.5117],
-        "ANKARA/ÇANKAYA": [39.9042, 32.8597], "ANKARA/CANKAYA": [39.9042, 32.8597],
-        "ANKARA/KEÇİÖREN": [39.9833, 32.8667], "ANKARA/KECIOREN": [39.9833, 32.8667],
-        "ANKARA/YENİMAHALLE": [39.9667, 32.8000], "ANKARA/YENIMAHALLE": [39.9667, 32.8000],
-        "ANKARA/MAMAK": [39.9333, 32.9167],
-        "ANKARA/ETİMESGUT": [39.9489, 32.6739], "ANKARA/ETIMESGUT": [39.9489, 32.6739],
-        "ANKARA/SİNCAN": [39.9611, 32.5767], "ANKARA/SINCAN": [39.9611, 32.5767],
-        "ANKARA/ALTINDAĞ": [39.9417, 32.8542], "ANKARA/ALTINDAG": [39.9417, 32.8542],
-        "ANKARA/PURSAKLAR": [40.0389, 32.9011],
-        "ANKARA/GÖLBAŞI": [39.7917, 32.8083], "ANKARA/GOLBASI": [39.7917, 32.8083],
-        "ANKARA/POLATLI": [39.5786, 32.1464]
-      };
-
       const selP = document.getElementById("selAdnksProv");
       const selD = document.getElementById("selAdnksDist");
       const provVal = selP ? selP.value : "";
@@ -4029,18 +3986,11 @@
       const isAreaChanged = (mapKey !== leafletLastKey);
       const doFitBounds = (shouldFitBounds !== undefined) ? shouldFitBounds : isAreaChanged;
 
-      const provN = {};
-      Object.keys(provCoords).forEach(k => { provN[trNorm(k)] = provCoords[k]; });
-      const distN = {};
-      Object.keys(distCoords).forEach(k => { distN[trNorm(k)] = distCoords[k]; });
-      const geoCache = getGeoCache();
-      let baseLoc = geoCache[mapKey] || distN[mapKey] || provN[trNorm(provVal)] || [39.0, 35.0];
       leafletLastSubzones = subzones;
       leafletLastKey = mapKey;
-      if (!geoCache[mapKey]) geocodeDistrictCenter(provVal, distVal, mapKey);
       const bounds = [];
 
-      // Rank subzones by Hansen additional_pop_Gi descending FIRST so renderDistrictGeoJSON uses _rank
+      // Rank active subzones by Hansen additional_pop_Gi descending
       const rankedIndices = (subzones || []).map((sz, i) => ({ i, gi: sz.additional_pop_Gi || 0, pop: sz.current_pop || sz.base_pop || 0 }))
         .sort((a, b) => (b.gi - a.gi) || (b.pop - a.pop));
       rankedIndices.forEach((item, rankIdx) => {
@@ -4048,82 +3998,12 @@
       });
 
       const totalGiAll = (subzones || []).reduce((acc, s) => acc + (s.additional_pop_Gi || 0), 0);
-      const maxGi = Math.max(...(subzones || []).map(s => s.additional_pop_Gi || 0), 1);
       const totalZones = (subzones || []).length;
 
-      const cachedGeo = provSlug ? districtGeoCache[provSlug] : null;
-      let selectedDistFeature = null;
-      if (cachedGeo && cachedGeo.features) {
-        selectedDistFeature = renderDistrictGeoJSON(cachedGeo, subzones, isProvinceLevel, distVal, bounds, totalGiAll, maxGi, totalZones);
-      }
-
-      // In Province Mode (IL_GENELI), if official district polygons are rendered, do NOT draw overlapping circle bubbles on top!
-      const drawCircles = !isProvinceLevel || !cachedGeo;
-
-      if (drawCircles) {
-        const nZones = Math.max(1, (subzones || []).length);
-        (subzones || []).forEach((sz, idx) => {
-          const rank = (sz._rank !== undefined) ? sz._rank : idx;
-          if (isProvinceLevel) {
-            const distKm = 10.0 + (idx * 4.2);
-            const angle = idx * 2.3999632;
-            sz._lat = baseLoc[0] + (distKm / 111.0) * Math.sin(angle);
-            sz._lon = baseLoc[1] + (distKm / (111.0 * Math.cos(baseLoc[0] * Math.PI / 180))) * Math.cos(angle);
-          } else {
-            // Evenly spaced Vogel/Fibonacci sunflower distribution across the district
-            const normR = (rank === 0) ? 0.0 : Math.sqrt((rank + 0.4) / nZones);
-            const distKm = normR * 8.2;
-            const angle = rank * 2.3999632;
-            let candLat = baseLoc[0] + (distKm / 111.0) * Math.sin(angle);
-            let candLon = baseLoc[1] + (distKm / (111.0 * Math.cos(baseLoc[0] * Math.PI / 180))) * Math.cos(angle);
-
-            if (selectedDistFeature && selectedDistFeature.geometry) {
-              for (let shrink = 0.88; shrink >= 0.08; shrink -= 0.12) {
-                if (isPointInGeoJSON(candLat, candLon, selectedDistFeature.geometry)) break;
-                candLat = baseLoc[0] + (candLat - baseLoc[0]) * shrink;
-                candLon = baseLoc[1] + (candLon - baseLoc[1]) * shrink;
-              }
-            }
-            sz._lat = candLat;
-            sz._lon = candLon;
-          }
-
-          if (!selectedDistFeature) {
-            bounds.push([sz._lat, sz._lon]);
-          }
-
-          const markerColor = getZoneColor(sz, maxGi, totalZones);
-          // Clean, compact circle radius (6px to 12px) so mahalleler never overlap into a messy blob
-          const baseRadius = (rank === 0) ? 12 : (rank <= 2 ? 10 : (rank <= 6 ? 8.5 : 7));
-
-          const circle = L.circleMarker([sz._lat, sz._lon], {
-            radius: baseRadius,
-            fillColor: markerColor,
-            color: '#FFFFFF',
-            weight: 2,
-            opacity: 1,
-            fillOpacity: 0.90
-          });
-
-          circle.on('mouseover', function() {
-            this.setStyle({ weight: 3, fillOpacity: 1.0, radius: baseRadius + 2.5 });
-          });
-          circle.on('mouseout', function() {
-            this.setStyle({ weight: 2, fillOpacity: 0.90, radius: baseRadius });
-          });
-
-          const cardHtml = buildZoneCardHtml(sz, totalGiAll, markerColor);
-
-          circle.bindTooltip(cardHtml, {
-            sticky: true,
-            direction: 'auto',
-            offset: [0, -6],
-            className: 'h3-hover-tooltip',
-            opacity: 1
-          });
-          circle.bindPopup(cardHtml);
-          leafletMarkersGroup.addLayer(circle);
-        });
+      // Render All-Turkey 973 Districts if loaded, or current province immediately while turkiye_all.json loads
+      const activeGeo = turkiyeAllGeoCache || (provSlug ? districtGeoCache[provSlug] : null);
+      if (activeGeo && activeGeo.features) {
+        renderDistrictGeoJSON(activeGeo, subzones, isProvinceLevel, provVal, distVal, bounds, totalGiAll, totalZones);
       }
 
       if (bounds.length > 0) {
@@ -4132,49 +4012,128 @@
 
       if (doFitBounds && bounds.length > 0) {
         try {
-          leafletMapInstance.fitBounds(bounds, { padding: [24, 24], maxZoom: isProvinceLevel ? 10 : 12 });
+          leafletMapInstance.fitBounds(bounds, { padding: [24, 24], maxZoom: isProvinceLevel ? 10 : 11 });
         } catch (e) {}
       }
 
-      if (provSlug && !cachedGeo) {
+      // 1. Fast-load selected province GeoJSON if neither turkiyeAllGeoCache nor districtGeoCache[provSlug] is ready yet
+      if (provSlug && !turkiyeAllGeoCache && !districtGeoCache[provSlug]) {
         fetch(`data/districts/${provSlug}.json`)
+          .then(res => res.ok ? res.json() : null)
+          .then(geoData => {
+            if (geoData) {
+              districtGeoCache[provSlug] = geoData;
+              if (!turkiyeAllGeoCache && leafletMapInstance) {
+                initLeafletMap(leafletLastSubzones, true);
+              }
+            }
+          })
+          .catch(() => {});
+      }
+
+      // 2. Load All-Turkey 973 districts GeoJSON once so the entire country is colored like Istanbul!
+      if (!turkiyeAllGeoCache && !turkiyeAllFetching) {
+        turkiyeAllFetching = true;
+        fetch('data/districts/turkiye_all.json')
           .then(res => {
-            if (!res.ok) throw new Error("District boundaries not found");
+            if (!res.ok) throw new Error("turkiye_all.json not found");
             return res.json();
           })
-          .then(geoData => {
-            districtGeoCache[provSlug] = geoData;
-            const curP = document.getElementById("selAdnksProv")?.value;
-            if (trNorm(curP).toLowerCase() === provSlug && leafletMapInstance) {
-              initLeafletMap(subzones, true);
+          .then(allGeo => {
+            turkiyeAllGeoCache = allGeo;
+            turkiyeAllFetching = false;
+            if (leafletMapInstance && leafletLastSubzones) {
+              initLeafletMap(leafletLastSubzones, true);
             }
           })
           .catch(err => {
-            console.info("District GeoJSON fetch notice:", err.message);
+            turkiyeAllFetching = false;
+            console.info("All-Turkey GeoJSON notice:", err.message);
           });
       }
     }
 
-    function renderDistrictGeoJSON(geoData, subzones, isProvinceLevel, distVal, bounds, totalGiAll, maxGi, totalZones) {
+    function resolveDistrictSz(feat, normActiveProv, isProvinceLevel, subzones, totalZones, totalGiAll, natStats) {
+      const featName = feat.properties.name || '';
+      const featProv = feat.properties.province || '';
+      const normFeat = trNorm(featName);
+      const normFeatProv = trNorm(featProv);
+
+      // If this feature is in the active province AND the user is in IL_GENELI mode, use the live Hansen subzones
+      if (isProvinceLevel && normFeatProv === normActiveProv && subzones && subzones.length > 0) {
+        let matchedSz = subzones.find(sz => {
+          const cleanSz = trNorm((sz.name || '').replace(/\s*İlçesi$/i, '').trim());
+          return cleanSz === normFeat || cleanSz.includes(normFeat) || normFeat.includes(cleanSz);
+        });
+        if (matchedSz) {
+          matchedSz.provinceName = featProv || normActiveProv;
+          matchedSz.districtKey = featName.toLocaleUpperCase('tr-TR');
+          matchedSz._totalZones = totalZones;
+          matchedSz._provTotalGi = totalGiAll;
+          return matchedSz;
+        }
+      }
+
+      // Otherwise look up in the national 81-province / 973-district stats table
+      const provEntry = natStats[normFeatProv] || natStats[normActiveProv];
+      if (provEntry && provEntry.districts) {
+        let sz = provEntry.districts[normFeat];
+        if (!sz) {
+          const foundKey = Object.keys(provEntry.districts).find(k => k.includes(normFeat) || normFeat.includes(k));
+          if (foundKey) sz = provEntry.districts[foundKey];
+        }
+        if (sz) return sz;
+      }
+
+      return {
+        name: `${featName} İlçesi`,
+        provinceName: featProv,
+        districtKey: featName.toLocaleUpperCase('tr-TR'),
+        additional_pop_Gi: 250,
+        current_pop: 15000,
+        target_pop_Pi: 15250,
+        saturation_pct: 78.0,
+        _rank: 8,
+        _totalZones: 12,
+        _provTotalGi: 5000
+      };
+    }
+
+    function renderDistrictGeoJSON(geoData, subzones, isProvinceLevel, provVal, distVal, bounds, totalGiAll, totalZones) {
       if (!leafletDistrictBoundariesGroup || !geoData || !geoData.features) return null;
       leafletDistrictBoundariesGroup.clearLayers();
 
+      const normActiveProv = trNorm(provVal || '');
       const normDist = trNorm(distVal || '');
+      const natStats = ensureNationalDistrictStats();
+
       let selectedFeature = null;
-      let selectedBounds = null;
+      let selectedDistBounds = null;
+      let activeProvBounds = null;
 
       const boundaryLayer = L.geoJSON(geoData, {
-        interactive: isProvinceLevel,
         style: function(feat) {
           const featName = feat.properties.name || '';
+          const featProv = feat.properties.province || '';
           const normFeat = trNorm(featName);
+          const normFeatProv = trNorm(featProv);
 
-          if (isProvinceLevel) {
-            let matchedSz = (subzones || []).find(sz => {
-              const cleanSz = trNorm((sz.name || '').replace(/\s*İlçesi$/i, '').trim());
-              return cleanSz === normFeat || cleanSz.includes(normFeat) || normFeat.includes(cleanSz);
-            });
-            const polyColor = matchedSz ? getZoneColor(matchedSz, maxGi, totalZones) : '#3B82F6';
+          const isSameProv = (!normActiveProv || !normFeatProv || normFeatProv === normActiveProv || (normActiveProv === "AFYON" && normFeatProv === "AFYONKARAHISAR"));
+          const isSelectedDist = !isProvinceLevel && isSameProv && normDist && (normFeat === normDist || normFeat.includes(normDist) || normDist.includes(normFeat));
+
+          const sz = resolveDistrictSz(feat, normActiveProv, isProvinceLevel, subzones, totalZones, totalGiAll, natStats);
+          const polyColor = getZoneColor(sz, sz._totalZones);
+
+          if (isSelectedDist) {
+            selectedFeature = feat;
+            return {
+              color: '#0F172A',
+              weight: 3.0,
+              opacity: 1.0,
+              fillColor: polyColor,
+              fillOpacity: 0.85
+            };
+          } else if (isSameProv) {
             return {
               color: '#FFFFFF',
               weight: 1.5,
@@ -4183,74 +4142,89 @@
               fillOpacity: 0.68
             };
           } else {
-            const isSelected = normDist && (normFeat === normDist || normFeat.includes(normDist) || normDist.includes(normFeat));
-            if (isSelected) selectedFeature = feat;
+            // Neighboring & all other provinces of Turkey: colored Choropleth polygons!
             return {
-              interactive: false,
-              color: isSelected ? '#1D4ED8' : '#CBD5E1',
-              weight: isSelected ? 2.6 : 1.0,
-              opacity: isSelected ? 0.95 : 0.40,
-              dashArray: isSelected ? null : '4, 4',
-              fillColor: isSelected ? '#3B82F6' : '#000000',
-              fillOpacity: isSelected ? 0.05 : 0.0
+              color: '#FFFFFF',
+              weight: 1.0,
+              opacity: 0.85,
+              fillColor: polyColor,
+              fillOpacity: 0.54
             };
           }
         },
         onEachFeature: function(feat, layer) {
           const featName = feat.properties.name || '';
+          const featProv = feat.properties.province || '';
           const normFeat = trNorm(featName);
+          const normFeatProv = trNorm(featProv);
+          const isSameProv = (!normActiveProv || !normFeatProv || normFeatProv === normActiveProv || (normActiveProv === "AFYON" && normFeatProv === "AFYONKARAHISAR"));
+          const isSelectedDist = !isProvinceLevel && isSameProv && normDist && (normFeat === normDist || normFeat.includes(normDist) || normDist.includes(normFeat));
 
-          if (isProvinceLevel) {
-            let matchedSz = (subzones || []).find(sz => {
-              const cleanSz = trNorm((sz.name || '').replace(/\s*İlçesi$/i, '').trim());
-              return cleanSz === normFeat || cleanSz.includes(normFeat) || normFeat.includes(cleanSz);
-            });
-            if (!matchedSz) {
-              matchedSz = { name: `${featName} İlçesi`, additional_pop_Gi: 0, current_pop: 10000, target_pop_Pi: 10000, saturation_pct: 75.0, _rank: 999 };
-            }
-            const polyColor = getZoneColor(matchedSz, maxGi, totalZones);
-            const cardHtml = buildZoneCardHtml(matchedSz, totalGiAll, polyColor);
-
-            layer.on('mouseover', function() {
-              this.setStyle({ weight: 2.8, color: '#0F172A', fillOpacity: 0.88 });
-              if (this.bringToFront) this.bringToFront();
-            });
-            layer.on('mouseout', function() {
-              this.setStyle({ weight: 1.5, color: '#FFFFFF', fillOpacity: 0.68 });
-            });
-
-            layer.bindTooltip(cardHtml, {
-              sticky: true,
-              direction: 'auto',
-              offset: [0, -6],
-              className: 'h3-hover-tooltip',
-              opacity: 1
-            });
-            layer.bindPopup(cardHtml);
-          } else {
-            const isSelected = normDist && (normFeat === normDist || normFeat.includes(normDist) || normDist.includes(normFeat));
-            if (isSelected) {
-              selectedFeature = feat;
-              try { selectedBounds = layer.getBounds(); } catch (e) {}
-            }
+          if (isSameProv) {
+            try {
+              const lb = layer.getBounds();
+              if (lb && lb.isValid()) {
+                if (!activeProvBounds) activeProvBounds = L.latLngBounds(lb.getSouthWest(), lb.getNorthEast());
+                else activeProvBounds.extend(lb);
+              }
+            } catch (e) {}
           }
+          if (isSelectedDist) {
+            selectedFeature = feat;
+            try { selectedDistBounds = layer.getBounds(); } catch (e) {}
+          }
+
+          const baseWeight = isSelectedDist ? 3.0 : (isSameProv ? 1.5 : 1.0);
+          const baseStroke = isSelectedDist ? '#0F172A' : '#FFFFFF';
+          const baseFillOp = isSelectedDist ? 0.85 : (isSameProv ? 0.68 : 0.54);
+
+          layer.on('mouseover', function(e) {
+            this.setStyle({ weight: 2.8, color: '#0F172A', fillOpacity: 0.88 });
+            if (this.bringToFront) this.bringToFront();
+
+            // Lazy tooltip binding for 60 FPS performance across 973 districts
+            if (!this.getTooltip()) {
+              const sz = resolveDistrictSz(feat, normActiveProv, isProvinceLevel, subzones, totalZones, totalGiAll, natStats);
+              const polyColor = getZoneColor(sz, sz._totalZones);
+              const cardHtml = buildZoneCardHtml(sz, sz._provTotalGi, polyColor, false);
+              this.bindTooltip(cardHtml, {
+                sticky: true,
+                direction: 'auto',
+                offset: [0, -6],
+                className: 'h3-hover-tooltip',
+                opacity: 1
+              }).openTooltip(e.latlng);
+            }
+          });
+
+          layer.on('mouseout', function() {
+            this.setStyle({ weight: baseWeight, color: baseStroke, fillOpacity: baseFillOp });
+          });
+
+          layer.on('click', function(e) {
+            if (!this.getPopup()) {
+              const sz = resolveDistrictSz(feat, normActiveProv, isProvinceLevel, subzones, totalZones, totalGiAll, natStats);
+              const polyColor = getZoneColor(sz, sz._totalZones);
+              const popupHtml = buildZoneCardHtml(sz, sz._provTotalGi, polyColor, true);
+              this.bindPopup(popupHtml).openPopup(e.latlng);
+            }
+          });
         }
       });
 
       boundaryLayer.addTo(leafletDistrictBoundariesGroup);
 
       try {
-        if (!isProvinceLevel && selectedBounds && selectedBounds.isValid()) {
+        if (!isProvinceLevel && selectedDistBounds && selectedDistBounds.isValid()) {
+          // Pad selected district bounds slightly so neighboring colored districts are visible in context
+          const padded = selectedDistBounds.pad(0.75);
           bounds.length = 0;
-          bounds.push([selectedBounds.getSouthWest().lat, selectedBounds.getSouthWest().lng]);
-          bounds.push([selectedBounds.getNorthEast().lat, selectedBounds.getNorthEast().lng]);
-        } else if (isProvinceLevel) {
-          const b = boundaryLayer.getBounds();
-          if (b.isValid()) {
-            bounds.length = 0;
-            bounds.push([b.getSouthWest().lat, b.getSouthWest().lng]);
-            bounds.push([b.getNorthEast().lat, b.getNorthEast().lng]);
-          }
+          bounds.push([padded.getSouthWest().lat, padded.getSouthWest().lng]);
+          bounds.push([padded.getNorthEast().lat, padded.getNorthEast().lng]);
+        } else if (activeProvBounds && activeProvBounds.isValid()) {
+          bounds.length = 0;
+          bounds.push([activeProvBounds.getSouthWest().lat, activeProvBounds.getSouthWest().lng]);
+          bounds.push([activeProvBounds.getNorthEast().lat, activeProvBounds.getNorthEast().lng]);
         }
       } catch(e) {}
 

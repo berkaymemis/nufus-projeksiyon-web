@@ -169,9 +169,17 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
             return
         try:
             data = file_path.read_bytes()
+            accept_enc = self.headers.get("Accept-Encoding", "") if hasattr(self, "headers") and self.headers else ""
+            is_text_like = any(t in content_type for t in ("json", "html", "javascript", "svg", "css", "text"))
+            use_gzip = ("gzip" in accept_enc) and is_text_like and len(data) > 4096
+            if use_gzip:
+                import gzip
+                data = gzip.compress(data, compresslevel=6)
             self.send_response(200)
             self.send_cors_headers()
             self.send_header("Content-Type", content_type)
+            if use_gzip:
+                self.send_header("Content-Encoding", "gzip")
             self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
             self.send_header("Pragma", "no-cache")
             self.send_header("Expires", "0")
