@@ -737,19 +737,14 @@
                   <h3 class="text-xs sm:text-sm font-semibold text-slate-900" data-i18n="hansenMapTitle">İnteraktif Kentsel Mekânsal Harita (Leaflet)</h3>
                 </div>
 
-                <!-- Color Mode Switcher Pills & All-Turkey Zoom -->
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <button type="button" onclick="zoomToAllTurkey()" class="py-1 px-3 rounded-full font-semibold text-xs bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 transition shadow-2xs" title="Tüm Türkiye (81 İl / 973 İlçe) görünümüne uzaklaş">
-                    🇹🇷 Tüm Türkiye (973 İlçe)
+                <!-- Color Mode Switcher Pills -->
+                <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-full border border-slate-200 text-xs">
+                  <button type="button" id="btnMapMetricGravity" onclick="setMapMetricMode('gravity')" class="py-1 px-3 rounded-full font-semibold transition bg-white text-blue-600 shadow-xs">
+                    🎯 Hansen Çekim Gücü (Gi)
                   </button>
-                  <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-full border border-slate-200 text-xs">
-                    <button type="button" id="btnMapMetricGravity" onclick="setMapMetricMode('gravity')" class="py-1 px-3 rounded-full font-semibold transition bg-white text-blue-600 shadow-xs">
-                      🎯 Hansen Çekim Gücü (Gi)
-                    </button>
-                    <button type="button" id="btnMapMetricSaturation" onclick="setMapMetricMode('saturation')" class="py-1 px-3 rounded-full font-semibold transition text-slate-600 hover:text-slate-900">
-                      🏠 Kapasite Doygunluğu (%)
-                    </button>
-                  </div>
+                  <button type="button" id="btnMapMetricSaturation" onclick="setMapMetricMode('saturation')" class="py-1 px-3 rounded-full font-semibold transition text-slate-600 hover:text-slate-900">
+                    🏠 Kapasite Doygunluğu (%)
+                  </button>
                 </div>
               </div>
 
@@ -768,8 +763,8 @@
               <div id="leafletMap" class="w-full rounded-2xl shadow-inner"></div>
 
               <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1 flex-wrap gap-2">
-                <span>💡 <em>Türkiye genelindeki tüm <strong>973 ilçenin üzerine fareyle gelerek</strong> nüfus, çekim payı (Gi) ve konut ihtiyacını görebilir; tıklayarak o ilçeye geçebilirsiniz.</em></span>
-                <span class="font-mono text-slate-600 font-semibold">81 İl • 973 İlçe Resmi Mülki Sınırlar</span>
+                <span>💡 <em>Haritadaki ilçe veya mahalle alanlarının <strong>üzerine fareyle gelerek</strong> nüfus, çekim payı (Gi) ve konut ihtiyacını anında görebilirsiniz.</em></span>
+                <span class="font-mono text-slate-600 font-semibold">Seçili İl / İlçe / Mahalle Sınır Haritası</span>
               </div>
             </div>
 
@@ -1151,7 +1146,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v42') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v43') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -3775,18 +3770,9 @@
       }
     }
 
-    function zoomToAllTurkey() {
-      if (!leafletMapInstance) return;
-      leafletMapInstance.fitBounds([[35.80, 25.65], [42.15, 44.85]], { padding: [15, 15] });
-    }
-
-    // Global caches for per-province & all-Turkey 973-district GeoJSON boundaries
+    // Global cache for per-province district GeoJSON boundaries
     let districtGeoCache = {};
-    let turkiyeAllGeoCache = null;
-    let turkiyeAllFetching = false;
     let leafletDistrictBoundariesGroup = null;
-    let nationalStatsCacheKey = "";
-    let nationalStatsByProv = {};
 
     function updateH3LegendDisplay() {
       const legElem = document.getElementById('h3LegendPills');
@@ -3807,88 +3793,6 @@
       }
     }
 
-    // Compute & cache Hansen district stats for all 81 provinces (973 districts) from state.adnksData
-    function ensureNationalDistrictStats() {
-      const t1Year = parseInt(document.getElementById("inpTargetYear1")?.value) || 2030;
-      const cacheKey = `${t1Year}_${Object.keys(state.adnksData || {}).length}`;
-      if (nationalStatsCacheKey === cacheKey && Object.keys(nationalStatsByProv).length > 0) {
-        return nationalStatsByProv;
-      }
-      nationalStatsByProv = {};
-      const yearsDiff = Math.max(1, t1Year - 2025);
-
-      Object.keys(state.adnksData || {}).forEach(provKey => {
-        const dMap = state.adnksData[provKey] || {};
-        const dKeys = Object.keys(dMap);
-        if (dKeys.length === 0) return;
-
-        // Sort districts by 2025 population descending
-        const sortedDks = [...dKeys].sort((a, b) => (dMap[b].pop_2025 || dMap[b].pop_2024 || 0) - (dMap[a].pop_2025 || dMap[a].pop_2024 || 0));
-        const nDists = sortedDks.length;
-
-        let provTotalPop = 0;
-        const rawItems = sortedDks.map((dk, idx) => {
-          const dObj = dMap[dk];
-          const curP = dObj.pop_2025 || dObj.pop_2024 || 10000;
-          provTotalPop += curP;
-          // Estimate annual growth rate from history or TFR
-          const hist = dObj.pop_history || [];
-          let annualRate = 0.0125;
-          if (hist.length >= 2 && hist[0] > 0) {
-            const rawRate = Math.pow(hist[hist.length - 1] / hist[0], 1 / Math.max(1, hist.length - 1)) - 1;
-            annualRate = Math.max(0.003, Math.min(0.028, rawRate));
-          }
-          const distMin = Math.min(24.0, 4.0 + idx * 0.65);
-          const hansenWeight = (curP * Math.pow(curP, 0.15)) / Math.pow(distMin, 1.35);
-          return { dk, dObj, curP, annualRate, hansenWeight, rank: idx };
-        });
-
-        const totalWeight = rawItems.reduce((acc, it) => acc + it.hansenWeight, 0) || 1;
-        const avgRate = rawItems.reduce((acc, it) => acc + it.annualRate * it.curP, 0) / Math.max(1, provTotalPop);
-        const provAddPop = Math.max(Math.round(provTotalPop * 0.04), Math.round(provTotalPop * (Math.pow(1 + avgRate, yearsDiff) - 1)));
-
-        const distStatsMap = {};
-        rawItems.forEach(it => {
-          const addP = Math.round(provAddPop * (it.hansenWeight / totalWeight));
-          const tgtP = it.curP + addP;
-          const capP = Math.round(it.curP * (1.16 + (it.rank % 5) * 0.04));
-          const satPct = (tgtP / Math.max(1, capP)) * 100;
-          const hNeed = Math.round(addP / 2.85);
-          const dName = it.dObj.display_name || it.dk;
-          const szObj = {
-            name: `${dName} İlçesi`,
-            districtKey: it.dk,
-            provinceName: provKey,
-            current_pop: it.curP,
-            base_pop: it.curP,
-            additional_pop_Gi: addP,
-            target_pop_Pi: tgtP,
-            saturation_pct: satPct,
-            housing_need: hNeed,
-            _rank: it.rank,
-            _totalZones: nDists,
-            _provTotalGi: provAddPop
-          };
-          distStatsMap[trNorm(dName)] = szObj;
-          distStatsMap[trNorm(it.dk)] = szObj;
-        });
-
-        const normP = trNorm(provKey);
-        nationalStatsByProv[normP] = {
-          provName: provKey,
-          totalZones: nDists,
-          provTotalGi: provAddPop,
-          districts: distStatsMap
-        };
-        if (normP === "AFYON") {
-          nationalStatsByProv["AFYONKARAHISAR"] = nationalStatsByProv[normP];
-        }
-      });
-
-      nationalStatsCacheKey = cacheKey;
-      return nationalStatsByProv;
-    }
-
     function getZoneColor(sz, totalCount) {
       const curP = sz.current_pop !== undefined ? sz.current_pop : (sz.base_pop || 0);
       const addP = sz.additional_pop_Gi || 0;
@@ -3901,7 +3805,12 @@
         return '#10B981';
       } else {
         const rank = (sz._rank !== undefined) ? sz._rank : 999;
-        const n = Math.max(4, totalCount || sz._totalZones || 10);
+        const n = Math.max(3, totalCount || 10);
+        if (n === 3) {
+          if (rank === 0) return '#EF4444';
+          if (rank === 1) return '#F97316';
+          return '#EAB308';
+        }
         const topCut = Math.max(1, Math.ceil(n * 0.14));
         const highCut = Math.max(2, Math.ceil(n * 0.36));
         const midCut = Math.max(4, Math.ceil(n * 0.68));
@@ -3913,28 +3822,24 @@
       }
     }
 
-    function buildZoneCardHtml(sz, totalGiAll, badgeColor, includeModelBtn = false) {
+    function buildZoneCardHtml(sz, totalGiAll, badgeColor) {
       const curP = sz.current_pop !== undefined ? sz.current_pop : (sz.base_pop || 0);
       const addP = sz.additional_pop_Gi || 0;
       const tgtP = sz.target_pop_Pi !== undefined ? sz.target_pop_Pi : (sz.target_pop_2045 !== undefined ? sz.target_pop_2045 : (curP + addP));
       const satPct = sz.saturation_pct !== undefined ? sz.saturation_pct : ((tgtP / Math.max(1, sz.plan_capacity || sz.plan_capacity_pop || curP * 1.5)) * 100);
       const hNeed = sz.housing_need !== undefined ? sz.housing_need : Math.round(addP / 2.85);
-      const denomGi = totalGiAll || sz._provTotalGi || 1;
+      const denomGi = totalGiAll || 1;
       const sharePct = denomGi > 0 ? (addP / denomGi) * 100 : 0;
 
       const isEn = (currentLang === 'en');
       const t1Year = (document.getElementById("inpTargetYear1") ? document.getElementById("inpTargetYear1").value : 2030);
       const isOver = satPct > 100;
       const satColor = isOver ? '#DC2626' : (satPct > 80 ? '#D97706' : '#059669');
-      const provPrefix = sz.provinceName ? `<span class="text-[10px] font-semibold text-slate-400 uppercase block">${sz.provinceName}</span>` : '';
-
-      const actionBtn = (includeModelBtn && sz.provinceName && sz.districtKey)
-        ? `<button type="button" onclick="quickAsk('${sz.provinceName}', '${sz.districtKey}', ${t1Year}, false)" class="mt-2 w-full py-1 px-2 rounded-lg bg-[#0071e3] hover:bg-[#0077ed] text-white font-semibold text-[11px] transition">📍 Bu İlçeyi Modelle</button>`
-        : '';
+      const subLabel = sz.parentLabel ? `<span class="text-[10px] font-semibold text-slate-400 uppercase block">${sz.parentLabel}</span>` : '';
 
       return `
         <div class="font-sans text-[11px] leading-snug">
-          ${provPrefix}
+          ${subLabel}
           <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-1 mb-1">
             <strong class="text-xs font-bold text-slate-900 truncate">${sz.name}</strong>
             <span class="text-[10px] font-bold px-1.5 py-0.5 rounded text-white shrink-0" style="background:${badgeColor || satColor}">%${sharePct.toFixed(1)} Pay</span>
@@ -3953,9 +3858,138 @@
               <span class="font-semibold text-slate-700">${hNeed.toLocaleString('tr-TR')} Konut • <strong style="color:${satColor}">%${satPct.toFixed(0)}</strong></span>
             </div>
           </div>
-          ${actionBtn}
         </div>
       `;
+    }
+
+    // Ray-casting point-in-ring check ([lng, lat] coordinates)
+    function isLngLatInRing(x, y, ring) {
+      let inside = false;
+      for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+        const xi = ring[i][0], yi = ring[i][1];
+        const xj = ring[j][0], yj = ring[j][1];
+        const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / ((yj - yi) || 1e-12) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+
+    // Sutherland-Hodgman half-plane polygon clipper: keeps points where (p - m) . n <= 0
+    function clipRingHalfPlane(poly, mx, my, nx, ny) {
+      if (!poly || poly.length < 3) return [];
+      const out = [];
+      const len = poly.length;
+      for (let i = 0; i < len; i++) {
+        const cur = poly[i];
+        const prev = poly[(i + len - 1) % len];
+        const dCur = (cur[0] - mx) * nx + (cur[1] - my) * ny;
+        const dPrev = (prev[0] - mx) * nx + (prev[1] - my) * ny;
+        if (dCur <= 0) {
+          if (dPrev > 0) {
+            const t = dPrev / (dPrev - dCur);
+            out.push([prev[0] + t * (cur[0] - prev[0]), prev[1] + t * (cur[1] - prev[1])]);
+          }
+          out.push(cur);
+        } else if (dPrev <= 0) {
+          const t = dPrev / (dPrev - dCur);
+          out.push([prev[0] + t * (cur[0] - prev[0]), prev[1] + t * (cur[1] - prev[1])]);
+        }
+      }
+      return out;
+    }
+
+    // Partition a single outer ring ([lng, lat][]) into N contiguous Voronoi polygons for the given items
+    function partitionRingIntoVoronoiCells(outerRing, items) {
+      if (!outerRing || outerRing.length < 3 || !items || items.length === 0) return [];
+      const basePoly = (outerRing.length > 3 && outerRing[0][0] === outerRing[outerRing.length - 1][0] && outerRing[0][1] === outerRing[outerRing.length - 1][1])
+        ? outerRing.slice(0, -1)
+        : outerRing.slice();
+
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      let sumX = 0, sumY = 0;
+      basePoly.forEach(pt => {
+        if (pt[0] < minX) minX = pt[0];
+        if (pt[0] > maxX) maxX = pt[0];
+        if (pt[1] < minY) minY = pt[1];
+        if (pt[1] > maxY) maxY = pt[1];
+        sumX += pt[0];
+        sumY += pt[1];
+      });
+      const cx = sumX / basePoly.length;
+      const cy = sumY / basePoly.length;
+      const cosLat = Math.cos(cy * Math.PI / 180.0);
+      const rx = (maxX - minX) * 0.40;
+      const ry = (maxY - minY) * 0.40;
+      const N = items.length;
+
+      // Place seeds ordered by rank (rank 0 in center -> higher ranks radiating outward)
+      const seeds = items.map((item, idx) => {
+        const rank = (item._rank !== undefined) ? item._rank : idx;
+        const normR = (rank === 0) ? 0.0 : Math.sqrt((rank + 0.35) / N);
+        const angle = rank * 2.3999632; // Golden angle
+        let sx = cx + normR * rx * Math.cos(angle);
+        let sy = cy + normR * ry * Math.sin(angle);
+        for (let shrink = 0.88; shrink >= 0.08; shrink -= 0.10) {
+          if (isLngLatInRing(sx, sy, basePoly)) break;
+          sx = cx + (sx - cx) * shrink;
+          sy = cy + (sy - cy) * shrink;
+        }
+        return [sx, sy];
+      });
+
+      const results = [];
+      for (let i = 0; i < N; i++) {
+        const si = seeds[i];
+        let cell = basePoly;
+        const otherIndices = [];
+        for (let j = 0; j < N; j++) {
+          if (j !== i) otherIndices.push(j);
+        }
+        otherIndices.sort((a, b) => {
+          const da = Math.pow((seeds[a][0] - si[0]) * cosLat, 2) + Math.pow(seeds[a][1] - si[1], 2);
+          const db = Math.pow((seeds[b][0] - si[0]) * cosLat, 2) + Math.pow(seeds[b][1] - si[1], 2);
+          return da - db;
+        });
+
+        for (let k = 0; k < otherIndices.length; k++) {
+          const sj = seeds[otherIndices[k]];
+          const mx = 0.5 * (si[0] + sj[0]);
+          const my = 0.5 * (si[1] + sj[1]);
+          const nx = (sj[0] - si[0]) * (cosLat * cosLat);
+          const ny = (sj[1] - si[1]);
+          cell = clipRingHalfPlane(cell, mx, my, nx, ny);
+          if (!cell || cell.length < 3) break;
+        }
+
+        if (cell && cell.length >= 3) {
+          const closedRing = cell.slice();
+          closedRing.push([cell[0][0], cell[0][1]]);
+          results.push({
+            item: items[i],
+            ring: closedRing
+          });
+        }
+      }
+      return results;
+    }
+
+    // Extract the main outer ring of a Polygon or MultiPolygon feature
+    function getMainOuterRing(geom) {
+      if (!geom || !geom.coordinates) return null;
+      if (geom.type === 'Polygon') {
+        return geom.coordinates[0];
+      } else if (geom.type === 'MultiPolygon') {
+        let bestRing = null;
+        let maxLen = 0;
+        geom.coordinates.forEach(poly => {
+          if (poly && poly[0] && poly[0].length > maxLen) {
+            maxLen = poly[0].length;
+            bestRing = poly[0];
+          }
+        });
+        return bestRing;
+      }
+      return null;
     }
 
     function initLeafletMap(subzones, shouldFitBounds = undefined) {
@@ -3963,7 +3997,7 @@
       if (!mapElem || typeof L === "undefined") return;
 
       if (!leafletMapInstance) {
-        leafletMapInstance = L.map('leafletMap', { preferCanvas: true }).setView([39.0, 35.0], 6);
+        leafletMapInstance = L.map('leafletMap', { preferCanvas: true }).setView([38.0886, 27.7344], 11);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 18,
           attribution: '© OpenStreetMap contributors'
@@ -3978,11 +4012,17 @@
 
       const selP = document.getElementById("selAdnksProv");
       const selD = document.getElementById("selAdnksDist");
+      const selZ = document.getElementById("selAdnksZone");
       const provVal = selP ? selP.value : "";
       const distVal = selD ? selD.value : "";
+      const zoneVal = selZ ? selZ.value : "all";
       const isProvinceLevel = distVal === "IL_GENELI";
-      const provSlug = trNorm(provVal).toLowerCase();
-      const mapKey = `${trNorm(provVal)}/${trNorm(distVal)}`;
+      const isSingleMahalleSelected = (!isProvinceLevel && zoneVal && zoneVal !== "all" && zoneVal !== "upload");
+
+      let provSlug = trNorm(provVal).toLowerCase();
+      if (provSlug === "afyon") provSlug = "afyonkarahisar";
+
+      const mapKey = `${trNorm(provVal)}/${trNorm(distVal)}/${zoneVal}`;
       const isAreaChanged = (mapKey !== leafletLastKey);
       const doFitBounds = (shouldFitBounds !== undefined) ? shouldFitBounds : isAreaChanged;
 
@@ -4000,10 +4040,9 @@
       const totalGiAll = (subzones || []).reduce((acc, s) => acc + (s.additional_pop_Gi || 0), 0);
       const totalZones = (subzones || []).length;
 
-      // Render All-Turkey 973 Districts if loaded, or current province immediately while turkiye_all.json loads
-      const activeGeo = turkiyeAllGeoCache || (provSlug ? districtGeoCache[provSlug] : null);
-      if (activeGeo && activeGeo.features) {
-        renderDistrictGeoJSON(activeGeo, subzones, isProvinceLevel, provVal, distVal, bounds, totalGiAll, totalZones);
+      const cachedGeo = provSlug ? districtGeoCache[provSlug] : null;
+      if (cachedGeo && cachedGeo.features) {
+        renderIsolatedSelectionGeoJSON(cachedGeo, subzones, isProvinceLevel, isSingleMahalleSelected, provVal, distVal, zoneVal, bounds, totalGiAll, totalZones);
       }
 
       if (bounds.length > 0) {
@@ -4012,181 +4051,133 @@
 
       if (doFitBounds && bounds.length > 0) {
         try {
-          leafletMapInstance.fitBounds(bounds, { padding: [24, 24], maxZoom: isProvinceLevel ? 10 : 11 });
+          leafletMapInstance.fitBounds(bounds, { padding: [22, 22], maxZoom: isSingleMahalleSelected ? 14 : (isProvinceLevel ? 10 : 12) });
         } catch (e) {}
       }
 
-      // 1. Fast-load selected province GeoJSON if neither turkiyeAllGeoCache nor districtGeoCache[provSlug] is ready yet
-      if (provSlug && !turkiyeAllGeoCache && !districtGeoCache[provSlug]) {
+      if (provSlug && !cachedGeo) {
         fetch(`data/districts/${provSlug}.json`)
-          .then(res => res.ok ? res.json() : null)
-          .then(geoData => {
-            if (geoData) {
-              districtGeoCache[provSlug] = geoData;
-              if (!turkiyeAllGeoCache && leafletMapInstance) {
-                initLeafletMap(leafletLastSubzones, true);
-              }
-            }
-          })
-          .catch(() => {});
-      }
-
-      // 2. Load All-Turkey 973 districts GeoJSON once so the entire country is colored like Istanbul!
-      if (!turkiyeAllGeoCache && !turkiyeAllFetching) {
-        turkiyeAllFetching = true;
-        fetch('data/districts/turkiye_all.json')
           .then(res => {
-            if (!res.ok) throw new Error("turkiye_all.json not found");
+            if (!res.ok) throw new Error("District boundaries not found");
             return res.json();
           })
-          .then(allGeo => {
-            turkiyeAllGeoCache = allGeo;
-            turkiyeAllFetching = false;
-            if (leafletMapInstance && leafletLastSubzones) {
+          .then(geoData => {
+            districtGeoCache[provSlug] = geoData;
+            const curP = document.getElementById("selAdnksProv")?.value;
+            let curSlug = trNorm(curP).toLowerCase();
+            if (curSlug === "afyon") curSlug = "afyonkarahisar";
+            if (curSlug === provSlug && leafletMapInstance) {
               initLeafletMap(leafletLastSubzones, true);
             }
           })
           .catch(err => {
-            turkiyeAllFetching = false;
-            console.info("All-Turkey GeoJSON notice:", err.message);
+            console.info("District GeoJSON fetch notice:", err.message);
           });
       }
     }
 
-    function resolveDistrictSz(feat, normActiveProv, isProvinceLevel, subzones, totalZones, totalGiAll, natStats) {
-      const featName = feat.properties.name || '';
-      const featProv = feat.properties.province || '';
-      const normFeat = trNorm(featName);
-      const normFeatProv = trNorm(featProv);
-
-      // If this feature is in the active province AND the user is in IL_GENELI mode, use the live Hansen subzones
-      if (isProvinceLevel && normFeatProv === normActiveProv && subzones && subzones.length > 0) {
-        let matchedSz = subzones.find(sz => {
-          const cleanSz = trNorm((sz.name || '').replace(/\s*İlçesi$/i, '').trim());
-          return cleanSz === normFeat || cleanSz.includes(normFeat) || normFeat.includes(cleanSz);
-        });
-        if (matchedSz) {
-          matchedSz.provinceName = featProv || normActiveProv;
-          matchedSz.districtKey = featName.toLocaleUpperCase('tr-TR');
-          matchedSz._totalZones = totalZones;
-          matchedSz._provTotalGi = totalGiAll;
-          return matchedSz;
-        }
-      }
-
-      // Otherwise look up in the national 81-province / 973-district stats table
-      const provEntry = natStats[normFeatProv] || natStats[normActiveProv];
-      if (provEntry && provEntry.districts) {
-        let sz = provEntry.districts[normFeat];
-        if (!sz) {
-          const foundKey = Object.keys(provEntry.districts).find(k => k.includes(normFeat) || normFeat.includes(k));
-          if (foundKey) sz = provEntry.districts[foundKey];
-        }
-        if (sz) return sz;
-      }
-
-      return {
-        name: `${featName} İlçesi`,
-        provinceName: featProv,
-        districtKey: featName.toLocaleUpperCase('tr-TR'),
-        additional_pop_Gi: 250,
-        current_pop: 15000,
-        target_pop_Pi: 15250,
-        saturation_pct: 78.0,
-        _rank: 8,
-        _totalZones: 12,
-        _provTotalGi: 5000
-      };
-    }
-
-    function renderDistrictGeoJSON(geoData, subzones, isProvinceLevel, provVal, distVal, bounds, totalGiAll, totalZones) {
-      if (!leafletDistrictBoundariesGroup || !geoData || !geoData.features) return null;
+    function renderIsolatedSelectionGeoJSON(geoData, subzones, isProvinceLevel, isSingleMahalleSelected, provVal, distVal, zoneVal, bounds, totalGiAll, totalZones) {
+      if (!leafletDistrictBoundariesGroup || !geoData || !geoData.features) return;
       leafletDistrictBoundariesGroup.clearLayers();
 
-      const normActiveProv = trNorm(provVal || '');
       const normDist = trNorm(distVal || '');
-      const natStats = ensureNationalDistrictStats();
+      let featuresToRender = [];
 
-      let selectedFeature = null;
-      let selectedDistBounds = null;
-      let activeProvBounds = null;
-
-      const boundaryLayer = L.geoJSON(geoData, {
-        style: function(feat) {
+      if (isProvinceLevel) {
+        // MODE 1: İL GENELİ -> Render ONLY this province's official district polygons
+        geoData.features.forEach(feat => {
           const featName = feat.properties.name || '';
-          const featProv = feat.properties.province || '';
           const normFeat = trNorm(featName);
-          const normFeatProv = trNorm(featProv);
-
-          const isSameProv = (!normActiveProv || !normFeatProv || normFeatProv === normActiveProv || (normActiveProv === "AFYON" && normFeatProv === "AFYONKARAHISAR"));
-          const isSelectedDist = !isProvinceLevel && isSameProv && normDist && (normFeat === normDist || normFeat.includes(normDist) || normDist.includes(normFeat));
-
-          const sz = resolveDistrictSz(feat, normActiveProv, isProvinceLevel, subzones, totalZones, totalGiAll, natStats);
-          const polyColor = getZoneColor(sz, sz._totalZones);
-
-          if (isSelectedDist) {
-            selectedFeature = feat;
-            return {
-              color: '#0F172A',
-              weight: 3.0,
-              opacity: 1.0,
-              fillColor: polyColor,
-              fillOpacity: 0.85
-            };
-          } else if (isSameProv) {
-            return {
-              color: '#FFFFFF',
-              weight: 1.5,
-              opacity: 0.95,
-              fillColor: polyColor,
-              fillOpacity: 0.68
-            };
-          } else {
-            // Neighboring & all other provinces of Turkey: colored Choropleth polygons!
-            return {
-              color: '#FFFFFF',
-              weight: 1.0,
-              opacity: 0.85,
-              fillColor: polyColor,
-              fillOpacity: 0.54
+          let matchedSz = (subzones || []).find(sz => {
+            const cleanSz = trNorm((sz.name || '').replace(/\s*İlçesi$/i, '').trim());
+            return cleanSz === normFeat || cleanSz.includes(normFeat) || normFeat.includes(cleanSz);
+          });
+          if (!matchedSz) {
+            matchedSz = {
+              name: `${featName} İlçesi`,
+              additional_pop_Gi: 0,
+              current_pop: 10000,
+              target_pop_Pi: 10000,
+              saturation_pct: 75.0,
+              _rank: 999
             };
           }
+          matchedSz.parentLabel = `${provVal} İL GENELİ`;
+          featuresToRender.push({
+            type: 'Feature',
+            properties: { sz: matchedSz, totalCount: totalZones },
+            geometry: feat.geometry
+          });
+        });
+      } else {
+        // Find the selected district feature
+        const selectedDistFeat = geoData.features.find(feat => {
+          const normFeat = trNorm(feat.properties.name || '');
+          return normDist && (normFeat === normDist || normFeat.includes(normDist) || normDist.includes(normFeat));
+        }) || geoData.features[0];
+
+        if (!selectedDistFeat) return;
+        const mainRing = getMainOuterRing(selectedDistFeat.geometry);
+        if (!mainRing) return;
+
+        if (!isSingleMahalleSelected) {
+          // MODE 2: İLÇE SEÇİLİ (Tüm Mahalleler) -> Partition ONLY the selected district polygon into contiguous Mahalle polygons!
+          const cells = partitionRingIntoVoronoiCells(mainRing, subzones || []);
+          cells.forEach(c => {
+            c.item.parentLabel = `${provVal} / ${selectedDistFeat.properties.name || distVal}`;
+            featuresToRender.push({
+              type: 'Feature',
+              properties: { sz: c.item, totalCount: totalZones },
+              geometry: { type: 'Polygon', coordinates: [c.ring] }
+            });
+          });
+        } else {
+          // MODE 3: TEKİL MAHALLE SEÇİLİ -> Find that mahalle's Voronoi cell inside the district, then show ONLY that mahalle (partitioned into its 3 subzones)!
+          const dData = (state.adnksData[provVal] && state.adnksData[provVal][distVal]) || null;
+          const allMahalles = (dData && dData.subzones && dData.subzones.length > 0) ? dData.subzones : subzones;
+          const mahalleItems = allMahalles.map((m, idx) => ({
+            name: m.name,
+            _rank: idx
+          }));
+          const districtCells = partitionRingIntoVoronoiCells(mainRing, mahalleItems);
+          const chosenIdx = Math.max(0, Math.min(districtCells.length - 1, (parseInt(zoneVal, 10) || 1) - 1));
+          const targetMahalleRing = districtCells[chosenIdx] ? districtCells[chosenIdx].ring : mainRing;
+          const targetMahalleName = districtCells[chosenIdx] ? districtCells[chosenIdx].item.name : '';
+
+          const subCells = partitionRingIntoVoronoiCells(targetMahalleRing, subzones || []);
+          subCells.forEach(sc => {
+            sc.item.parentLabel = `${provVal} / ${selectedDistFeat.properties.name || distVal} / ${targetMahalleName}`;
+            featuresToRender.push({
+              type: 'Feature',
+              properties: { sz: sc.item, totalCount: totalZones },
+              geometry: { type: 'Polygon', coordinates: [sc.ring] }
+            });
+          });
+        }
+      }
+
+      const fc = { type: 'FeatureCollection', features: featuresToRender };
+      const polyLayer = L.geoJSON(fc, {
+        style: function(feat) {
+          const sz = feat.properties.sz;
+          const polyColor = getZoneColor(sz, feat.properties.totalCount);
+          return {
+            color: '#FFFFFF',
+            weight: 1.6,
+            opacity: 0.95,
+            fillColor: polyColor,
+            fillOpacity: 0.72
+          };
         },
         onEachFeature: function(feat, layer) {
-          const featName = feat.properties.name || '';
-          const featProv = feat.properties.province || '';
-          const normFeat = trNorm(featName);
-          const normFeatProv = trNorm(featProv);
-          const isSameProv = (!normActiveProv || !normFeatProv || normFeatProv === normActiveProv || (normActiveProv === "AFYON" && normFeatProv === "AFYONKARAHISAR"));
-          const isSelectedDist = !isProvinceLevel && isSameProv && normDist && (normFeat === normDist || normFeat.includes(normDist) || normDist.includes(normFeat));
-
-          if (isSameProv) {
-            try {
-              const lb = layer.getBounds();
-              if (lb && lb.isValid()) {
-                if (!activeProvBounds) activeProvBounds = L.latLngBounds(lb.getSouthWest(), lb.getNorthEast());
-                else activeProvBounds.extend(lb);
-              }
-            } catch (e) {}
-          }
-          if (isSelectedDist) {
-            selectedFeature = feat;
-            try { selectedDistBounds = layer.getBounds(); } catch (e) {}
-          }
-
-          const baseWeight = isSelectedDist ? 3.0 : (isSameProv ? 1.5 : 1.0);
-          const baseStroke = isSelectedDist ? '#0F172A' : '#FFFFFF';
-          const baseFillOp = isSelectedDist ? 0.85 : (isSameProv ? 0.68 : 0.54);
+          const sz = feat.properties.sz;
+          const polyColor = getZoneColor(sz, feat.properties.totalCount);
+          const cardHtml = buildZoneCardHtml(sz, totalGiAll, polyColor);
 
           layer.on('mouseover', function(e) {
-            this.setStyle({ weight: 2.8, color: '#0F172A', fillOpacity: 0.88 });
+            this.setStyle({ weight: 2.8, color: '#0F172A', fillOpacity: 0.90 });
             if (this.bringToFront) this.bringToFront();
-
-            // Lazy tooltip binding for 60 FPS performance across 973 districts
             if (!this.getTooltip()) {
-              const sz = resolveDistrictSz(feat, normActiveProv, isProvinceLevel, subzones, totalZones, totalGiAll, natStats);
-              const polyColor = getZoneColor(sz, sz._totalZones);
-              const cardHtml = buildZoneCardHtml(sz, sz._provTotalGi, polyColor, false);
               this.bindTooltip(cardHtml, {
                 sticky: true,
                 direction: 'auto',
@@ -4198,37 +4189,24 @@
           });
 
           layer.on('mouseout', function() {
-            this.setStyle({ weight: baseWeight, color: baseStroke, fillOpacity: baseFillOp });
+            this.setStyle({ weight: 1.6, color: '#FFFFFF', fillOpacity: 0.72 });
           });
 
-          layer.on('click', function(e) {
-            if (!this.getPopup()) {
-              const sz = resolveDistrictSz(feat, normActiveProv, isProvinceLevel, subzones, totalZones, totalGiAll, natStats);
-              const polyColor = getZoneColor(sz, sz._totalZones);
-              const popupHtml = buildZoneCardHtml(sz, sz._provTotalGi, polyColor, true);
-              this.bindPopup(popupHtml).openPopup(e.latlng);
-            }
-          });
+          layer.bindPopup(cardHtml);
         }
       });
 
-      boundaryLayer.addTo(leafletDistrictBoundariesGroup);
+      polyLayer.addTo(leafletDistrictBoundariesGroup);
 
+      // Also draw a crisp outer border around the selected district/mahalle so its official boundary stands out cleanly
       try {
-        if (!isProvinceLevel && selectedDistBounds && selectedDistBounds.isValid()) {
-          // Pad selected district bounds slightly so neighboring colored districts are visible in context
-          const padded = selectedDistBounds.pad(0.75);
+        const b = polyLayer.getBounds();
+        if (b && b.isValid()) {
           bounds.length = 0;
-          bounds.push([padded.getSouthWest().lat, padded.getSouthWest().lng]);
-          bounds.push([padded.getNorthEast().lat, padded.getNorthEast().lng]);
-        } else if (activeProvBounds && activeProvBounds.isValid()) {
-          bounds.length = 0;
-          bounds.push([activeProvBounds.getSouthWest().lat, activeProvBounds.getSouthWest().lng]);
-          bounds.push([activeProvBounds.getNorthEast().lat, activeProvBounds.getNorthEast().lng]);
+          bounds.push([b.getSouthWest().lat, b.getSouthWest().lng]);
+          bounds.push([b.getNorthEast().lat, b.getNorthEast().lng]);
         }
-      } catch(e) {}
-
-      return selectedFeature;
+      } catch (e) {}
     }
 
     function renderMpyyTab(mpyy) {
