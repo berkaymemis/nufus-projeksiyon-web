@@ -73,7 +73,7 @@
   <header class="bg-white/85 backdrop-blur-xl border-b border-black/[0.08] sticky top-0 z-50 transition">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4">
       <div class="flex items-center space-x-6">
-        <a href="/" class="flex items-center gap-2.5 group">
+        <a href="/" onclick="resetToNeutralHome(event)" title="Anasayfaya Dön ve Seçimleri Sıfırla" class="flex items-center gap-2.5 group">
           <div class="w-8 h-8 rounded-xl bg-[#1d1d1f] group-hover:bg-[#0071e3] text-white flex items-center justify-center font-bold text-xs tracking-wider shadow-xs transition">
             NK
           </div>
@@ -237,13 +237,13 @@
           </div>
 
           <h2 id="heroCityTitle" class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-            İzmir / Tire
+            İl ve İlçe Seçiniz
           </h2>
 
           <div class="flex items-center gap-3 my-2 flex-wrap">
             <span id="kpiHighPop" class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900">-</span>
-            <span id="heroNetChange" class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-              Canlı Projeksiyon
+            <span id="heroNetChange" class="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+              Yukarıdan İl / İlçe Seçin
             </span>
           </div>
 
@@ -336,16 +336,16 @@
               <div>
                 <h4 class="text-xs font-semibold text-purple-900 uppercase tracking-wider mb-2.5">⭐ En Yüksek Uyuma Sahip Model</h4>
                 <div class="bg-[#f5f5f7] p-4 rounded-2xl border border-slate-200/80">
-                  <p class="text-xs font-bold text-[#1d1d1f]" id="bestModelTitle">Doğrusal Trend</p>
-                  <p class="text-2xl sm:text-3xl font-semibold tracking-tight text-purple-700 mt-1" id="bestModelR2Display">R² = 0.9986</p>
-                  <p class="text-xs text-purple-900 font-mono mt-1" id="bestModelFormula">y = a + b*x</p>
+                  <p class="text-xs font-bold text-[#1d1d1f]" id="bestModelTitle">-</p>
+                  <p class="text-2xl sm:text-3xl font-semibold tracking-tight text-purple-700 mt-1" id="bestModelR2Display">R² = -</p>
+                  <p class="text-xs text-purple-900 font-mono mt-1" id="bestModelFormula">-</p>
                 </div>
                 <p class="text-xs text-[#6e6e73] leading-relaxed mt-4">
                   <strong class="text-[#1d1d1f]">Planlama Notu:</strong> Tek modele bağlı kalınmaz; Düşük (doğal artış), Orta (geçmiş trend) ve Yüksek (plan kabulü) senaryoları birlikte değerlendirilir.
                 </p>
               </div>
               <div class="pt-4 border-t border-slate-100 text-xs text-[#6e6e73]">
-                Hedef <strong class="text-[#1d1d1f]" data-yr="t1">2035</strong> Projeksiyon Aralığı: <span id="curveMinMaxRange" class="font-semibold text-[#1d1d1f]">85.000 - 110.000</span>
+                Hedef <strong class="text-[#1d1d1f]" data-yr="t1">2030</strong> Projeksiyon Aralığı: <span id="curveMinMaxRange" class="font-semibold text-[#1d1d1f]">-</span>
               </div>
             </div>
           </div>
@@ -1146,7 +1146,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v43') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v44') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -1200,15 +1200,88 @@
         if (res.ok) {
           const data = await res.json();
           state.templates = data.templates || {};
-          const defaultKey = document.getElementById("selectTemplate").value;
-          if (defaultKey && defaultKey !== "tuik_adnks_selected" && state.templates[defaultKey]) {
-            loadTemplate(defaultKey);
-          } else {
-            loadTemplate("standart_kentsel_plan");
-          }
         }
       } catch (err) {
         console.error("Templates fetch failed:", err);
+      }
+    }
+
+    function resetToNeutralHome(event) {
+      if (event && typeof event.preventDefault === "function") {
+        event.preventDefault();
+      }
+      try {
+        window.history.replaceState({}, "", window.location.pathname);
+      } catch (e) {}
+
+      const selP = document.getElementById("selAdnksProv");
+      const selD = document.getElementById("selAdnksDist");
+      const selZ = document.getElementById("selAdnksZone");
+      if (selP) selP.value = "";
+      if (selD) selD.innerHTML = '<option value="">-- Önce İl Seçiniz --</option>';
+      if (selZ) selZ.innerHTML = '<option value="">-- Önce İl ve İlçe Seçiniz --</option>';
+
+      state.calculationResult = null;
+      state.currentData = null;
+      state.subzones = [];
+      state.macroHistory = [];
+      state.customCohort = null;
+
+      const isEn = currentLang === "en";
+      const heroCityEl = document.getElementById("heroCityTitle");
+      if (heroCityEl) heroCityEl.innerText = isEn ? "Select a Province or District" : "İl ve İlçe Seçiniz";
+
+      const heroDiffEl = document.getElementById("heroNetChange");
+      if (heroDiffEl) {
+        heroDiffEl.innerText = isEn ? "Select Province / District Above" : "Yukarıdan İl / İlçe Seçin";
+        heroDiffEl.className = "text-xs font-semibold text-slate-600 bg-slate-100 px-3.5 py-1.5 rounded-full border border-slate-200";
+      }
+
+      const dashIds = [
+        "kpiBasePop", "kpiLowPop", "kpiMidPop", "kpiHighPop",
+        "kpiBestModel", "kpiMpyyHa", "bestModelTitle", "bestModelFormula",
+        "curveMinMaxRange", "shareConstTarget1Val", "shareConstTarget2Val",
+        "shareVarTarget1Val", "shareVarTarget2Val", "scenLowPop", "scenMidPop", "scenHighPop"
+      ];
+      dashIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = "-";
+      });
+      if (document.getElementById("kpiBestModelR2")) document.getElementById("kpiBestModelR2").innerText = "R² = -";
+      if (document.getElementById("bestModelR2Display")) document.getElementById("bestModelR2Display").innerText = "R² = -";
+      if (document.getElementById("lblCubukcuActiveDist")) {
+        document.getElementById("lblCubukcuActiveDist").innerText = isEn ? "📍 No District Selected" : "📍 İl / İlçe Seçilmedi";
+      }
+
+      const meta = document.getElementById("adnksMetaText");
+      if (meta) meta.innerText = isEn ? "📍 Select a province and district above to start projection" : "📍 Seçim Yapın: Yukarıdan bir il ve ilçe seçerek projeksiyonu başlatın";
+      const stats = document.getElementById("adnksGenderStats");
+      if (stats) stats.classList.add("hidden");
+      const bTfr = document.getElementById("badgeCohortTfr");
+      if (bTfr) bTfr.classList.add("hidden");
+
+      const emptyRow = (cols) => `<tr><td colspan="${cols}" class="py-6 px-4 text-center text-xs text-slate-400 font-medium">${isEn ? "Please select a Province and District above to view projection results." : "Analiz ve tablo sonuçlarını görmek için lütfen yukarıdan bir İl ve İlçe seçiniz."}</td></tr>`;
+      if (document.getElementById("curveModelsTableBody")) document.getElementById("curveModelsTableBody").innerHTML = emptyRow(7);
+      if (document.getElementById("cohortTableBody")) document.getElementById("cohortTableBody").innerHTML = emptyRow(8);
+      if (document.getElementById("cohortSummaryTableBody")) document.getElementById("cohortSummaryTableBody").innerHTML = emptyRow(3);
+      if (document.getElementById("cohortComparisonTableBody")) document.getElementById("cohortComparisonTableBody").innerHTML = emptyRow(5);
+      if (document.getElementById("hansenTableBody")) document.getElementById("hansenTableBody").innerHTML = emptyRow(7);
+      if (document.getElementById("mpyyTableBody")) document.getElementById("mpyyTableBody").innerHTML = emptyRow(4);
+      if (document.getElementById("settlementsTableBody")) document.getElementById("settlementsTableBody").innerHTML = emptyRow(8);
+
+      if (curveChartInstance) { try { curveChartInstance.destroy(); } catch (e) {} curveChartInstance = null; }
+      if (pyramidChartInstance) { try { pyramidChartInstance.destroy(); } catch (e) {} pyramidChartInstance = null; }
+      if (hansenChartInstance) { try { hansenChartInstance.destroy(); } catch (e) {} hansenChartInstance = null; }
+
+      leafletBounds = [];
+      leafletLastKey = "";
+      leafletLastSubzones = [];
+      if (leafletDistrictBoundariesGroup) leafletDistrictBoundariesGroup.clearLayers();
+      if (leafletMarkersGroup) leafletMarkersGroup.clearLayers();
+      if (leafletMapInstance) {
+        try {
+          leafletMapInstance.setView([39.0, 35.2], 6);
+        } catch (e) {}
       }
     }
 
@@ -1236,7 +1309,7 @@
           const selZ = document.getElementById("selAdnksZone");
           if (selZ) selZ.innerHTML = '<option value="">-- Önce İl ve İlçe Seçiniz --</option>';
 
-          // URL Parametreleri Kontrolü (SEO / Paylaşılabilir Link) veya Nötr Başlangıç
+          // Sadece URL'de açıkça ?il=... parametresi varsa otomatik yükle; yoksa nötr anasayfada kal
           try {
             const urlParams = new URLSearchParams(window.location.search);
             const qIl = urlParams.get("il");
@@ -1247,13 +1320,10 @@
                 quickAsk(qIl, qIlce || "IL_GENELI", parseInt(qYil) || 2030, false);
               }, 150);
             } else {
-              // Varsayılan olarak İzmir / Tire canlı vitrin ile başlasın (boş/çizgili sayfa yerine yaşayan kentsel model)
-              setTimeout(() => {
-                quickAsk("İZMİR", "TİRE", 2030, false);
-              }, 100);
+              resetToNeutralHome();
             }
           } catch (e) {
-            setTimeout(() => quickAsk("İZMİR", "TİRE", 2030, false), 100);
+            resetToNeutralHome();
           }
         }
       } catch (err) {
@@ -1421,14 +1491,7 @@
       const prov = selP.value;
 
       if (!prov) {
-        selD.innerHTML = '<option value="">-- Önce İl Seçiniz --</option>';
-        if (selZ) selZ.innerHTML = '<option value="">-- Önce İl ve İlçe Seçiniz --</option>';
-        const meta = document.getElementById("adnksMetaText");
-        if (meta) meta.innerText = "📍 Seçim Yapın: Yukarıdan bir il ve ilçe seçip 'Hesapla' butonuna basın";
-        const stats = document.getElementById("adnksGenderStats");
-        if (stats) stats.classList.add("hidden");
-        const bTfr = document.getElementById("badgeCohortTfr");
-        if (bTfr) bTfr.classList.add("hidden");
+        resetToNeutralHome();
         return;
       }
 
@@ -2269,11 +2332,17 @@
       }
       if (tabId === 'hansen') {
         if (hansenChartInstance) setTimeout(() => { try { hansenChartInstance.resize(); } catch(e){} }, 50);
-        if (leafletMapInstance) setTimeout(() => {
+        setTimeout(() => {
           try {
-            leafletMapInstance.invalidateSize();
-            if (leafletBounds && leafletBounds.length > 0) {
-              leafletMapInstance.fitBounds(leafletBounds, { padding: [24, 24], maxZoom: 12 });
+            if (!leafletMapInstance) {
+              initLeafletMap(leafletLastSubzones || []);
+            } else {
+              leafletMapInstance.invalidateSize();
+              if (leafletBounds && leafletBounds.length > 0) {
+                leafletMapInstance.fitBounds(leafletBounds, { padding: [24, 24], maxZoom: 12 });
+              } else {
+                leafletMapInstance.setView([39.0, 35.2], 6);
+              }
             }
           } catch(e){}
         }, 100);
@@ -2738,6 +2807,9 @@
     async function recalculate() {
       const topP = document.getElementById("selAdnksProv");
       const topD = document.getElementById("selAdnksDist");
+      if ((!topP || !topP.value) && !state.currentData) {
+        return;
+      }
       if (topP && topP.value && topD && topD.value && !state.currentMultiplierData) {
         syncCubukcuMultiplier(topP.value, topD.value, topD.value);
       }
@@ -3997,7 +4069,7 @@
       if (!mapElem || typeof L === "undefined") return;
 
       if (!leafletMapInstance) {
-        leafletMapInstance = L.map('leafletMap', { preferCanvas: true }).setView([38.0886, 27.7344], 11);
+        leafletMapInstance = L.map('leafletMap', { preferCanvas: true }).setView([39.0, 35.2], 6);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 18,
           attribution: '© OpenStreetMap contributors'
@@ -4015,6 +4087,14 @@
       const selZ = document.getElementById("selAdnksZone");
       const provVal = selP ? selP.value : "";
       const distVal = selD ? selD.value : "";
+
+      if (!provVal) {
+        leafletBounds = [];
+        leafletLastKey = "";
+        leafletLastSubzones = [];
+        try { leafletMapInstance.setView([39.0, 35.2], 6); } catch (e) {}
+        return;
+      }
       const zoneVal = selZ ? selZ.value : "all";
       const isProvinceLevel = distVal === "IL_GENELI";
       const isSingleMahalleSelected = (!isProvinceLevel && zoneVal && zoneVal !== "all" && zoneVal !== "upload");
