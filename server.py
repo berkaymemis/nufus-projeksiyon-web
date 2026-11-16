@@ -47,6 +47,232 @@ from core.tuik_adnks import (
 )
 
 
+
+def _tr_slug(s: str) -> str:
+    m = {
+        "ç": "c", "Ç": "c", "ğ": "g", "Ğ": "g",
+        "ı": "i", "I": "i", "İ": "i", "i": "i",
+        "ö": "o", "Ö": "o", "ş": "s", "Ş": "s",
+        "ü": "u", "Ü": "u"
+    }
+    out = "".join(m.get(ch, ch) for ch in (s or "")).lower().strip()
+    return "".join(ch if ch.isalnum() else "_" for ch in out).strip("_")
+
+
+def _point_in_ring(lon: float, lat: float, ring: list) -> bool:
+    inside = False
+    n = len(ring)
+    j = n - 1
+    for i in range(n):
+        xi, yi = ring[i][0], ring[i][1]
+        xj, yj = ring[j][0], ring[j][1]
+        if ((yi > lat) != (yj > lat)) and (lon < (xj - xi) * (lat - yi) / ((yj - yi) or 1e-12) + xi):
+            inside = not inside
+        j = i
+    return inside
+
+
+def _point_in_feature(lon: float, lat: float, feat: dict) -> bool:
+    geom = (feat or {}).get("geometry") or {}
+    gtype = geom.get("type")
+    coords = geom.get("coordinates") or []
+    if gtype == "Polygon":
+        return bool(coords and _point_in_ring(lon, lat, coords[0]))
+    elif gtype == "MultiPolygon":
+        for poly in coords:
+            if poly and _point_in_ring(lon, lat, poly[0]):
+                return True
+    return False
+
+
+def _feature_bbox(feat: dict):
+    geom = (feat or {}).get("geometry") or {}
+    gtype = geom.get("type")
+    coords = geom.get("coordinates") or []
+    rings = []
+    if gtype == "Polygon" and coords:
+        rings = [coords[0]]
+    elif gtype == "MultiPolygon":
+        rings = [p[0] for p in coords if p]
+    min_lon, min_lat, max_lon, max_lat = 180.0, 90.0, -180.0, -90.0
+    for r in rings:
+        for pt in r:
+            lon, lat = float(pt[0]), float(pt[1])
+            if lon < min_lon: min_lon = lon
+            if lon > max_lon: max_lon = lon
+            if lat < min_lat: min_lat = lat
+            if lat > max_lat: max_lat = lat
+    return (min_lat, min_lon, max_lat, max_lon)
+
+
+def _stitch_ways_to_rings(way_segments: list) -> list:
+    pool = [list(seg) for seg in way_segments if len(seg) >= 2]
+    rings = []
+    eps = 1e-5
+
+    def _same(a, b):
+        return abs(a[0] - b[0]) < eps and abs(a[1] - b[1]) < eps
+
+    while pool:
+        cur = pool.pop(0)
+        changed = True
+        while changed and not _same(cur[0], cur[-1]):
+            changed = False
+            for idx, seg in enumerate(pool):
+                if _same(cur[-1], seg[0]):
+                    cur.extend(seg[1:])
+                    pool.pop(idx)
+                    changed = True
+                    break
+                elif _same(cur[-1], seg[-1]):
+                    cur.extend(list(reversed(seg))[1:])
+                    pool.pop(idx)
+                    changed = True
+                    break
+                elif _same(cur[0], seg[-1]):
+                    cur = seg[:-1] + cur
+                    pool.pop(idx)
+                    changed = True
+                    break
+                elif _same(cur[0], seg[0]):
+                    cur = list(reversed(seg))[:-1] + cur
+                    pool.pop(idx)
+                    changed = True
+                    break
+        if len(cur) >= 4:
+            if not _same(cur[0], cur[-1]):
+                cur.append(cur[0])
+            rings.append([[round(pt[0], 5), round(pt[1], 5)] for pt in cur])
+    return rings
+
+
+def _ring_centroid(ring: list):
+    if not ring:
+        return (0.0, 0.0)
+    sx = sum(pt[0] for pt in ring)
+    sy = sum(pt[1] for pt in ring)
+    return (sx / len(ring), sy / len(ring))
+
+
+def fetch_and_cache_osm_mahalles(prov: str, dist: str) -> dict:
+    import urllib.request
+    import urllib.parse
+
+    p_slug = _tr_slug(prov)
+    if p_slug == "afyon":
+        p_slug = "afyonkarahisar"
+    d_slug = _tr_slug(dist)
+    mah_dir = CURRENT_DIR / "data" / "mahalleler"
+    mah_dir.mkdir(parents=True, exist_ok=True)
+    cache_file = mah_dir / f"{p_slug}_{d_slug}.json"
+    if cache_file.is_file():
+        try:
+            return json.loads(cache_file.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+
+    dist_file = CURRENT_DIR / "data" / "districts" / f"{p_slug}.json"
+    if not dist_file.is_file():
+        return {"type": "FeatureCollection", "features": []}
+
+    prov_geo = json.loads(dist_file.read_text(encoding="utf-8"))
+    target_feat = None
+    norm_d = _normalize_str(dist)
+    for feat in prov_geo.get("features", []):
+        fname = _normalize_str(feat.get("properties", {}).get("name", ""))
+        if fname == norm_d or norm_d in fname or fname in norm_d:
+            target_feat = feat
+            break
+
+    if not target_feat:
+        return {"type": "FeatureCollection", "features": []}
+
+    min_lat, min_lon, max_lat, max_lon = _feature_bbox(target_feat)
+    query = f"""[out:json][timeout:25];relation["boundary"="administrative"]["admin_level"="8"]({min_lat:.5f},{min_lon:.5f},{max_lat:.5f},{max_lon:.5f});out geom;"""
+
+    mirrors = [
+        "https://overpass-api.de/api/interpreter",
+        "https://overpass.kumi.systems/api/interpreter",
+        "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+    ]
+    osm_json = None
+    for url in mirrors:
+        try:
+            data_bytes = urllib.parse.urlencode({"data": query}).encode("utf-8")
+            req = urllib.request.Request(url, data=data_bytes, headers={"User-Agent": "NufusKac-UrbanDemographics/1.0"})
+            with urllib.request.urlopen(req, timeout=20) as resp:
+                osm_json = json.loads(resp.read().decode("utf-8"))
+                if osm_json and osm_json.get("elements"):
+                    break
+        except Exception:
+            continue
+
+    if not osm_json or not osm_json.get("elements"):
+        return {"type": "FeatureCollection", "features": []}
+
+    features = []
+    seen_names = set()
+    for el in osm_json.get("elements", []):
+        tags = el.get("tags") or {}
+        name = (tags.get("name:tr") or tags.get("name") or "").strip()
+        if not name:
+            continue
+        rings = []
+        if el.get("type") == "way" and el.get("geometry"):
+            seg = [[float(pt["lon"]), float(pt["lat"])] for pt in el["geometry"] if "lon" in pt and "lat" in pt]
+            rings = _stitch_ways_to_rings([seg])
+        elif el.get("type") == "relation" and el.get("members"):
+            outer_segs = []
+            for m in el["members"]:
+                if m.get("type") == "way" and m.get("geometry") and m.get("role", "outer") in ("outer", ""):
+                    seg = [[float(pt["lon"]), float(pt["lat"])] for pt in m["geometry"] if "lon" in pt and "lat" in pt]
+                    if len(seg) >= 2:
+                        outer_segs.append(seg)
+            rings = _stitch_ways_to_rings(outer_segs)
+
+        if not rings:
+            continue
+
+        best_ring = max(rings, key=len)
+        cx, cy = _ring_centroid(best_ring)
+        if not _point_in_feature(cx, cy, target_feat):
+            continue
+
+        norm_key = _normalize_str(name)
+        if norm_key in seen_names:
+            continue
+        seen_names.add(norm_key)
+
+        geom_obj = (
+            {"type": "Polygon", "coordinates": [rings[0]]}
+            if len(rings) == 1
+            else {"type": "MultiPolygon", "coordinates": [[r] for r in rings]}
+        )
+        features.append({
+            "type": "Feature",
+            "properties": {
+                "name": name,
+                "admin_level": tags.get("admin_level", "8"),
+                "district": dist,
+                "province": prov
+            },
+            "geometry": geom_obj
+        })
+
+    fc = {
+        "type": "FeatureCollection",
+        "province": prov,
+        "district": dist,
+        "features": features
+    }
+    if features:
+        try:
+            cache_file.write_text(json.dumps(fc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        except Exception:
+            pass
+    return fc
+
+
 def get_local_ip() -> str:
     """Finds machine's local Wi-Fi / LAN IP address for phone connection."""
     try:
@@ -133,6 +359,14 @@ class DemographicsWebHandler(BaseHTTPRequestHandler):
                     "districts": TUIK_ADNKS_DATA,
                     "total_districts": sum(len(d) for d in TUIK_ADNKS_DATA.values())
                 })
+        elif path == "/api/mahalle-boundaries":
+            params = parse_qs(parsed.query)
+            prov = params.get("province", [""])[0]
+            dist = params.get("district", [""])[0]
+            if not prov or not dist:
+                self.send_json({"type": "FeatureCollection", "features": []})
+            else:
+                self.send_json(fetch_and_cache_osm_mahalles(prov, dist))
         elif path == "/api/download-template":
             self.handle_download_template()
         elif path == "/api/download-cohort-template":

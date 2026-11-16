@@ -1146,7 +1146,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v45') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v46') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -3940,6 +3940,21 @@
       `;
     }
 
+    // Cache for real admin_level=8 mahalle boundaries per (province_district)
+    let mahalleGeoCache = {};
+    let mahalleFetchInFlight = {};
+
+    function toSlugTr(s) {
+      return trNorm(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+    }
+
+    function cleanMahalleKey(s) {
+      return trNorm(s || '')
+        .replace(/\b(MAHALLESI|MAHALLE|MAH\.?|KOYU|KOY|MERKEZ|BELDESI|ILCESI)\b/g, '')
+        .replace(/[^A-Z0-9]/g, '')
+        .trim();
+    }
+
     // Ray-casting point-in-ring check ([lng, lat] coordinates)
     function isLngLatInRing(x, y, ring) {
       let inside = false;
@@ -3952,122 +3967,207 @@
       return inside;
     }
 
-    // Sutherland-Hodgman half-plane polygon clipper: keeps points where (p - m) . n <= 0
-    function clipRingHalfPlane(poly, mx, my, nx, ny) {
-      if (!poly || poly.length < 3) return [];
-      const out = [];
-      const len = poly.length;
-      for (let i = 0; i < len; i++) {
-        const cur = poly[i];
-        const prev = poly[(i + len - 1) % len];
-        const dCur = (cur[0] - mx) * nx + (cur[1] - my) * ny;
-        const dPrev = (prev[0] - mx) * nx + (prev[1] - my) * ny;
-        if (dCur <= 0) {
-          if (dPrev > 0) {
-            const t = dPrev / (dPrev - dCur);
-            out.push([prev[0] + t * (cur[0] - prev[0]), prev[1] + t * (cur[1] - prev[1])]);
-          }
-          out.push(cur);
-        } else if (dPrev <= 0) {
-          const t = dPrev / (dPrev - dCur);
-          out.push([prev[0] + t * (cur[0] - prev[0]), prev[1] + t * (cur[1] - prev[1])]);
-        }
-      }
-      return out;
-    }
-
-    // Partition a single outer ring ([lng, lat][]) into N contiguous Voronoi polygons for the given items
-    function partitionRingIntoVoronoiCells(outerRing, items) {
-      if (!outerRing || outerRing.length < 3 || !items || items.length === 0) return [];
-      const basePoly = (outerRing.length > 3 && outerRing[0][0] === outerRing[outerRing.length - 1][0] && outerRing[0][1] === outerRing[outerRing.length - 1][1])
-        ? outerRing.slice(0, -1)
-        : outerRing.slice();
-
-      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-      let sumX = 0, sumY = 0;
-      basePoly.forEach(pt => {
-        if (pt[0] < minX) minX = pt[0];
-        if (pt[0] > maxX) maxX = pt[0];
-        if (pt[1] < minY) minY = pt[1];
-        if (pt[1] > maxY) maxY = pt[1];
-        sumX += pt[0];
-        sumY += pt[1];
-      });
-      const cx = sumX / basePoly.length;
-      const cy = sumY / basePoly.length;
-      const cosLat = Math.cos(cy * Math.PI / 180.0);
-      const rx = (maxX - minX) * 0.40;
-      const ry = (maxY - minY) * 0.40;
-      const N = items.length;
-
-      // Place seeds ordered by rank (rank 0 in center -> higher ranks radiating outward)
-      const seeds = items.map((item, idx) => {
-        const rank = (item._rank !== undefined) ? item._rank : idx;
-        const normR = (rank === 0) ? 0.0 : Math.sqrt((rank + 0.35) / N);
-        const angle = rank * 2.3999632; // Golden angle
-        let sx = cx + normR * rx * Math.cos(angle);
-        let sy = cy + normR * ry * Math.sin(angle);
-        for (let shrink = 0.88; shrink >= 0.08; shrink -= 0.10) {
-          if (isLngLatInRing(sx, sy, basePoly)) break;
-          sx = cx + (sx - cx) * shrink;
-          sy = cy + (sy - cy) * shrink;
-        }
-        return [sx, sy];
-      });
-
-      const results = [];
-      for (let i = 0; i < N; i++) {
-        const si = seeds[i];
-        let cell = basePoly;
-        const otherIndices = [];
-        for (let j = 0; j < N; j++) {
-          if (j !== i) otherIndices.push(j);
-        }
-        otherIndices.sort((a, b) => {
-          const da = Math.pow((seeds[a][0] - si[0]) * cosLat, 2) + Math.pow(seeds[a][1] - si[1], 2);
-          const db = Math.pow((seeds[b][0] - si[0]) * cosLat, 2) + Math.pow(seeds[b][1] - si[1], 2);
-          return da - db;
-        });
-
-        for (let k = 0; k < otherIndices.length; k++) {
-          const sj = seeds[otherIndices[k]];
-          const mx = 0.5 * (si[0] + sj[0]);
-          const my = 0.5 * (si[1] + sj[1]);
-          const nx = (sj[0] - si[0]) * (cosLat * cosLat);
-          const ny = (sj[1] - si[1]);
-          cell = clipRingHalfPlane(cell, mx, my, nx, ny);
-          if (!cell || cell.length < 3) break;
-        }
-
-        if (cell && cell.length >= 3) {
-          const closedRing = cell.slice();
-          closedRing.push([cell[0][0], cell[0][1]]);
-          results.push({
-            item: items[i],
-            ring: closedRing
-          });
-        }
-      }
-      return results;
-    }
-
-    // Extract the main outer ring of a Polygon or MultiPolygon feature
-    function getMainOuterRing(geom) {
-      if (!geom || !geom.coordinates) return null;
+    function isLngLatInsideFeature(lon, lat, feat) {
+      const geom = feat && feat.geometry;
+      if (!geom || !geom.coordinates) return false;
       if (geom.type === 'Polygon') {
-        return geom.coordinates[0];
+        return geom.coordinates.length > 0 && isLngLatInRing(lon, lat, geom.coordinates[0]);
       } else if (geom.type === 'MultiPolygon') {
-        let bestRing = null;
-        let maxLen = 0;
-        geom.coordinates.forEach(poly => {
-          if (poly && poly[0] && poly[0].length > maxLen) {
-            maxLen = poly[0].length;
-            bestRing = poly[0];
-          }
-        });
-        return bestRing;
+        for (let i = 0; i < geom.coordinates.length; i++) {
+          const poly = geom.coordinates[i];
+          if (poly && poly.length > 0 && isLngLatInRing(lon, lat, poly[0])) return true;
+        }
       }
-      return null;
+      return false;
+    }
+
+    function getFeatureBBox(feat) {
+      const geom = feat && feat.geometry;
+      let rings = [];
+      if (geom && geom.type === 'Polygon' && geom.coordinates) {
+        rings = [geom.coordinates[0]];
+      } else if (geom && geom.type === 'MultiPolygon' && geom.coordinates) {
+        rings = geom.coordinates.map(p => p[0]).filter(Boolean);
+      }
+      let minLon = 180, minLat = 90, maxLon = -180, maxLat = -90;
+      rings.forEach(r => {
+        r.forEach(pt => {
+          if (pt[0] < minLon) minLon = pt[0];
+          if (pt[0] > maxLon) maxLon = pt[0];
+          if (pt[1] < minLat) minLat = pt[1];
+          if (pt[1] > maxLat) maxLat = pt[1];
+        });
+      });
+      return { minLat, minLon, maxLat, maxLon };
+    }
+
+    function stitchOsmWaysToRings(waySegments) {
+      const pool = (waySegments || []).filter(s => s && s.length >= 2).map(s => s.slice());
+      const rings = [];
+      const eps = 1e-5;
+      const samePt = (a, b) => Math.abs(a[0] - b[0]) < eps && Math.abs(a[1] - b[1]) < eps;
+
+      while (pool.length > 0) {
+        let cur = pool.shift();
+        let changed = true;
+        while (changed && !samePt(cur[0], cur[cur.length - 1])) {
+          changed = false;
+          for (let i = 0; i < pool.length; i++) {
+            const seg = pool[i];
+            if (samePt(cur[cur.length - 1], seg[0])) {
+              cur = cur.concat(seg.slice(1));
+              pool.splice(i, 1);
+              changed = true;
+              break;
+            } else if (samePt(cur[cur.length - 1], seg[seg.length - 1])) {
+              cur = cur.concat(seg.slice().reverse().slice(1));
+              pool.splice(i, 1);
+              changed = true;
+              break;
+            } else if (samePt(cur[0], seg[seg.length - 1])) {
+              cur = seg.slice(0, -1).concat(cur);
+              pool.splice(i, 1);
+              changed = true;
+              break;
+            } else if (samePt(cur[0], seg[0])) {
+              cur = seg.slice().reverse().slice(0, -1).concat(cur);
+              pool.splice(i, 1);
+              changed = true;
+              break;
+            }
+          }
+        }
+        if (cur.length >= 4) {
+          if (!samePt(cur[0], cur[cur.length - 1])) {
+            cur.push([cur[0][0], cur[0][1]]);
+          }
+          rings.push(cur);
+        }
+      }
+      return rings;
+    }
+
+    function getRingCentroid(ring) {
+      if (!ring || ring.length === 0) return [0, 0];
+      let sx = 0, sy = 0;
+      for (let i = 0; i < ring.length; i++) {
+        sx += ring[i][0];
+        sy += ring[i][1];
+      }
+      return [sx / ring.length, sy / ring.length];
+    }
+
+    async function fetchRealMahalleBoundaries(provVal, distVal, selectedDistFeat) {
+      let pSlug = toSlugTr(provVal);
+      if (pSlug === 'afyon') pSlug = 'afyonkarahisar';
+      const dSlug = toSlugTr(distVal);
+      const cacheKey = `${pSlug}_${dSlug}`;
+
+      if (mahalleGeoCache[cacheKey]) return mahalleGeoCache[cacheKey];
+      if (mahalleFetchInFlight[cacheKey]) return mahalleFetchInFlight[cacheKey];
+
+      const promise = (async () => {
+        // 1. Try pre-bundled / cached static JSON file in data/mahalleler/
+        try {
+          const stRes = await fetch(`data/mahalleler/${cacheKey}.json`);
+          if (stRes.ok) {
+            const stJson = await stRes.json();
+            if (stJson && stJson.features && stJson.features.length > 0) {
+              mahalleGeoCache[cacheKey] = stJson;
+              return stJson;
+            }
+          }
+        } catch (e) {}
+
+        // 2. Try server-side /api/mahalle-boundaries (which also caches to disk)
+        try {
+          const apiRes = await fetch(`/api/mahalle-boundaries?province=${encodeURIComponent(provVal)}&district=${encodeURIComponent(distVal)}`);
+          if (apiRes.ok) {
+            const apiJson = await apiRes.json();
+            if (apiJson && apiJson.features && apiJson.features.length > 0) {
+              mahalleGeoCache[cacheKey] = apiJson;
+              return apiJson;
+            }
+          }
+        } catch (e) {}
+
+        // 3. Direct browser fallback to OpenStreetMap Overpass API mirrors
+        if (selectedDistFeat) {
+          const bb = getFeatureBBox(selectedDistFeat);
+          const query = `[out:json][timeout:25];relation["boundary"="administrative"]["admin_level"="8"](${bb.minLat.toFixed(5)},${bb.minLon.toFixed(5)},${bb.maxLat.toFixed(5)},${bb.maxLon.toFixed(5)});out geom;`;
+          const mirrors = [
+            'https://overpass-api.de/api/interpreter',
+            'https://overpass.kumi.systems/api/interpreter',
+            'https://maps.mail.ru/osm/tools/overpass/api/interpreter'
+          ];
+          for (const mUrl of mirrors) {
+            try {
+              const ovRes = await fetch(mUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+                body: 'data=' + encodeURIComponent(query)
+              });
+              if (!ovRes.ok) continue;
+              const ovData = await ovRes.json();
+              if (!ovData || !ovData.elements || ovData.elements.length === 0) continue;
+
+              const feats = [];
+              const seen = new Set();
+              ovData.elements.forEach(el => {
+                const tags = el.tags || {};
+                const name = (tags['name:tr'] || tags.name || '').trim();
+                if (!name) return;
+                let rings = [];
+                if (el.type === 'way' && el.geometry) {
+                  const seg = el.geometry.map(pt => [pt.lon, pt.lat]);
+                  rings = stitchOsmWaysToRings([seg]);
+                } else if (el.type === 'relation' && el.members) {
+                  const outerSegs = [];
+                  el.members.forEach(m => {
+                    if (m.type === 'way' && m.geometry && (!m.role || m.role === 'outer')) {
+                      outerSegs.push(m.geometry.map(pt => [pt.lon, pt.lat]));
+                    }
+                  });
+                  rings = stitchOsmWaysToRings(outerSegs);
+                }
+                if (!rings || rings.length === 0) return;
+
+                let bestRing = rings[0];
+                rings.forEach(r => { if (r.length > bestRing.length) bestRing = r; });
+                const [cx, cy] = getRingCentroid(bestRing);
+                if (!isLngLatInsideFeature(cx, cy, selectedDistFeat)) return;
+
+                const nKey = cleanMahalleKey(name);
+                if (seen.has(nKey)) return;
+                seen.add(nKey);
+
+                const geomObj = rings.length === 1
+                  ? { type: 'Polygon', coordinates: [rings[0]] }
+                  : { type: 'MultiPolygon', coordinates: rings.map(r => [r]) };
+                feats.push({
+                  type: 'Feature',
+                  properties: { name: name, admin_level: tags.admin_level || '8', district: distVal, province: provVal },
+                  geometry: geomObj
+                });
+              });
+
+              if (feats.length > 0) {
+                const fc = { type: 'FeatureCollection', province: provVal, district: distVal, features: feats };
+                mahalleGeoCache[cacheKey] = fc;
+                return fc;
+              }
+            } catch (e) {}
+          }
+        }
+        return null;
+      })();
+
+      mahalleFetchInFlight[cacheKey] = promise;
+      try {
+        return await promise;
+      } finally {
+        delete mahalleFetchInFlight[cacheKey];
+      }
     }
 
     function initLeafletMap(subzones, shouldFitBounds = undefined) {
@@ -4137,7 +4237,7 @@
 
       if (doFitBounds && bounds.length > 0) {
         try {
-          leafletMapInstance.fitBounds(bounds, { padding: [22, 22], maxZoom: isSingleMahalleSelected ? 14 : (isProvinceLevel ? 10 : 12) });
+          leafletMapInstance.fitBounds(bounds, { padding: [22, 22], maxZoom: isSingleMahalleSelected ? 15 : (isProvinceLevel ? 10 : 12) });
         } catch (e) {}
       }
 
@@ -4188,7 +4288,7 @@
               _rank: 999
             };
           }
-          matchedSz.parentLabel = `${provVal} İL GENELİ`;
+          matchedSz.parentLabel = `${provVal} İL GENELİ (Resmi İlçe Sınırı)`;
           featuresToRender.push({
             type: 'Feature',
             properties: { sz: matchedSz, totalCount: totalZones },
@@ -4196,48 +4296,137 @@
           });
         });
       } else {
-        // Find the selected district feature
+        // Find the selected district's official administrative boundary feature
         const selectedDistFeat = geoData.features.find(feat => {
           const normFeat = trNorm(feat.properties.name || '');
           return normDist && (normFeat === normDist || normFeat.includes(normDist) || normDist.includes(normFeat));
         }) || geoData.features[0];
 
         if (!selectedDistFeat) return;
-        const mainRing = getMainOuterRing(selectedDistFeat.geometry);
-        if (!mainRing) return;
 
-        if (!isSingleMahalleSelected) {
-          // MODE 2: İLÇE SEÇİLİ (Tüm Mahalleler) -> Partition ONLY the selected district polygon into contiguous Mahalle polygons!
-          const cells = partitionRingIntoVoronoiCells(mainRing, subzones || []);
-          cells.forEach(c => {
-            c.item.parentLabel = `${provVal} / ${selectedDistFeat.properties.name || distVal}`;
+        let pSlug = toSlugTr(provVal);
+        if (pSlug === 'afyon') pSlug = 'afyonkarahisar';
+        const dSlug = toSlugTr(distVal);
+        const mahCacheKey = `${pSlug}_${dSlug}`;
+        const realMahalleGeo = mahalleGeoCache[mahCacheKey];
+
+        if (realMahalleGeo && realMahalleGeo.features && realMahalleGeo.features.length > 0) {
+          if (!isSingleMahalleSelected) {
+            // MODE 2: İLÇE SEÇİLİ (Tüm Mahalleler) -> Render REAL admin_level=8 mahalle boundary polygons!
+            const usedSzIndices = new Set();
+            const szKeyList = (subzones || []).map((sz, idx) => ({
+              idx,
+              sz,
+              key: cleanMahalleKey(sz.name)
+            }));
+
+            realMahalleGeo.features.forEach(mFeat => {
+              const mName = mFeat.properties.name || 'Mahalle';
+              const mKey = cleanMahalleKey(mName);
+              let matchEntry = szKeyList.find(e => !usedSzIndices.has(e.idx) && e.key && (e.key === mKey || e.key.includes(mKey) || mKey.includes(e.key)));
+              if (!matchEntry) {
+                matchEntry = szKeyList.find(e => !usedSzIndices.has(e.idx));
+              }
+              let szObj;
+              if (matchEntry) {
+                usedSzIndices.add(matchEntry.idx);
+                szObj = Object.assign({}, matchEntry.sz, {
+                  name: mName,
+                  parentLabel: `${provVal} / ${selectedDistFeat.properties.name || distVal} (Gerçek Mahalle Sınırı)`
+                });
+              } else {
+                const fallbackPop = mFeat.properties.nufus_2025 || 1200;
+                szObj = {
+                  name: mName,
+                  parentLabel: `${provVal} / ${selectedDistFeat.properties.name || distVal} (Gerçek Mahalle Sınırı)`,
+                  current_pop: fallbackPop,
+                  additional_pop_Gi: Math.round(fallbackPop * 0.08),
+                  target_pop_Pi: Math.round(fallbackPop * 1.08),
+                  housing_need: Math.round((fallbackPop * 0.08) / 2.85),
+                  saturation_pct: 68.0,
+                  _rank: 999
+                };
+              }
+              featuresToRender.push({
+                type: 'Feature',
+                properties: { sz: szObj, totalCount: Math.max(totalZones, realMahalleGeo.features.length) },
+                geometry: mFeat.geometry
+              });
+            });
+
+            // Also draw the official district outer frame
+            L.geoJSON(selectedDistFeat, {
+              style: { color: '#0F172A', weight: 2.2, opacity: 0.9, fillOpacity: 0.0 },
+              interactive: false
+            }).addTo(leafletDistrictBoundariesGroup);
+          } else {
+            // MODE 3: TEKİL MAHALLE SEÇİLİ -> Render ONLY that single mahalle's REAL administrative boundary polygon!
+            const dData = (state.adnksData[provVal] && state.adnksData[provVal][distVal]) || null;
+            const allMahalles = (dData && dData.subzones && dData.subzones.length > 0) ? dData.subzones : subzones;
+            const chosenIdx = Math.max(0, Math.min(allMahalles.length - 1, (parseInt(zoneVal, 10) || 1) - 1));
+            const targetMahalleObj = allMahalles[chosenIdx] || allMahalles[0] || { name: 'Seçili Mahalle' };
+            const targetKey = cleanMahalleKey(targetMahalleObj.name);
+
+            let matchedMahFeat = realMahalleGeo.features.find(f => {
+              const fk = cleanMahalleKey(f.properties.name);
+              return fk && targetKey && (fk === targetKey || fk.includes(targetKey) || targetKey.includes(fk));
+            });
+            if (!matchedMahFeat) {
+              matchedMahFeat = realMahalleGeo.features[chosenIdx % realMahalleGeo.features.length];
+            }
+
+            const totCurP = (subzones || []).reduce((a, s) => a + (s.current_pop !== undefined ? s.current_pop : (s.base_pop || 0)), 0);
+            const totAddP = (subzones || []).reduce((a, s) => a + (s.additional_pop_Gi || 0), 0);
+            const totTgtP = (subzones || []).reduce((a, s) => a + (s.target_pop_Pi !== undefined ? s.target_pop_Pi : ((s.current_pop || 0) + (s.additional_pop_Gi || 0))), 0);
+            const totCapP = (subzones || []).reduce((a, s) => a + (s.plan_capacity_pop || s.plan_pop_capacity || (s.current_pop || 1000) * 1.4), 0);
+            const singleMahSz = {
+              name: matchedMahFeat.properties.name || targetMahalleObj.name,
+              parentLabel: `${provVal} / ${selectedDistFeat.properties.name || distVal} (Seçili Mahalle Resmi Sınırı)`,
+              current_pop: totCurP,
+              additional_pop_Gi: totAddP,
+              target_pop_Pi: totTgtP,
+              housing_need: Math.round(totAddP / 2.85),
+              saturation_pct: (totTgtP / Math.max(1, totCapP)) * 100.0,
+              _rank: 0
+            };
+
             featuresToRender.push({
               type: 'Feature',
-              properties: { sz: c.item, totalCount: totalZones },
-              geometry: { type: 'Polygon', coordinates: [c.ring] }
+              properties: { sz: singleMahSz, totalCount: 1 },
+              geometry: matchedMahFeat.geometry
             });
-          });
+          }
         } else {
-          // MODE 3: TEKİL MAHALLE SEÇİLİ -> Find that mahalle's Voronoi cell inside the district, then show ONLY that mahalle (partitioned into its 3 subzones)!
-          const dData = (state.adnksData[provVal] && state.adnksData[provVal][distVal]) || null;
-          const allMahalles = (dData && dData.subzones && dData.subzones.length > 0) ? dData.subzones : subzones;
-          const mahalleItems = allMahalles.map((m, idx) => ({
-            name: m.name,
-            _rank: idx
-          }));
-          const districtCells = partitionRingIntoVoronoiCells(mainRing, mahalleItems);
-          const chosenIdx = Math.max(0, Math.min(districtCells.length - 1, (parseInt(zoneVal, 10) || 1) - 1));
-          const targetMahalleRing = districtCells[chosenIdx] ? districtCells[chosenIdx].ring : mainRing;
-          const targetMahalleName = districtCells[chosenIdx] ? districtCells[chosenIdx].item.name : '';
+          // Real mahalle boundaries are being fetched from Overpass / server:
+          // Render the REAL official district polygon immediately (NO fake Voronoi cells!)
+          const totCurP = (subzones || []).reduce((a, s) => a + (s.current_pop !== undefined ? s.current_pop : (s.base_pop || 0)), 0);
+          const totAddP = (subzones || []).reduce((a, s) => a + (s.additional_pop_Gi || 0), 0);
+          const totTgtP = totCurP + totAddP;
+          const distSummarySz = {
+            name: `${selectedDistFeat.properties.name || distVal} İlçesi`,
+            parentLabel: `${provVal} (⏳ Gerçek Mahalle İdari Sınırları Yükleniyor...)`,
+            current_pop: totCurP,
+            additional_pop_Gi: totAddP,
+            target_pop_Pi: totTgtP,
+            housing_need: Math.round(totAddP / 2.85),
+            saturation_pct: 75.0,
+            _rank: 0
+          };
+          featuresToRender.push({
+            type: 'Feature',
+            properties: { sz: distSummarySz, totalCount: 1 },
+            geometry: selectedDistFeat.geometry
+          });
 
-          const subCells = partitionRingIntoVoronoiCells(targetMahalleRing, subzones || []);
-          subCells.forEach(sc => {
-            sc.item.parentLabel = `${provVal} / ${selectedDistFeat.properties.name || distVal} / ${targetMahalleName}`;
-            featuresToRender.push({
-              type: 'Feature',
-              properties: { sz: sc.item, totalCount: totalZones },
-              geometry: { type: 'Polygon', coordinates: [sc.ring] }
-            });
+          // Trigger async fetch of real admin_level=8 mahalle boundaries
+          fetchRealMahalleBoundaries(provVal, distVal, selectedDistFeat).then(loadedGeo => {
+            if (loadedGeo && loadedGeo.features && loadedGeo.features.length > 0) {
+              const curP = document.getElementById("selAdnksProv")?.value;
+              const curD = document.getElementById("selAdnksDist")?.value;
+              if (curP === provVal && curD === distVal && leafletMapInstance) {
+                initLeafletMap(leafletLastSubzones, true);
+              }
+            }
           });
         }
       }
@@ -4249,7 +4438,7 @@
           const polyColor = getZoneColor(sz, feat.properties.totalCount);
           return {
             color: '#FFFFFF',
-            weight: 1.6,
+            weight: 1.5,
             opacity: 0.95,
             fillColor: polyColor,
             fillOpacity: 0.72
@@ -4275,7 +4464,7 @@
           });
 
           layer.on('mouseout', function() {
-            this.setStyle({ weight: 1.6, color: '#FFFFFF', fillOpacity: 0.72 });
+            this.setStyle({ weight: 1.5, color: '#FFFFFF', fillOpacity: 0.72 });
           });
 
           layer.bindPopup(cardHtml);
@@ -4284,7 +4473,6 @@
 
       polyLayer.addTo(leafletDistrictBoundariesGroup);
 
-      // Also draw a crisp outer border around the selected district/mahalle so its official boundary stands out cleanly
       try {
         const b = polyLayer.getBounds();
         if (b && b.isValid()) {
