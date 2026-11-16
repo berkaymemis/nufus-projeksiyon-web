@@ -1,5 +1,7 @@
 # 🌐 NüfusKaç. — Kentsel Demografi, Mekânsal Analiz ve Nüfus Projeksiyon Platformu
 
+> 🚀 **Canlı Web Uygulaması:** **[https://nufusprojeksiyonu.com/](https://nufusprojeksiyonu.com/)**
+
 Türkiye'nin **81 İl ve 973 İlçesi** için resmi **TÜİK ADNKS (2015–2025)** veri tabanı, **Prof. Dr. K. Mert Çubukçu** iktisadi taban ve bölgesel pay yöntemleri, **gerçek ilçe ve mahalle idari sınır haritaları**, **Kuşak-Bileşen (Cohort-Component)** yaş piramitleri, **Hansen Mekânsal Çekim Modeli** ve **MPYY (Ek-2) Kentsel Donatı Standartlarını** bir araya getiren web ve PWA uygulamasıdır.
 
 ---
@@ -64,7 +66,7 @@ pip install -r requirements.txt
 python server.py
 ```
 
-Tarayıcınızda açın: `http://localhost:8080` *(Ekran görüntüsü / tarayıcı açmadan çalıştırmak için `--no-browser` parametresini kullanabilirsiniz).*
+Tarayıcınızda açın: **[https://nufusprojeksiyonu.com/](https://nufusprojeksiyonu.com/)** *(Yerel geliştirme sunucusu için: `http://localhost:8080`, tarayıcı açmadan çalıştırmak için `--no-browser` parametresini kullanabilirsiniz).*
 
 ### Render.com / Railway / Docker Üzerinde Dağıtım
 Depo kökünde hazır [render.yaml](render.yaml), [Procfile](Procfile) ve [Dockerfile](Dockerfile) bulunur:

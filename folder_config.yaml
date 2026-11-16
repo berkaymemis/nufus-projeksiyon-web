@@ -1,6 +1,7 @@
 name: "web_app"
 title: "NüfusKaç. — Kentsel Demografi & Mekânsal Projeksiyon Web Platformu"
 version: "2.0.0"
+live_url: "https://nufusprojeksiyonu.com/"
 runtime: "python-3.12"
 dependencies: []
 optional_dependencies:
