@@ -1,3 +1,6 @@
 name: "web_app_data"
-version: "1.0.0"
-description: "Spatial boundary data directory for web client"
+version: "2.0.0"
+description: "81 İl / 973 İlçe ve Mahalle düzeyinde gerçek GeoJSON sınır verileri"
+coverage:
+  provinces: 81
+  districts: 973

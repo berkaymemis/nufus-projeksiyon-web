@@ -1,2 +1,17 @@
 plugin: nufus_projeksiyon_tum
 module: core
+runtime: pure-python
+optional_dependencies:
+  - openpyxl>=3.1.2
+modules:
+  - curve_fitting.py
+  - cohort_model.py
+  - economic_base.py
+  - demographic_shocks.py
+  - hansen_model.py
+  - tuik_adnks.py
+  - district_multipliers.py
+  - xlsx_export.py
+  - data_import.py
+  - city_templates.py
+  - researchgate_citations.py

@@ -1,5 +1,7 @@
-# Mahalle İdari Sınır Verileri (`data/mahalleler`)
+# Mahalle İdari Sınır ve Yerleşim Verileri (`data/mahalleler/`)
 
-Bu klasör, seçilen ilçelerin gerçek `admin_level=8` idari mahalle sınır poligonlarını (GeoJSON) barındırır.
-- Yerel önbellekte bulunan ilçeler (`izmir_tire.json` vb.) doğrudan buradan yüklenir.
-- Türkiye'deki diğer tüm ilçeler için tarayıcı ve sunucu, OpenStreetMap Overpass API (`boundary=administrative`, `admin_level=8`) üzerinden gerçek mahalle sınırlarını canlı çekip bu klasöre / önbelleğe kaydeder.
+Türkiye genelindeki tüm **973 / 973 ilçe** için gerçek coğrafi mahalle/yerleşim katmanlarını (`<il_slug>_<ilce_slug>.json`) içerir:
+
+* **695 ilçe**: Resmi Belediye / MAKS açık veri portalları (`ttezer/turkiye-harita-verisi`), yerel resmi GIS (`izmir_tire.json`) ve OpenStreetMap (`Geofabrik turkey-latest.osm.pbf`, `admin_level=8/9/10` + `place`) gerçek mahalle sınır poligonları.
+* **278 kırsal ilçe**: Yapay Voronoi kullanılmaksızın, resmi `admin_level=6` ilçe sınır poligonu içinde OpenStreetMap'ten doğrulanmış gerçek yerleşim merkezi koordinatları (`geometry_mode: "points"`).
+* Ek olarak `/api/mahalle-boundaries` uç noktası canlı Overpass API yedeği sağlar.

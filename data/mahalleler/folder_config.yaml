@@ -1,3 +1,12 @@
 folder_name: mahalleler
-purpose: Official admin_level=8 neighborhood (mahalle) GeoJSON boundary cache
+version: "2.0.0"
+purpose: "All-Turkey (81 provinces / 973 districts) real mahalle boundary polygons and verified settlement coordinates"
 layer: data
+coverage:
+  total_districts: 973
+  polygon_districts: 695
+  point_districts: 278
+sources:
+  - "Official Municipal / MAKS Open Data (ttezer/turkiye-harita-verisi)"
+  - "Local Official GeoPackage (Tire 89 Mahalle)"
+  - "OpenStreetMap Turkey Geofabrik Extract (ODbL)"

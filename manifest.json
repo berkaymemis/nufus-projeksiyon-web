@@ -1,7 +1,7 @@
 {
-  "name": "NüfusKaç? — İl ve İlçe Nüfus Tahmin Platformu",
-  "short_name": "NüfusKaç?",
-  "description": "2025-2050 Türkiye, 81 il ve 973 ilçe için canlı nüfus tahminleri (TÜİK ADNKS verileriyle)",
+  "name": "NüfusKaç. — İl ve İlçe Nüfus Projeksiyon Platformu",
+  "short_name": "NüfusKaç.",
+  "description": "2025-2050 Türkiye, 81 il ve 973 ilçe için gerçek idari sınırlar ve TÜİK ADNKS verileriyle canlı nüfus tahminleri",
   "start_url": "/",
   "display": "standalone",
   "orientation": "any",
