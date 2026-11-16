@@ -53,10 +53,23 @@ def _tr_slug(s: str) -> str:
         "ç": "c", "Ç": "c", "ğ": "g", "Ğ": "g",
         "ı": "i", "I": "i", "İ": "i", "i": "i",
         "ö": "o", "Ö": "o", "ş": "s", "Ş": "s",
-        "ü": "u", "Ü": "u"
+        "ü": "u", "Ü": "u", "â": "a", "Â": "a",
+        "î": "i", "Î": "i", "û": "u", "Û": "u"
     }
     out = "".join(m.get(ch, ch) for ch in (s or "")).lower().strip()
     return "".join(ch if ch.isalnum() else "_" for ch in out).strip("_")
+
+
+def _norm_dist_key(s: str) -> str:
+    m = {
+        "ç": "C", "Ç": "C", "ğ": "G", "Ğ": "G",
+        "ı": "I", "I": "I", "İ": "I", "i": "I",
+        "ö": "O", "Ö": "O", "ş": "S", "Ş": "S",
+        "ü": "U", "Ü": "U", "â": "A", "Â": "A",
+        "î": "I", "Î": "I", "û": "U", "Û": "U"
+    }
+    out = "".join(m.get(ch, ch) for ch in (s or "")).upper()
+    return "".join(ch for ch in out if ch.isalnum())
 
 
 def _point_in_ring(lon: float, lat: float, ring: list) -> bool:
@@ -177,18 +190,26 @@ def fetch_and_cache_osm_mahalles(prov: str, dist: str) -> dict:
 
     prov_geo = json.loads(dist_file.read_text(encoding="utf-8"))
     target_feat = None
-    norm_d = _normalize_str(dist)
+    norm_d = _norm_dist_key(dist)
+    norm_p = _norm_dist_key(prov)
+    p_slug_key = _norm_dist_key(p_slug)
     for feat in prov_geo.get("features", []):
-        fname = _normalize_str(feat.get("properties", {}).get("name", ""))
-        if fname == norm_d or norm_d in fname or fname in norm_d:
+        fname = _norm_dist_key(feat.get("properties", {}).get("name", ""))
+        if fname == norm_d or (norm_d == "MERKEZ" and fname in (norm_p, p_slug_key)):
             target_feat = feat
             break
+    if not target_feat and norm_d:
+        for feat in prov_geo.get("features", []):
+            fname = _norm_dist_key(feat.get("properties", {}).get("name", ""))
+            if norm_d in fname or fname in norm_d:
+                target_feat = feat
+                break
 
     if not target_feat:
         return {"type": "FeatureCollection", "features": []}
 
     min_lat, min_lon, max_lat, max_lon = _feature_bbox(target_feat)
-    query = f"""[out:json][timeout:25];relation["boundary"="administrative"]["admin_level"="8"]({min_lat:.5f},{min_lon:.5f},{max_lat:.5f},{max_lon:.5f});out geom;"""
+    query = f"""[out:json][timeout:25];(relation["boundary"="administrative"]["admin_level"~"^(8|9|10)$"]({min_lat:.5f},{min_lon:.5f},{max_lat:.5f},{max_lon:.5f});way["boundary"="administrative"]["admin_level"~"^(8|9|10)$"]({min_lat:.5f},{min_lon:.5f},{max_lat:.5f},{max_lon:.5f}););out geom;"""
 
     mirrors = [
         "https://overpass-api.de/api/interpreter",

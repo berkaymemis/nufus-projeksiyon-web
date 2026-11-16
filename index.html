@@ -1146,7 +1146,7 @@
       navigator.serviceWorker.register('/sw.js').then(reg => { try { reg.update(); } catch(e){} }).catch(() => {});
     }
     if ('caches' in window) {
-      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v46') caches.delete(k); })).catch(() => {});
+      caches.keys().then(keys => keys.forEach(k => { if (k !== 'nufus-pro-v47') caches.delete(k); })).catch(() => {});
     }
 
     // Initialize App on DOM Ready
@@ -2174,7 +2174,12 @@
 
     // ===================== HARİTA KONUMU: Türkçe normalizasyon + çevrimiçi geocoding =====================
     function trNorm(s) {
-      return (s || "").toString().replace(/İ/g, "I").replace(/ı/g, "I").toUpperCase()
+      return (s || "").toString()
+        .replace(/İ/g, "I").replace(/ı/g, "I")
+        .replace(/Â/g, "A").replace(/â/g, "A")
+        .replace(/Î/g, "I").replace(/î/g, "I")
+        .replace(/Û/g, "U").replace(/û/g, "U")
+        .toUpperCase()
         .replace(/Ğ/g, "G").replace(/Ü/g, "U").replace(/Ş/g, "S").replace(/Ö/g, "O").replace(/Ç/g, "C").trim();
     }
     const GEO_CACHE_KEY = "nufusProGeoCache_v2";
@@ -4047,6 +4052,35 @@
       return rings;
     }
 
+    function cleanDistrictKey(s) {
+      return trNorm(s || '').replace(/\s*İLCESİ$/i, '').replace(/\s*ILCESI$/i, '').replace(/[^A-Z0-9]/g, '');
+    }
+
+    function findMatchingDistrictFeature(geoData, provVal, distVal) {
+      if (!geoData || !geoData.features || geoData.features.length === 0) return null;
+      const dKey = cleanDistrictKey(distVal);
+      const pKey = cleanDistrictKey(provVal);
+      let pSlugKey = pKey;
+      if (pSlugKey === 'AFYON') pSlugKey = 'AFYONKARAHISAR';
+
+      // 1. Exact match (or MERKEZ -> province name / Afyonkarahisar)
+      let found = geoData.features.find(feat => {
+        const fk = cleanDistrictKey(feat.properties?.name || '');
+        if (!fk) return false;
+        if (fk === dKey) return true;
+        if (dKey === 'MERKEZ' && (fk === pKey || fk === pSlugKey)) return true;
+        return false;
+      });
+      if (found) return found;
+
+      // 2. Partial match
+      found = geoData.features.find(feat => {
+        const fk = cleanDistrictKey(feat.properties?.name || '');
+        return fk && dKey && (fk.includes(dKey) || dKey.includes(fk));
+      });
+      return found || geoData.features[0];
+    }
+
     function getRingCentroid(ring) {
       if (!ring || ring.length === 0) return [0, 0];
       let sx = 0, sy = 0;
@@ -4094,7 +4128,7 @@
         // 3. Direct browser fallback to OpenStreetMap Overpass API mirrors
         if (selectedDistFeat) {
           const bb = getFeatureBBox(selectedDistFeat);
-          const query = `[out:json][timeout:25];relation["boundary"="administrative"]["admin_level"="8"](${bb.minLat.toFixed(5)},${bb.minLon.toFixed(5)},${bb.maxLat.toFixed(5)},${bb.maxLon.toFixed(5)});out geom;`;
+          const query = `[out:json][timeout:25];(relation["boundary"="administrative"]["admin_level"~"^(8|9|10)$"](${bb.minLat.toFixed(5)},${bb.minLon.toFixed(5)},${bb.maxLat.toFixed(5)},${bb.maxLon.toFixed(5)});way["boundary"="administrative"]["admin_level"~"^(8|9|10)$"](${bb.minLat.toFixed(5)},${bb.minLon.toFixed(5)},${bb.maxLat.toFixed(5)},${bb.maxLon.toFixed(5)}););out geom;`;
           const mirrors = [
             'https://overpass-api.de/api/interpreter',
             'https://overpass.kumi.systems/api/interpreter',
@@ -4159,7 +4193,9 @@
             } catch (e) {}
           }
         }
-        return null;
+        const emptyFc = { type: 'FeatureCollection', province: provVal, district: distVal, features: [], _empty: true };
+        mahalleGeoCache[cacheKey] = emptyFc;
+        return emptyFc;
       })();
 
       mahalleFetchInFlight[cacheKey] = promise;
@@ -4271,13 +4307,23 @@
 
       if (isProvinceLevel) {
         // MODE 1: İL GENELİ -> Render ONLY this province's official district polygons
+        const pKey = cleanDistrictKey(provVal);
+        const pSlugKey = (pKey === 'AFYON') ? 'AFYONKARAHISAR' : pKey;
         geoData.features.forEach(feat => {
           const featName = feat.properties.name || '';
-          const normFeat = trNorm(featName);
+          const fKey = cleanDistrictKey(featName);
           let matchedSz = (subzones || []).find(sz => {
-            const cleanSz = trNorm((sz.name || '').replace(/\s*İlçesi$/i, '').trim());
-            return cleanSz === normFeat || cleanSz.includes(normFeat) || normFeat.includes(cleanSz);
+            const cKey = cleanDistrictKey(sz.name || '');
+            if (cKey === fKey) return true;
+            if (cKey === 'MERKEZ' && (fKey === pKey || fKey === pSlugKey)) return true;
+            return false;
           });
+          if (!matchedSz) {
+            matchedSz = (subzones || []).find(sz => {
+              const cKey = cleanDistrictKey(sz.name || '');
+              return cKey && fKey && (cKey.includes(fKey) || fKey.includes(cKey));
+            });
+          }
           if (!matchedSz) {
             matchedSz = {
               name: `${featName} İlçesi`,
@@ -4296,11 +4342,8 @@
           });
         });
       } else {
-        // Find the selected district's official administrative boundary feature
-        const selectedDistFeat = geoData.features.find(feat => {
-          const normFeat = trNorm(feat.properties.name || '');
-          return normDist && (normFeat === normDist || normFeat.includes(normDist) || normDist.includes(normFeat));
-        }) || geoData.features[0];
+        // Find the selected district's official administrative boundary feature (supports MERKEZ & spaces/circumflexes)
+        const selectedDistFeat = findMatchingDistrictFeature(geoData, provVal, distVal);
 
         if (!selectedDistFeat) return;
 
@@ -4311,8 +4354,9 @@
         const realMahalleGeo = mahalleGeoCache[mahCacheKey];
 
         if (realMahalleGeo && realMahalleGeo.features && realMahalleGeo.features.length > 0) {
+          const isPointDataset = realMahalleGeo.geometry_mode === 'points' || realMahalleGeo.features.every(f => f.geometry && f.geometry.type === 'Point');
           if (!isSingleMahalleSelected) {
-            // MODE 2: İLÇE SEÇİLİ (Tüm Mahalleler) -> Render REAL admin_level=8 mahalle boundary polygons!
+            // MODE 2: İLÇE SEÇİLİ (Tüm Mahalleler) -> Two-pass matching (exact name first, fallback second)
             const usedSzIndices = new Set();
             const szKeyList = (subzones || []).map((sz, idx) => ({
               idx,
@@ -4320,25 +4364,43 @@
               key: cleanMahalleKey(sz.name)
             }));
 
-            realMahalleGeo.features.forEach(mFeat => {
+            const matchedByFeatIdx = new Array(realMahalleGeo.features.length).fill(null);
+            // Pass 1: exact / partial name match so major mahalles always get their own real polygon/point
+            realMahalleGeo.features.forEach((mFeat, fi) => {
               const mName = mFeat.properties.name || 'Mahalle';
               const mKey = cleanMahalleKey(mName);
-              let matchEntry = szKeyList.find(e => !usedSzIndices.has(e.idx) && e.key && (e.key === mKey || e.key.includes(mKey) || mKey.includes(e.key)));
-              if (!matchEntry) {
-                matchEntry = szKeyList.find(e => !usedSzIndices.has(e.idx));
-              }
-              let szObj;
+              const matchEntry = szKeyList.find(e => !usedSzIndices.has(e.idx) && e.key && mKey && (e.key === mKey || e.key.includes(mKey) || mKey.includes(e.key)));
               if (matchEntry) {
                 usedSzIndices.add(matchEntry.idx);
+                matchedByFeatIdx[fi] = matchEntry;
+              }
+            });
+            // Pass 2: assign any remaining TUIK subzones
+            realMahalleGeo.features.forEach((mFeat, fi) => {
+              if (!matchedByFeatIdx[fi]) {
+                const matchEntry = szKeyList.find(e => !usedSzIndices.has(e.idx));
+                if (matchEntry) {
+                  usedSzIndices.add(matchEntry.idx);
+                  matchedByFeatIdx[fi] = matchEntry;
+                }
+              }
+            });
+
+            realMahalleGeo.features.forEach((mFeat, fi) => {
+              const mName = mFeat.properties.name || 'Mahalle';
+              const matchEntry = matchedByFeatIdx[fi];
+              const boundaryLabel = isPointDataset ? 'Gerçek Konum + Resmi İlçe Sınırı' : 'Gerçek İdari Mahalle Sınırı';
+              let szObj;
+              if (matchEntry) {
                 szObj = Object.assign({}, matchEntry.sz, {
                   name: mName,
-                  parentLabel: `${provVal} / ${selectedDistFeat.properties.name || distVal} (Gerçek Mahalle Sınırı)`
+                  parentLabel: `${provVal} / ${selectedDistFeat.properties.name || distVal} (${boundaryLabel})`
                 });
               } else {
                 const fallbackPop = mFeat.properties.nufus_2025 || 1200;
                 szObj = {
                   name: mName,
-                  parentLabel: `${provVal} / ${selectedDistFeat.properties.name || distVal} (Gerçek Mahalle Sınırı)`,
+                  parentLabel: `${provVal} / ${selectedDistFeat.properties.name || distVal} (${boundaryLabel})`,
                   current_pop: fallbackPop,
                   additional_pop_Gi: Math.round(fallbackPop * 0.08),
                   target_pop_Pi: Math.round(fallbackPop * 1.08),
@@ -4354,13 +4416,28 @@
               });
             });
 
-            // Also draw the official district outer frame
-            L.geoJSON(selectedDistFeat, {
-              style: { color: '#0F172A', weight: 2.2, opacity: 0.9, fillOpacity: 0.0 },
+            // Draw official district boundary frame (subtle fill if settlements are real coordinate points)
+            const distFrame = L.geoJSON(selectedDistFeat, {
+              style: {
+                color: '#0F172A',
+                weight: 2.2,
+                opacity: 0.9,
+                fillColor: '#3B82F6',
+                fillOpacity: isPointDataset ? 0.14 : 0.0
+              },
               interactive: false
             }).addTo(leafletDistrictBoundariesGroup);
+            if (isPointDataset) {
+              try {
+                const db = distFrame.getBounds();
+                if (db && db.isValid()) {
+                  bounds.push([db.getSouthWest().lat, db.getSouthWest().lng]);
+                  bounds.push([db.getNorthEast().lat, db.getNorthEast().lng]);
+                }
+              } catch (e) {}
+            }
           } else {
-            // MODE 3: TEKİL MAHALLE SEÇİLİ -> Render ONLY that single mahalle's REAL administrative boundary polygon!
+            // MODE 3: TEKİL MAHALLE SEÇİLİ -> Render ONLY that single mahalle's REAL administrative boundary polygon/point!
             const dData = (state.adnksData[provVal] && state.adnksData[provVal][distVal]) || null;
             const allMahalles = (dData && dData.subzones && dData.subzones.length > 0) ? dData.subzones : subzones;
             const chosenIdx = Math.max(0, Math.min(allMahalles.length - 1, (parseInt(zoneVal, 10) || 1) - 1));
@@ -4373,6 +4450,20 @@
             });
             if (!matchedMahFeat) {
               matchedMahFeat = realMahalleGeo.features[chosenIdx % realMahalleGeo.features.length];
+            }
+
+            if (isPointDataset || (matchedMahFeat.geometry && matchedMahFeat.geometry.type === 'Point')) {
+              const distFrame = L.geoJSON(selectedDistFeat, {
+                style: { color: '#334155', weight: 1.8, opacity: 0.75, fillColor: '#E2E8F0', fillOpacity: 0.16, dashArray: '4,4' },
+                interactive: false
+              }).addTo(leafletDistrictBoundariesGroup);
+              try {
+                const db = distFrame.getBounds();
+                if (db && db.isValid()) {
+                  bounds.push([db.getSouthWest().lat, db.getSouthWest().lng]);
+                  bounds.push([db.getNorthEast().lat, db.getNorthEast().lng]);
+                }
+              } catch (e) {}
             }
 
             const totCurP = (subzones || []).reduce((a, s) => a + (s.current_pop !== undefined ? s.current_pop : (s.base_pop || 0)), 0);
@@ -4397,14 +4488,17 @@
             });
           }
         } else {
-          // Real mahalle boundaries are being fetched from Overpass / server:
+          // Real mahalle boundaries are not yet in memory:
           // Render the REAL official district polygon immediately (NO fake Voronoi cells!)
           const totCurP = (subzones || []).reduce((a, s) => a + (s.current_pop !== undefined ? s.current_pop : (s.base_pop || 0)), 0);
           const totAddP = (subzones || []).reduce((a, s) => a + (s.additional_pop_Gi || 0), 0);
           const totTgtP = totCurP + totAddP;
+          const isConfirmedEmpty = realMahalleGeo && realMahalleGeo._empty;
           const distSummarySz = {
             name: `${selectedDistFeat.properties.name || distVal} İlçesi`,
-            parentLabel: `${provVal} (⏳ Gerçek Mahalle İdari Sınırları Yükleniyor...)`,
+            parentLabel: isConfirmedEmpty
+              ? `${provVal} (Resmi İlçe Sınırı — Mahalle poligonları açık haritada henüz mevcut değil)`
+              : `${provVal} (⏳ Gerçek Mahalle İdari Sınırları Yükleniyor...)`,
             current_pop: totCurP,
             additional_pop_Gi: totAddP,
             target_pop_Pi: totTgtP,
@@ -4418,21 +4512,36 @@
             geometry: selectedDistFeat.geometry
           });
 
-          // Trigger async fetch of real admin_level=8 mahalle boundaries
-          fetchRealMahalleBoundaries(provVal, distVal, selectedDistFeat).then(loadedGeo => {
-            if (loadedGeo && loadedGeo.features && loadedGeo.features.length > 0) {
-              const curP = document.getElementById("selAdnksProv")?.value;
-              const curD = document.getElementById("selAdnksDist")?.value;
-              if (curP === provVal && curD === distVal && leafletMapInstance) {
-                initLeafletMap(leafletLastSubzones, true);
+          if (!isConfirmedEmpty) {
+            fetchRealMahalleBoundaries(provVal, distVal, selectedDistFeat).then(loadedGeo => {
+              if (loadedGeo) {
+                const curP = document.getElementById("selAdnksProv")?.value;
+                const curD = document.getElementById("selAdnksDist")?.value;
+                if (curP === provVal && curD === distVal && leafletMapInstance) {
+                  initLeafletMap(leafletLastSubzones, !loadedGeo._empty);
+                }
               }
-            }
-          });
+            });
+          }
         }
       }
 
       const fc = { type: 'FeatureCollection', features: featuresToRender };
       const polyLayer = L.geoJSON(fc, {
+        pointToLayer: function(feat, latlng) {
+          const sz = feat.properties.sz;
+          const polyColor = getZoneColor(sz, feat.properties.totalCount);
+          const pop = sz.current_pop || sz.base_pop || 1000;
+          const rad = Math.max(6, Math.min(14, 5 + Math.log10(Math.max(100, pop)) * 1.6));
+          return L.circleMarker(latlng, {
+            radius: rad,
+            color: '#FFFFFF',
+            weight: 1.8,
+            opacity: 0.98,
+            fillColor: polyColor,
+            fillOpacity: 0.88
+          });
+        },
         style: function(feat) {
           const sz = feat.properties.sz;
           const polyColor = getZoneColor(sz, feat.properties.totalCount);
@@ -4448,13 +4557,14 @@
           const sz = feat.properties.sz;
           const polyColor = getZoneColor(sz, feat.properties.totalCount);
           const cardHtml = buildZoneCardHtml(sz, totalGiAll, polyColor);
+          const isPt = feat.geometry && feat.geometry.type === 'Point';
 
           layer.on('mouseover', function(e) {
-            this.setStyle({ weight: 2.8, color: '#0F172A', fillOpacity: 0.90 });
+            this.setStyle({ weight: 2.8, color: '#0F172A', fillOpacity: 0.94 });
             if (this.bringToFront) this.bringToFront();
             if (!this.getTooltip()) {
               this.bindTooltip(cardHtml, {
-                sticky: true,
+                sticky: !isPt,
                 direction: 'auto',
                 offset: [0, -6],
                 className: 'h3-hover-tooltip',
@@ -4464,7 +4574,7 @@
           });
 
           layer.on('mouseout', function() {
-            this.setStyle({ weight: 1.5, color: '#FFFFFF', fillOpacity: 0.72 });
+            this.setStyle({ weight: isPt ? 1.8 : 1.5, color: '#FFFFFF', fillOpacity: isPt ? 0.88 : 0.72 });
           });
 
           layer.bindPopup(cardHtml);
@@ -4475,8 +4585,7 @@
 
       try {
         const b = polyLayer.getBounds();
-        if (b && b.isValid()) {
-          bounds.length = 0;
+        if (b && b.isValid() && bounds.length === 0) {
           bounds.push([b.getSouthWest().lat, b.getSouthWest().lng]);
           bounds.push([b.getNorthEast().lat, b.getNorthEast().lng]);
         }
